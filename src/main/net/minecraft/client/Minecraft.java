@@ -12,6 +12,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import dev.hermes.Hermes;
 import dev.hermes.event.EventManager;
 import dev.hermes.event.events.impl.EventKey;
+import dev.hermes.event.events.impl.EventTick;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.audio.MusicTicker;
@@ -1523,6 +1524,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public void runTick() throws IOException
     {
+        EventManager.call(new EventTick());
+
         if (this.rightClickDelayTimer > 0)
         {
             --this.rightClickDelayTimer;
