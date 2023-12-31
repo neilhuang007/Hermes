@@ -1,8 +1,9 @@
 package dev.hermes;
 
 import dev.hermes.manager.FileManager;
-import dev.hermes.module.ModuleConfig;
 import dev.hermes.manager.ModuleManager;
+import dev.hermes.manager.component.ComponentManager;
+import dev.hermes.module.ModuleConfig;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;
@@ -17,11 +18,14 @@ public class Hermes {
     public static ModuleManager moduleManager = new ModuleManager();
     public static FileManager fileManager = new FileManager();
     public static ModuleConfig moduleConfig = new ModuleConfig();
+    public static ComponentManager componentManager = new ComponentManager();
 
     public static void initHermes() {
         // Init
         Minecraft mc = Minecraft.getMinecraft();
         Display.setTitle(NAME + " " + VERSION + " | " + VERSION_DATE);
+
+        componentManager.init();
 
         moduleManager.registerModules();
         moduleConfig.load(fileManager.getNConfigFile());

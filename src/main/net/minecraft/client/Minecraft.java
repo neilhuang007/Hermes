@@ -10,6 +10,8 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import dev.hermes.Hermes;
+import dev.hermes.event.EventManager;
+import dev.hermes.event.events.impl.EventKey;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.audio.MusicTicker;
@@ -868,7 +870,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     {
         try
         {
-            Hermes.stopHermes();
             this.stream.shutdownStream();
             logger.info("Stopping!");
 
@@ -1250,6 +1251,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public void shutdown()
     {
+        Hermes.stopHermes();
         this.running = false;
     }
 
@@ -1710,6 +1712,11 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 }
 
                 this.dispatchKeypresses();
+
+                if (Keyboard.getEventKeyState() && Minecraft.getMinecraft().currentScreen == null) {
+                    EventKey event = new EventKey(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey());
+                    EventManager.call(event);
+                }
 
                 if (Keyboard.getEventKeyState())
                 {
