@@ -2,10 +2,8 @@ package dev.hermes.module.impl.render;
 
 import dev.hermes.module.Module;
 import dev.hermes.module.ModuleType;
-import dev.hermes.utils.log.LogUtil;
+import dev.hermes.utils.client.log.LogUtil;
 import org.lwjgl.input.Keyboard;
-
-import java.util.logging.Logger;
 
 public class ClickGui extends Module {
 
@@ -22,7 +20,7 @@ public class ClickGui extends Module {
 
     @Override
     public void onEnable() {
-        LogUtil.printlog("ClickGui");
+        LogUtil.printLog("ClickGui");
         super.onEnable();
 
     }

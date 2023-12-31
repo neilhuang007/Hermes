@@ -2,10 +2,12 @@ package dev.hermes.module;
 
 import dev.hermes.Hermes;
 import dev.hermes.event.EventManager;
+import dev.hermes.utils.client.packet.PacketUtils;
 import dev.hermes.value.Value;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.Packet;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -97,5 +99,13 @@ public class Module {
                 .filter(value -> value.getName().equals(name))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void sendPacket(Packet<?> packet) {
+        PacketUtils.sendPacket(packet);
+    }
+
+    public void sendPacketNoEvent(Packet<?> packet) {
+        PacketUtils.sendPacketNoEvent(packet);
     }
 }

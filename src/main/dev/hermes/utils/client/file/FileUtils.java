@@ -1,11 +1,10 @@
-package dev.hermes.utils.file;
+package dev.hermes.utils.client.file;
 
 import dev.hermes.Hermes;
 
 import java.io.*;
 
 public class FileUtils {
-
     public static String readInputStream(InputStream inputStream) {
         StringBuilder stringBuilder = new StringBuilder();
 

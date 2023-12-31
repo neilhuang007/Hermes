@@ -1,6 +1,6 @@
 package dev.hermes.manager;
 
-import dev.hermes.utils.file.FileUtils;
+import dev.hermes.utils.client.file.FileUtils;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 
