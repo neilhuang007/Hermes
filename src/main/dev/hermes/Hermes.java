@@ -2,7 +2,7 @@ package dev.hermes;
 
 import dev.hermes.manager.FileManager;
 import dev.hermes.module.ModuleConfig;
-import dev.hermes.module.ModuleManager;
+import dev.hermes.manager.ModuleManager;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;

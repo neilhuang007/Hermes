@@ -1,11 +1,10 @@
-package dev.hermes.module;
+package dev.hermes.manager;
 
 import dev.hermes.event.EventManager;
+import dev.hermes.module.Module;
 import dev.hermes.module.impl.misc.Test4;
-import dev.hermes.module.impl.movement.Test;
 import dev.hermes.module.impl.player.Test2;
 import dev.hermes.module.impl.render.ClickGui;
-import dev.hermes.module.impl.render.Test3;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
@@ -21,9 +20,7 @@ public class ModuleManager {
     List<Module> moduleList = new ArrayList<>();
 
     public void registerModules() {
-        moduleList.add(new Test());
         moduleList.add(new Test2());
-        moduleList.add(new Test3());
         moduleList.add(new Test4());
         moduleList.add(new ClickGui());
 

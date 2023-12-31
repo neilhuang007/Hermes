@@ -1,4 +1,4 @@
-package dev.hermes.utils.client;
+package dev.hermes.utils.file;
 
 import dev.hermes.Hermes;
 
