@@ -1,6 +1,6 @@
 package dev.hermes.event;
 
-import com.darkmagician6.eventapi.types.Priority;
+import dev.hermes.event.types.Priority;
 
 import java.lang.annotation.*;
 
@@ -9,7 +9,6 @@ import java.lang.annotation.*;
  * The priority of the method is also set with this.
  *
  * @author DarkMagician6
- * @see Priority
  * @since July 30, 2013
  */
 @Documented

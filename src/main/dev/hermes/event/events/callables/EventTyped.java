@@ -1,7 +1,7 @@
 package dev.hermes.event.events.callables;
 
-import com.darkmagician6.eventapi.events.Event;
-import com.darkmagician6.eventapi.events.Typed;
+import dev.hermes.event.events.Event;
+import dev.hermes.event.events.Typed;
 
 /**
  * Abstract example implementation of the Typed interface.
@@ -16,16 +16,12 @@ public abstract class EventTyped implements Event, Typed {
     /**
      * Sets the type of the event when it's called.
      *
-     * @param eventType
-     *         The type ID of the event.
+     * @param eventType The type ID of the event.
      */
     protected EventTyped(byte eventType) {
         type = eventType;
     }
 
-    /**
-     * @see com.darkmagician6.eventapi.events.Typed.getType
-     */
     @Override
     public byte getType() {
         return type;
