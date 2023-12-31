@@ -4,6 +4,7 @@ import dev.hermes.event.EventManager;
 import dev.hermes.module.impl.misc.Test4;
 import dev.hermes.module.impl.movement.Test;
 import dev.hermes.module.impl.player.Test2;
+import dev.hermes.module.impl.render.ClickGui;
 import dev.hermes.module.impl.render.Test3;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -24,6 +25,7 @@ public class ModuleManager {
         moduleList.add(new Test2());
         moduleList.add(new Test3());
         moduleList.add(new Test4());
+        moduleList.add(new ClickGui());
 
         registerModuleByList(moduleList.stream().sorted(Comparator.comparingInt(module -> module.getModuleName().length())).sorted(Comparator.comparingInt(s -> s.getModuleName().charAt(0))).sorted(Comparator.comparingInt(module -> module.getModuleType().ordinal())).collect(Collectors.toList()));
     }
