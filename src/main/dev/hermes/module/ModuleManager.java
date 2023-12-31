@@ -46,6 +46,15 @@ public class ModuleManager {
         return null;
     }
 
+    public final Module getModule(final Class<? extends Module> cls) {
+        for (Module i : modules) {
+            if (i.getClass().equals(cls)) {
+                return i;
+            }
+        }
+        return null;
+    }
+
     public ArrayList<Module> getModules() {
         return modules;
     }
