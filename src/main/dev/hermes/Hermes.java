@@ -1,5 +1,7 @@
 package dev.hermes;
 
+import dev.hermes.manager.FileManager;
+import dev.hermes.module.ModuleConfig;
 import dev.hermes.module.ModuleManager;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
@@ -12,7 +14,9 @@ public class Hermes {
     public final static String VERSION_FULL = "1.0"; // Used to give more detailed build info on beta builds
     public final static String VERSION_DATE = "June 5, 2023";
     public static boolean DEVELOPMENT_SWITCH = true;
-    public static ModuleManager moduleManager;
+    public static ModuleManager moduleManager = new ModuleManager();
+    public static FileManager fileManager = new FileManager();
+    public static ModuleConfig moduleConfig = new ModuleConfig();
 
     public static void initHermes() {
         // Init
@@ -20,7 +24,7 @@ public class Hermes {
         Display.setTitle(NAME + " " + VERSION + " | " + VERSION_DATE);
 
         moduleManager.registerModules();
-        //TODO 差个cfg加载 cfg加载应该在这里 不然优先级会混乱!!!
+        moduleConfig.load(fileManager.getNConfigFile());
         moduleManager.EventRegister();
 
         // Compatibility
@@ -33,5 +37,9 @@ public class Hermes {
         mc.gameSettings.ofSmoothFps = false;
         mc.gameSettings.ofFastMath = false;
 
+    }
+
+    public static void stopHermes() {
+        moduleConfig.save(fileManager.getNConfigFile());
     }
 }

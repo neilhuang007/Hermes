@@ -2,9 +2,14 @@ package dev.hermes.module;
 
 import dev.hermes.Hermes;
 import dev.hermes.event.EventManager;
+import dev.hermes.value.Value;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -68,5 +73,29 @@ public class Module {
                 exception.printStackTrace();
             }
         }
+    }
+
+    public List<Value<?>> getValues() {
+        List<Value<?>> values = new ArrayList<>();
+        Field[] fields = getClass().getDeclaredFields();
+        for (Field field : fields) {
+            if (Value.class.isAssignableFrom(field.getType())) {
+                try {
+                    field.setAccessible(true);
+                    Value<?> value = (Value<?>) field.get(this);
+                    values.add(value);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return values;
+    }
+
+    public Value<?> getValueByName(String name) {
+        return getValues().stream()
+                .filter(value -> value.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 }

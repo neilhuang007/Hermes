@@ -1,7 +1,7 @@
 package dev.hermes.event.events.callables;
 
-import com.darkmagician6.eventapi.events.Cancellable;
-import com.darkmagician6.eventapi.events.Event;
+import dev.hermes.event.events.Cancellable;
+import dev.hermes.event.events.Event;
 
 /**
  * Abstract example implementation of the Cancellable interface.
