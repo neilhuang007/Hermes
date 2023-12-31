@@ -12,7 +12,7 @@
  *
  * @Todo Improve/update the wiki.
  */
-package dev.hermes.eventapi;
+package dev.hermes.event;
 
 /**
  * Main class for the API.

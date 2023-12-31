@@ -1,4 +1,4 @@
-package dev.hermes.eventapi;
+package dev.hermes.event;
 
 import com.darkmagician6.eventapi.types.Priority;
 

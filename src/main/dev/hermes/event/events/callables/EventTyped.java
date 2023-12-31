@@ -1,4 +1,4 @@
-package dev.hermes.eventapi.events.callables;
+package dev.hermes.event.events.callables;
 
 import com.darkmagician6.eventapi.events.Event;
 import com.darkmagician6.eventapi.events.Typed;

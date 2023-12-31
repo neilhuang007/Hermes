@@ -1,4 +1,4 @@
-package dev.hermes.eventapi;
+package dev.hermes.event;
 
 import com.darkmagician6.eventapi.events.Event;
 import com.darkmagician6.eventapi.events.EventStoppable;
@@ -107,7 +107,7 @@ public final class EventManager {
     /**
      * Registers a new MethodData to the HashMap.
      * If the HashMap already contains the key of the Method's first argument it will add
-     * a new MethodData to key's matching list and sorts it based on Priority. @see com.darkmagician6.eventapi.types.Priority
+     * a new MethodData to key's matching list and sorts it based on Priority. @see com.darkmagician6.event.types.Priority
      * Otherwise it will put a new entry in the HashMap with a the first argument's class
      * and a new CopyOnWriteArrayList containing the new MethodData.
      *

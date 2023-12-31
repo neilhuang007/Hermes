@@ -1,4 +1,4 @@
-package dev.hermes.eventapi.events;
+package dev.hermes.event.events;
 
 /**
  * Simple interface which should be implemented in events that can be cancelled.

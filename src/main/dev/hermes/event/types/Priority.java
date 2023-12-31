@@ -1,4 +1,4 @@
-package dev.hermes.eventapi.types;
+package dev.hermes.event.types;
 
 /**
  * The priority for the dispatcher to determine what method should be invoked first.

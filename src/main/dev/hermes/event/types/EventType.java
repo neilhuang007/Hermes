@@ -1,4 +1,4 @@
-package dev.hermes.eventapi.types;
+package dev.hermes.event.types;
 
 /**
  * Types that can be used for typed events.

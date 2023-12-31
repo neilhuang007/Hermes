@@ -1,4 +1,4 @@
-package dev.hermes.eventapi.events;
+package dev.hermes.event.events;
 
 /**
  * The most basic form of an stoppable Event.
