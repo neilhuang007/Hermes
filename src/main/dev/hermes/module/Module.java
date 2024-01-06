@@ -47,6 +47,16 @@ public class Module {
 
     }
 
+    public Module(String moduleName, String description,Catagory catagory,int keybinding) {
+        this.moduleName = moduleName;
+        this.catagory = catagory;
+        this.toggled = false;
+        this.alowdisable = true;
+        this.keybinding = keybinding;
+        this.description = description;
+
+    }
+
     // overall form
 
     public Module(String moduleName, String description, Catagory catagory,boolean allowdisable, boolean toggled, int keybinding) {
