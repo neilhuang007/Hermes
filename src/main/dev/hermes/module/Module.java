@@ -2,6 +2,7 @@ package dev.hermes.module;
 
 import dev.hermes.Hermes;
 import dev.hermes.event.EventManager;
+import dev.hermes.utils.client.log.LogUtil;
 import dev.hermes.utils.client.packet.PacketUtils;
 import dev.hermes.value.Value;
 import lombok.Getter;
@@ -18,35 +19,56 @@ import java.util.List;
 public class Module {
     public Minecraft mc = Minecraft.getMinecraft();
     public String moduleName;
-    public ModuleType moduleType;
+    public Catagory catagory;
+    @Getter
+    public String description;
+    public boolean alowdisable;
     public int keybinding = 0;
     public boolean toggled;
 
-    public Module(String moduleName, ModuleType moduleType) {
+    public Module(String moduleName, Catagory catagory) {
         this.moduleName = moduleName;
-        this.moduleType = moduleType;
+        this.catagory = catagory;
         this.toggled = false;
+        this.alowdisable = true;
+        this.keybinding = 0;
+        this.description = "No Description";
+
     }
 
-    public Module(String moduleName, ModuleType moduleType, int keybinding) {
+    //simplest form
+    public Module(String moduleName, String description,Catagory catagory) {
         this.moduleName = moduleName;
-        this.moduleType = moduleType;
+        this.catagory = catagory;
         this.toggled = false;
-        this.keybinding = keybinding;
+        this.alowdisable = true;
+        this.keybinding = 0;
+        this.description = description;
+
     }
 
-    public Module(String moduleName, ModuleType moduleType, boolean toggled) {
+    // overall form
+
+    public Module(String moduleName, String description, Catagory catagory,boolean allowdisable, boolean toggled, int keybinding) {
         this.moduleName = moduleName;
-        this.moduleType = moduleType;
+        this.catagory = catagory;
         this.toggled = toggled;
+        this.alowdisable = allowdisable;
+        this.keybinding = keybinding;
+        this.description = description;
+
     }
 
-    public Module(String moduleName, ModuleType moduleType, int keybinding, boolean toggled) {
+    public Module(String moduleName, String description,Catagory catagory,boolean toggled) {
         this.moduleName = moduleName;
-        this.moduleType = moduleType;
+        this.catagory = catagory;
         this.toggled = toggled;
-        this.keybinding = keybinding;
+        this.alowdisable = true;
+        this.keybinding = 0;
+        this.description = description;
     }
+
+
 
     public void onInitialize() {
     }
@@ -60,9 +82,13 @@ public class Module {
     public void toggle() {
         try {
             if (toggled) {
-                toggled = false;
-                EventManager.unregister(this);
-                onDisable();
+                if(this.alowdisable == false){
+                    LogUtil.printLog("does not allow disable");
+                }else{
+                    toggled = false;
+                    EventManager.unregister(this);
+                    onDisable();
+                }
             } else {
                 toggled = true;
                 EventManager.register(this);
@@ -99,6 +125,28 @@ public class Module {
                 .filter(value -> value.getName().equals(name))
                 .findFirst()
                 .orElse(null);
+    }
+
+
+    public String getName() {
+        return this.moduleName;
+    }
+
+    public Catagory getCategory() {
+        return this.catagory;
+    }
+
+    public int getBind() {
+        return this.keybinding;
+    }
+
+    public boolean isToggled() {
+        return this.toggled;
+    }
+
+
+    public boolean isallowdisabled() {
+        return this.alowdisable;
     }
 
     public void sendPacket(Packet<?> packet) {

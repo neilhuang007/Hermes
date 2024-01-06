@@ -8,10 +8,7 @@ import dev.hermes.module.impl.render.ClickGui;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ModuleManager {
@@ -24,7 +21,7 @@ public class ModuleManager {
         moduleList.add(new Test4());
         moduleList.add(new ClickGui());
 
-        registerModuleByList(moduleList.stream().sorted(Comparator.comparingInt(module -> module.getModuleName().length())).sorted(Comparator.comparingInt(s -> s.getModuleName().charAt(0))).sorted(Comparator.comparingInt(module -> module.getModuleType().ordinal())).collect(Collectors.toList()));
+        registerModuleByList(moduleList.stream().sorted(Comparator.comparingInt(module -> module.getModuleName().length())).sorted(Comparator.comparingInt(s -> s.getModuleName().charAt(0))).sorted(Comparator.comparingInt(module -> module.getCatagory().ordinal())).collect(Collectors.toList()));
     }
 
     public void registerModule(Module module) {
@@ -52,6 +49,10 @@ public class ModuleManager {
         }
         return null;
     }
+
+    public List<Module> getModuleList() {
+        return moduleList;
+    };
 
     public final Module getModule(final Class<? extends Module> cls) {
         for (Module i : modules) {

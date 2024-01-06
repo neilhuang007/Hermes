@@ -22,6 +22,33 @@ public class FileUtils {
         return stringBuilder.toString();
     }
 
+    public static String readPath(String path) {
+        StringBuilder builder = new StringBuilder();
+
+        InputStream is = null;
+        try {
+            is = FileUtils.class.getResourceAsStream(path);
+            if (is == null) return null;
+
+            int b;
+            while ((b = is.read()) != -1) {
+                builder.append((char) b);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return builder.toString();
+    }
+
     public static void createDir(File file) {
         if (!file.exists()) {
             file.mkdir();

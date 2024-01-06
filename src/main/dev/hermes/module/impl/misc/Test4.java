@@ -1,11 +1,11 @@
 package dev.hermes.module.impl.misc;
 
 import dev.hermes.module.Module;
-import dev.hermes.module.ModuleType;
+import dev.hermes.module.Catagory;
 
 public class Test4 extends Module {
     public Test4() {
-        super("Test 4", ModuleType.Misc);
+        super("Test 4", Catagory.Misc);
     }
 
     @Override

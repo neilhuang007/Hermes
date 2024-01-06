@@ -1,6 +1,6 @@
 package dev.hermes.module;
 
-public enum ModuleType {
+public enum Catagory {
     Combat,
     Movement,
     Render,

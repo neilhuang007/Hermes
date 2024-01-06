@@ -4,9 +4,13 @@ import dev.hermes.manager.FileManager;
 import dev.hermes.manager.ModuleManager;
 import dev.hermes.manager.component.ComponentManager;
 import dev.hermes.module.ModuleConfig;
+import dev.hermes.server.HermesServer;
+import dev.hermes.utils.client.log.LogUtil;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;
+
+import java.io.IOException;
 
 @Getter
 public class Hermes {
@@ -40,6 +44,14 @@ public class Hermes {
         mc.gameSettings.ofSmartAnimations = true;
         mc.gameSettings.ofSmoothFps = false;
         mc.gameSettings.ofFastMath = false;
+
+        // this is the server stuff
+
+        try {
+            HermesServer.start();
+        } catch (IOException e) {
+            LogUtil.printLog("Failed to initialize server");
+        }
 
     }
 

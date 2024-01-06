@@ -1,16 +1,10 @@
 package dev.hermes.module.impl.render;
 
 import dev.hermes.module.Module;
-import dev.hermes.module.ModuleType;
+import dev.hermes.module.Catagory;
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 
 import javax.swing.JFrame;
@@ -30,7 +24,7 @@ public class ClickGui extends Module {
 
 
     public ClickGui() {
-        super("ClickGui", ModuleType.Render);
+        super("ClickGui", Catagory.Render);
     }
 
 
@@ -95,7 +89,7 @@ public class ClickGui extends Module {
     }
 
     private static void loadHTMLContent(WebView webView) {
-        URL htmlUrl = ClickGui.class.getClassLoader().getResource("dev/hermes/ui/index.html");
+        URL htmlUrl = ClickGui.class.getClassLoader().getResource("assets/hermes/ui/ui/index.html");
         if (htmlUrl != null) {
             webView.getEngine().load(htmlUrl.toExternalForm());
         } else {
