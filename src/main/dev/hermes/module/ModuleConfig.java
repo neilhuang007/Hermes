@@ -3,9 +3,9 @@ package dev.hermes.module;
 import dev.hermes.Hermes;
 import dev.hermes.value.Value;
 import dev.hermes.value.impl.BoolValue;
-import dev.hermes.value.impl.FloatValue;
-import dev.hermes.value.impl.IntValue;
+import dev.hermes.value.impl.NumberValue;
 import dev.hermes.value.impl.ListValue;
+import dev.hermes.value.impl.StringValue;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -109,11 +109,11 @@ public class ModuleConfig {
                             if (set instanceof ListValue) {
                                 ((ListValue) set).set(args[3]);
                             }
-                            if (set instanceof FloatValue) {
-                                ((FloatValue) set).set(Float.parseFloat(args[3]));
+                            if (set instanceof NumberValue) {
+                                ((NumberValue) set).set(Float.parseFloat(args[3]));
                             }
-                            if (set instanceof IntValue) {
-                                ((IntValue) set).set(Integer.parseInt(args[3]));
+                            if (set instanceof StringValue) {
+                                ((StringValue) set).set((String) args[3]);
                             }
                         }
                     }

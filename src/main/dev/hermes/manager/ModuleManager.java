@@ -1,10 +1,12 @@
 package dev.hermes.manager;
 
+import dev.hermes.Hermes;
 import dev.hermes.event.EventManager;
 import dev.hermes.module.Module;
 import dev.hermes.module.impl.misc.Test4;
 import dev.hermes.module.impl.player.Test2;
 import dev.hermes.module.impl.render.ClickGui;
+import lombok.Getter;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
@@ -13,7 +15,9 @@ import java.util.stream.Collectors;
 
 public class ModuleManager {
     public MultiValuedMap<Integer, Module> keyBinds = new ArrayListValuedHashMap<>();
+    @Getter
     ArrayList<Module> modules = new ArrayList<>();
+    @Getter
     List<Module> moduleList = new ArrayList<>();
 
     public void registerModules() {
@@ -50,9 +54,7 @@ public class ModuleManager {
         return null;
     }
 
-    public List<Module> getModuleList() {
-        return moduleList;
-    };
+
 
     public final Module getModule(final Class<? extends Module> cls) {
         for (Module i : modules) {
@@ -63,8 +65,10 @@ public class ModuleManager {
         return null;
     }
 
-    public ArrayList<Module> getModules() {
-        return modules;
+    public List<Module> getModules(String category) {
+        return moduleList.stream()
+                .filter(module -> module.getCatagory().equals(category))
+                .collect(Collectors.toList());
     }
 
     public void setKeybind(Module module, int key) {

@@ -1,12 +1,15 @@
 package dev.hermes.value.impl;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import dev.hermes.value.Function0;
 import dev.hermes.value.Value;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ListValue extends Value<String> {
     @Getter
@@ -48,6 +51,14 @@ public class ListValue extends Value<String> {
         if (element.isJsonPrimitive()) {
             changeValue(element.getAsString());
         }
+    }
+
+    public JsonArray getValues() {
+        JsonArray jsonArray = new JsonArray();
+        for (String value : values) {
+            jsonArray.add(new JsonPrimitive(value));
+        }
+        return jsonArray;
     }
 
     public boolean isMode(String string) {

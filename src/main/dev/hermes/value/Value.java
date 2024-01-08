@@ -12,6 +12,10 @@ public abstract class Value<T> {
     private T value;
     private Function0<Boolean> displayable;
 
+    private T minvalue;
+
+    private T maxvalue;
+
     public Value(String name, T value, Function0<Boolean> displayable) {
         this.name = name;
         this.value = value;
