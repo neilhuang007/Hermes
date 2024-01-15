@@ -7,14 +7,13 @@ import dev.hermes.event.EventTarget;
 import dev.hermes.event.events.impl.EventKey;
 import dev.hermes.module.Module;
 import dev.hermes.module.api.Category;
+import dev.hermes.module.impl.render.ClickGui;
 import dev.hermes.utils.client.log.LogUtil;
 import dev.hermes.utils.interfaces.InstanceAccess;
 import dev.hermes.utils.localization.Localization;
-import org.lwjgl.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -23,21 +22,18 @@ import java.util.stream.Collectors;
  */
 public final class ModuleManager extends ArrayList<Module> implements InstanceAccess {
 
+
+    public static List<Module> modules = new ArrayList<>();;
     /**
      * Called on client start and when for some reason when we reinitialize (idk custom modules?)
      */
     public void init() {
-//        final Reflections reflections = new Reflections("com.riseclient.razor.module.impl");
-//
-//        reflections.getSubTypesOf(Module.class).forEach(clazz -> {
-//            try {
-//                if (!Modifier.isAbstract(clazz.getModifiers()) && clazz != Interface.class && (clazz != Test.class || Razer.DEVELOPMENT_SWITCH)) {
-//                    this.add(clazz.newInstance());
-//                }
-//            } catch (final Exception e) {
-//                e.printStackTrace();
-//            }
-//        });
+
+        modules.add(new ClickGui());
+
+        for (Module module : modules) {
+            add(module);
+        };
 
         // Automatic initializations
         this.stream().filter(module -> module.getModuleInfo().autoEnabled()).forEach(module -> module.setEnabled(true));

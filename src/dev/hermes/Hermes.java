@@ -1,10 +1,7 @@
 package dev.hermes;
 
-import dev.hermes.api.Hidden;
-import dev.hermes.module.Module;
 import dev.hermes.module.api.manager.ModuleManager;
 import dev.hermes.server.HermesServer;
-import dev.hermes.utils.ReflectionUtil;
 import dev.hermes.utils.client.log.LogUtil;
 import dev.hermes.utils.file.FileManager;
 import dev.hermes.utils.file.FileType;
@@ -19,7 +16,6 @@ import org.lwjgl.opengl.Display;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 @Getter
 public class Hermes {
@@ -72,35 +68,7 @@ public class Hermes {
         }
 
 
-        // Register
-        String[] paths = {
-                "dev.hermes"
-        };
 
-        for (String path : paths) {
-            if (!ReflectionUtil.dirExist(path)) {
-                continue;
-            }
-
-            Class<?>[] classes = ReflectionUtil.getClassesInPackage(path);
-
-            for (Class<?> clazz : classes) {
-                try {
-                    if (clazz.isAnnotationPresent(Hidden.class)) continue;
-
-                    if (Module.class.isAssignableFrom(clazz) && clazz != Module.class) {
-                        moduleManager.add((Module) clazz.getConstructor().newInstance());
-                    }
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                         NoSuchMethodException exception) {
-                    exception.printStackTrace();
-                    LogUtil.printLog("Error loading class: " + clazz.getName());
-                }
-            }
-
-
-            break;
-        }
 
         // read config
         final File file = new File(ConfigManager.CONFIG_DIRECTORY, "latest.json");
