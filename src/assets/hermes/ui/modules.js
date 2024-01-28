@@ -13,9 +13,6 @@ function addModule(module) {
 
     const titleElement = document.createElement('h2');
     titleElement.textContent = module.name;
-    titleElement.addEventListener('click', function() {
-        toggleModuleState(module.name, module.enabled);
-    });
     moduleContent.appendChild(titleElement);
 
     const descriptionElement = document.createElement('p');
@@ -42,29 +39,18 @@ function addModule(module) {
         toggleModuleSettings(settingsContainer, module, titleElement, descriptionElement, toggleButton);
     });
 
-    // Create a toggle button (initially 'Settings')
     const ModuletoggleButton = document.createElement('a');
     ModuletoggleButton.setAttribute('href', '#');
-    if(module.enabled){
-        ModuletoggleButton.textContent = 'UnToggle';
-    }else{
-        ModuletoggleButton.textContent = 'Toggle';
-    }
-
+    ModuletoggleButton.textContent = module.enabled ? 'Toggle' : 'UnToggle';
     ModuletoggleButton.style.marginLeft = '10px';
+
     ModuletoggleButton.addEventListener('click', function(event) {
         event.preventDefault();
-        if(module.enabled){
-            toggleModuleState(module.name,false)
-            ModuletoggleButton.textContent = 'Toggle';
-        }else{
-            toggleModuleState(module.name,true)
-            ModuletoggleButton.textContent = 'UnToggle';
-        }
+        toggleModuleState(module.name, !module.enabled);
+        module.enabled = !module.enabled; // Update module.enabled property
+        ModuletoggleButton.textContent = module.enabled ? 'UnToggle' : 'Toggle';
+        updateModuleUI(moduleElement, module.name, module.enabled); // Optional: Refresh module UI
     });
-
-
-
 
     moduleContent.appendChild(toggleButton);
     moduleContent.appendChild(ModuletoggleButton);
@@ -640,14 +626,3 @@ function updateModuleUI(moduleElement, moduleName, isEnabled) {
     }
 }
 
-
-document.querySelectorAll('.module').forEach(moduleElement => {
-    const moduleName = moduleElement.dataset.moduleName; // Assuming module name is stored in data attribute
-    let isEnabled = moduleElement.dataset.isEnabled === 'true'; // Convert string to boolean
-
-    moduleElement.querySelector('h2').addEventListener('click', async () => {
-        isEnabled = await toggleModuleState(moduleName, isEnabled); // Toggle state and get new state
-        updateModuleUI(moduleElement, moduleName, isEnabled); // Update UI
-        moduleElement.dataset.isEnabled = isEnabled; // Update data attribute
-    });
-});
