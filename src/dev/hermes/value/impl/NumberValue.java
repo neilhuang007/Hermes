@@ -48,6 +48,15 @@ public class NumberValue extends Value<Number> {
         this.max = max;
     }
 
+    public NumberValue(final String name, final Module parent, final Number defaultValue,
+                       final Number min, final Number max, final Number decimalPlaces) {
+        super(name, parent, defaultValue);
+        this.decimalPlaces = decimalPlaces;
+
+        this.min = min;
+        this.max = max;
+    }
+
     public NumberValue(final String name, final Mode<?> parent, final Number defaultValue,
                        final Number min, final Number max, final Number decimalPlaces, final BooleanSupplier hideIf) {
         super(name, parent, defaultValue, hideIf);

@@ -1,16 +1,14 @@
 package dev.hermes.module.api.manager;
 
 
-import dev.hermes.Hermes;
 import dev.hermes.event.EventManager;
 import dev.hermes.event.EventTarget;
 import dev.hermes.event.events.impl.EventKey;
 import dev.hermes.module.Module;
 import dev.hermes.module.api.Category;
+import dev.hermes.module.impl.combat.KillAura;
 import dev.hermes.module.impl.render.ClickGui;
-import dev.hermes.utils.client.log.LogUtil;
 import dev.hermes.utils.interfaces.InstanceAccess;
-import dev.hermes.utils.localization.Localization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +28,7 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
     public void init() {
 
         modules.add(new ClickGui());
+        modules.add(new KillAura());
 
         for (Module module : modules) {
             add(module);
@@ -48,8 +47,8 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
 
     public <T extends Module> T get(final String name) {
         // noinspection unchecked
-        return (T) this.stream()
-                .filter(module -> Localization.get(module.getDisplayName()).replace(" ", "").equalsIgnoreCase(name.replace(" ", "")))
+        return (T) modules.stream()
+                .filter(module -> module.getDisplayName().equalsIgnoreCase(name.replace(" ", "")))
                 .findAny().orElse(null);
     }
 
@@ -69,13 +68,9 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
     @EventTarget
     public void onKey(EventKey key) {
 
-        LogUtil.printLog("KEY EVENT");
         if (mc.currentScreen != null) {
             return;
         }
-
-        LogUtil.printLog(Hermes.moduleManager.getAll().toString());
-
 
         this.stream()
                 .filter(module -> module.getModuleInfo().keyBind() == key.getKey())

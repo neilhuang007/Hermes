@@ -1,6 +1,8 @@
 package dev.hermes.value.impl;
 
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
 import dev.hermes.module.Module;
 import dev.hermes.value.Mode;
 import dev.hermes.value.Value;
@@ -78,5 +80,14 @@ public class ModeValue extends ListValue<Mode<?>> {
         }
 
         return allValues;
+    }
+
+    // New method to get all sub-values as a JSON array
+    public JsonArray getAllSubValuesAsJson() {
+        JsonArray allSubValuesJson = new JsonArray();
+        for (Mode<?> mode : getModes()) {
+            allSubValuesJson.add(new JsonPrimitive(mode.getName()));
+        }
+        return allSubValuesJson;
     }
 }

@@ -23,11 +23,11 @@ public class ModulesHttpHandler implements HttpHandler {
 
         // Iterate through modules and add relevant information to the response
         for (Module module : Hermes.moduleManager.getAll()) {
-            if (module.getModuleInfo().category().name().equals(category)) {
+            if (module.getModuleInfo().category().toString().toLowerCase().equals(category.toLowerCase())) {
                 JsonObject moduleJson = new JsonObject();
                 moduleJson.addProperty("name", module.getDisplayName());
                 moduleJson.addProperty("description", module.getModuleInfo().description());
-
+                moduleJson.addProperty("Enabled",module.isEnabled());
                 // Add more properties as needed
 
                 response.add(module.getDisplayName(), moduleJson);

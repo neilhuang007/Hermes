@@ -1,11 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
     display: flex;
-    background: linear-gradient(125deg, rgba(52, 152, 219, 0.65), rgba(46, 204, 113, 0.65), rgba(52, 152, 219, 0.65), rgba(46, 204, 113, 0.5), #3498db, #2ecc71, #3498db, #8e44ad);
-    background-size: 500%;
-    animation: bgAnimation 45s linear infinite;
+
+    background-color: #222;
+
+    /*background: linear-gradient(125deg, rgba(52, 152, 219, 0.65), rgba(46, 204, 113, 0.65), rgba(52, 152, 219, 0.65), rgba(46, 204, 113, 0.5), #3498db, #2ecc71, #3498db, #8e44ad);*/
+    /*background-size: 500%;*/
+    /*animation: bgAnimation 45s linear infinite;*/
 }
 
 * {
@@ -59,6 +64,7 @@ body {
 .btn-item:nth-child(3) {
     background: #62cb44;
 }
+
 
 .client_icon {
     width: 250px;
@@ -229,61 +235,623 @@ body {
     align-items: flex-start;
     flex-wrap: wrap;
     width: fit-content;
+    gap: 20px; /* Space between modules */
+    padding: 20px; /* Padding around the container */
+    box-sizing: border-box; /* Include padding in the calculation */
+
 }
+
+/*module*/
 
 .module {
     position: relative;
-    width: 400px;
-    min-height: 250px;
-    background: rgb(255, 255, 255, 0.1);
-    border-radius: 10px;
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    backdrop-filter: blur(5px);
-    box-shadow: 0 25px 45px rgb(0, 0, 0, 0.1);
-    border: 1px solid rgb(255, 255, 255, 0.5);
-    border-right: 1px solid rgb(255, 255, 255, 0.2);
-    border-bottom: 1px solid rgb(255, 255, 255, 0.2);
-    margin: 7px;
+    min-width: 320px; /* Width can remain fixed or be made responsive */
+    justify-content: center;
+    align-items: center;
+    transition: 0.5s;
+    flex: 1 1 auto; /* This allows the module to grow and shrink based on content */
+    box-sizing: border-box; /* Include padding and borders in the calculation */
+    margin: 40px 30px 20px;
+    /* Remove the fixed height */
+    /* height: 400px; */ /* Comment out or remove this line */
 }
 
-.name {
-    display: block;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    padding: 40px;
-}
 
-.name h2 {
+.module_content{
     position: relative;
+    left: 0;
+    padding: 20px 40px;
     color: #fff;
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    margin-bottom: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 1;
+    transition: 0.5s;
+}
 
-    /* Styles for ::before pseudo-element */
-    &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        bottom: -10px;
-        width: 80px;
-        height: 4px;
-        background: #fff;
+.module_content h2{
+    font-size: 2em;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.module_content p{
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    line-height: 1.4em;
+}
+
+.module_content a{
+    display: inline-block;
+    font-size: 1.1em;
+    color: #111;
+    background: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 700;
+    margin-top: 5px;
+    transition: 0.6s;
+}
+
+.module:hover .module_content{
+    left: -25px;
+    padding: 60px 40px;
+}
+
+.module_content a:hover{
+    background: #222;
+    color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 15px #222;
+}
+
+.module::before{
+    content: "";
+    position: absolute;
+    background: #fff;
+    top: 0;
+    left: 50px;
+    width: 50%;
+    height: 100%;
+    text-decoration: none;
+    border-radius: 8px;
+    transform: skewX(15deg);
+    transition: 0.5s;
+}
+
+.module::after {
+    content: "";
+    position: absolute;
+    top: -10px; /* Adjust as necessary */
+    right: -10px; /* Adjust as necessary */
+    bottom: -20px; /* Increased value to make the element taller */
+    left: 50px; /* Adjust as necessary */
+    width: 50%;
+    background: linear-gradient(315deg, #4dff03, #00d0ff); /* Example gradient */
+    border-radius: 8px;
+    z-index: -1; /* Place it behind the content */
+    transform: skewX(15deg);
+    transition: 0.5s;
+}
+
+.module:hover::before,
+.module:hover::after{
+    transform: skewX(0deg);
+    left: 20px;
+    width: calc(100% - 90px);
+}
+
+.module:nth-child(1)::before,
+.module:nth-child(1)::after{
+    background: linear-gradient(315deg, #ffbc00, #ff0058);
+}
+
+.module:nth-child(2):before,
+.module:nth-child(2):after{
+    background: linear-gradient(315deg, #03a9f4, #ff0058);
+}
+
+.module:nth-child(3):before,
+.module:nth-child(3):after{
+    background: linear-gradient(315deg, #4dff03, #00d0ff);
+}
+
+.module span{
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/*.module span::before{*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    background: rgba(255, 255, 255, 0.1);*/
+/*    top: 0;*/
+/*    left: 0;*/
+/*    width: 0;*/
+/*    height: 0;*/
+/*    opacity: 0;*/
+/*    transition: 0.3s;*/
+/*    backdrop-filter: blur(10px);*/
+/*    border-radius: 8px;*/
+/*    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);*/
+/*    animation: animate 2s ease-in-out infinite;*/
+/*}*/
+
+/*.module span::after{*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    bottom: 0;*/
+/*    right: 0;*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    background: rgba(255, 255, 255, 0.1);*/
+/*    opacity: 0;*/
+/*    transition: 0.5s;*/
+/*    backdrop-filter: blur(10px);*/
+/*    border-radius: 8px;*/
+/*    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);*/
+/*    animation: animate 2s ease-in-out infinite;*/
+/*    animation-delay: -1s;*/
+/*}*/
+
+
+
+.module:hover span::before{
+    opacity: 1;
+    top: -50px;
+    left: 50px;
+    width: 100px;
+    height: 100px;
+}
+
+
+
+.module:hover span::after{
+    bottom: -50px;
+    right: 50px;
+    width: 100px;
+    height: 100px;
+    opacity: 1;
+}
+
+@keyframes animate {
+    0%,
+    100%{
+        transform: translateY(10px);
+    }
+    50%{
+        transform: translate(-10px);
     }
 }
 
-.name .description{
-    text-align: justify;
-    position: relative;
-    color: #fff;
-    font-size: 16px;
-    letter-spacing: 1px;
+.se
+
+/* settings */
+
+
+
+.settings-container {
+    display: none; /* Initially hidden */
+    position: absolute; /* Position over the module container */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    color: white;
+    padding: 20px;
+    z-index: 10; /* Ensure it's above other content */
+    /* ... other styles ... */
 }
 
+.settings-container h2 {
+    margin-bottom: 20px;
+    align-self: flex-start; /* Align module name to the top-left */
+}
+
+#backButton {
+    align-self: flex-end; /* Position the back button at the bottom */
+    cursor: pointer;
+    padding: 10px 20px; /* Adjust padding as needed */
+    margin-top: 20px; /* Space above the back button */
+    background-color: #ffbc00; /* Example button color */
+    border: none;
+    border-radius: 5px;
+    color: black;
+    font-size: 1em;
+}
+
+.settings_content{
+    margin-bottom: 20px;
+}
+
+.setting{
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+
+/* boolean toggle box*/
+/* Boolean toggle box */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px; /* Width of the switch */
+    height: 25px; /* Height of the switch */
+    cursor: pointer;
+}
+
+.toggle-switch input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-switch-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 2px #ccc;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.toggle-switch-handle {
+    position: absolute;
+    top: 50%;
+    left: 3.1px; /* Initial position to the left */
+    transform: translateY(-52%); /* Center vertically */
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.85); /* Red border added */
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out;
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-switch-background .toggle-switch-handle {
+    transform: translateX(24px) translateY(-52%); /* Move to the right and keep centered */
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-switch-background {
+    background-color: rgba(255, 255, 255, 0.55); /* Optional: Change background color when checked */
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-switch::before {
+    content: "On";
+    position: absolute;
+    right: -30px;
+    top: -20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px #fff;
+    transition: color 0.3s ease-in-out;
+}
+
+/* range sliders */
+
+/* Additional styles for range slider settings */
+.setting.range-slider-setting {
+    flex-direction: column; /* Stack elements vertically */
+    align-items: flex-start; /* Align items to the left */
+}
+
+.setting.range-slider-setting .setting-name {
+    font-size: 1em;
+    color: #fff; /* White color for the name */
+    margin-bottom: 10px; /* Space below the name */
+}
+
+.rangevalue_wrapper {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    place-items: center;
+}
+
+.container {
+    position: relative; /* instead of position: static */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    height: auto;
+}
+
+.container input[type="number"] {
+    width: 25px; /* Reduced width */
+    height: 30px; /* Unchanged height */
+    font-size: 15px; /* Unchanged font size */
+    font-weight: 700;
+    text-align: center;
+    border-radius: 5px;
+    color: #fff; /* White text color */
+    background: transparent; /* Transparent background */
+    border: none; /* Remove border */
+}
+.container input[type="number"]::-webkit-outer-spin-button,
+.container input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.container .range-slider {
+    position: relative;
+    min-width: 250px; /* Reduced width */
+    height: 5px; /* Unchanged height */
+    background: #ddd;
+    outline: none;
+    top: 1px;
+    margin: 10px; /* Unchanged margin */
+}
+
+.container .range-slider .progress {
+    position: absolute;
+    left: 25%;
+    right: 25%;
+    height: 100%;
+    background: #17a288;
+    border-radius: 50px; /* Unchanged border-radius */
+}
+
+.container .range-slider input[type="range"] {
+    position: absolute;
+    top: -6px; /* Unchanged top position */
+    width: 101%;
+    -webkit-appearance: none;
+    pointer-events: none;
+    background: none;
+    outline: none;
+}
+
+.container .range-slider input::-webkit-slider-thumb {
+    pointer-events: auto;
+    -webkit-appearance: none;
+    width: 17px; /* Unchanged width */
+    height: 17px; /* Unchanged height */
+    background: #17a288;
+    border-radius: 50px; /* Unchanged border-radius */
+}
+
+/* Input Settings Styles */
+/* Style for the input box and its focus indicator */
+.form-control {
+    position: relative;
+    --width-of-input: 300px; /* Adjust the width as needed */
+    margin-bottom: 10px; /* Space below each setting */
+}
+
+.input {
+    color: #fff;
+    font-size: 0.9rem;
+    background-color: transparent;
+    width: 100%;
+    padding-inline: 0.5em;
+    padding-block: 0.7em;
+    border: none;
+    border-bottom: 2px solid white; /* Initial white border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.input:focus {
+    outline: none;
+    border-bottom: 2px solid transparent; /* Make border transparent on focus */
+}
+
+/* The focus indicator div */
+.input-focus-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0%; /* Start with 0 width initially */
+    background-image: linear-gradient(90deg, #FF6464 0%, #FFBF59 50%, #47C9FF 100%);
+    transition: width 0.4s ease-in-out; /* Transition for expanding the rainbow line */
+}
+
+/* Style changes when input is focused */
+.input:focus + .input-focus-indicator {
+    width: 100%; /* Expand rainbow line to full width on focus */
+}
+
+/* radio button */
+.radio-button {
+    position: relative;
+    display: flex;
+    align-items: center; /* Align items vertically in the center */
+    cursor: pointer;
+    margin: 15px;
+}
+
+.radio-button__input {
+
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.radio-button__label {
+    display: flex;
+    align-items: center; /* Align label text vertically */
+    padding-left: 30px; /* Space for the custom radio button */
+    font-size: 15px;
+    color: #f2f2f2;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.radio-button__custom {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #555;
+    transition: all 0.3s ease;
+    margin-right: 10px; /* Space between the custom radio button and the label text */
+}
+
+/* Rest of the styles remain the same */
+
+
+.radio-button__input:checked + .radio-button__label .radio-button__custom {
+    background-color: #4c8bf5;
+    border-color: transparent;
+    box-shadow: 0 0 20px #4c8bf580;
+}
+
+.radio-button__input:checked + .radio-button__label {
+    color: #4c8bf5;
+}
+
+.radio-button__label:hover .radio-button__custom {
+    transform: scale(1.05) translateY(-10%);
+    border-color:#4c8bf5;
+    box-shadow: 0 0 20px #4c8bf580;
+}
+
+/* Slider Wrapper Styles */
+.slider-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Adjust width as needed */
+    padding: 10px;
+}
+
+/* Slider Specific Styles */
+/* ... existing styles ... */
+
+.setting {
+    margin-bottom: 20px;
+}
+
+.setting .field {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.setting .field input[type="range"] {
+    margin-left: 20px;
+    -webkit-appearance: none;
+    width: 270px;
+    height: 3px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    border: none;
+}
+
+.setting .field input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #664AFF;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.setting .field .progress-bar {
+    position: absolute;
+    background: #664AFF;
+    height: 3px;
+    width: 0%;
+    left: 0;
+    border-radius: 5px;
+    z-index: 2;
+}
+
+.setting .field .sliderValue {
+    position: absolute;
+    top: -55px; /* Adjust as needed */
+    width: 45px; /* Width of the indicator */
+    height: 45px; /* Height of the indicator */
+    line-height: 45px; /* Aligns text vertically */
+    color: #fff; /* Text color */
+    background: #664AFF; /* Background color */
+    border: 3px solid #fff; /* Border properties */
+    display: flex; /* Enables Flexbox */
+    justify-content: center; /* Centers content horizontally */
+    align-items: center; /* Centers content vertically */
+    transform: scale(0); /* Initial transform */
+    transition: transform 0.3s ease-in-out; /* Transition for scaling */
+    z-index: 2; /* Ensures it's above other elements */
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+
+}
+
+.setting .field .sliderValue.show {
+    transform: scale(1); /* Scales up when active */
+}
+
+
+
+
+.setting .field .value {
+    position: absolute;
+    font-size: 18px;
+    color: #664AFF;
+    font-weight: 600;
+}
+
+.setting .field .value.left {
+    left: 0px; /* Adjust position to the left */
+    margin-right: 10px;
+}
+
+.setting .field .value.right {
+    right: -15px; /* Adjust position to the right */
+}
+
+/*mode setting */
+
+.setting.mode-setting {
+    display: flex;
+    align-items: center; /* Aligns items vertically in the center */
+    position: relative;
+    margin-bottom: 10px; /* Space between each setting */
+}
+
+.setting.mode-setting .mode-name {
+    margin-right: 10px; /* Space between the name and the value */
+}
+
+.setting.mode-setting .mode-control {
+    display: flex;
+    align-items: center;
+}
+
+.setting.mode-setting .arrow {
+    cursor: pointer;
+    padding: 5px;
+    user-select: none;
+}
+
+.setting.mode-setting .mode-value {
+    margin: 0 10px;
+}
+
+
+
+
+/* bg animation */
 @keyframes bgAnimation {
     0% {
         background-position: 0% 50%;

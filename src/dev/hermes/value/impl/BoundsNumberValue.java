@@ -24,6 +24,20 @@ public class BoundsNumberValue extends Value<Number> {
     private final Number decimalPlaces;
     private Number secondValue;
 
+    private String suffix = "";
+
+    public BoundsNumberValue(final String name, final Module parent,
+                             final Number defaultValue, final Number defaultSecondValue,
+                             final Number min, final Number max, final Number step,final String suffix) {
+        super(name, parent, defaultValue);
+        this.decimalPlaces = step;
+
+        this.min = min;
+        this.max = max;
+        this.secondValue = defaultSecondValue;
+        this.suffix = suffix;
+    }
+
     public BoundsNumberValue(final String name, final Module parent,
                              final Number defaultValue, final Number defaultSecondValue,
                              final Number min, final Number max, final Number step) {
@@ -33,6 +47,7 @@ public class BoundsNumberValue extends Value<Number> {
         this.min = min;
         this.max = max;
         this.secondValue = defaultSecondValue;
+        this.suffix = suffix;
     }
 
     public BoundsNumberValue(final String name, final Mode<?> parent,

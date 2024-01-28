@@ -13,10 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
-/**
- * @author Strikeless
- * @since 01.07.2022
- */
 @Getter
 public class ListValue<T> extends Value<T> {
 
@@ -62,12 +58,17 @@ public class ListValue<T> extends Value<T> {
         return null;
     }
 
-    public JsonArray getValuesAsJsonArray() {
-        JsonArray jsonArray = new JsonArray();
-        for (T value : modes) {
-            // Assuming that T is a type that can be converted to a JsonPrimitive
-            jsonArray.add(new JsonPrimitive(value.toString()));
+
+    // Method to get all mode names as a JSON array
+    public JsonArray getSubValuesAsJson() {
+        JsonArray subValues = new JsonArray();
+
+        for (T mode : modes) {
+            // Assuming mode.toString() returns the name of the mode
+            subValues.add(new JsonPrimitive(mode.toString()));
         }
-        return jsonArray;
+
+        return subValues;
     }
+
 }

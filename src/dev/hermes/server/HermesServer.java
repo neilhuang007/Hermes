@@ -15,31 +15,25 @@ public class HermesServer {
 
     public static void start() throws IOException {
 
-
-
-
         server = HttpServer.create(new InetSocketAddress("localhost", 1342), 0);
         server.createContext("/", new HtmlHttpHandler());
         server.createContext("/api/modulesList", new ModulesHttpHandler());
 //        server.createContext("/api/setStatus", new StatusHttpHandler());
-//        server.createContext("/api/updateModulesInfo", new ModuleInfoHttpHandler());
+        server.createContext("/api/updateModulesInfo", new ModuleInfoHttpHandler());
 //        server.createContext("/api/categoriesList", new CategoriesHttpHandler());
         server.createContext("/api/getModuleSetting", new ModuleSettingsHttpHandler());
-//        server.createContext("/api/setModuleSettingValue", new SetSettingHttpHandler());
+        server.createContext("/api/setModuleSettingValue", new SetModuleSettingsHttpHandler());
 //        server.createContext("/api/setBind", new BindHttpHandler());
         server.setExecutor(Executors.newFixedThreadPool(10));
 
         server.start();
-        LogUtil.printLog("Server started on port 8080");
+        LogUtil.printLog("Server started on port 1342");
     }
 
     public static void stop() {
         server.stop(0);
     }
 
-    public static void main(String[] args) throws IOException {
-        start();
-    }
 
 
 }

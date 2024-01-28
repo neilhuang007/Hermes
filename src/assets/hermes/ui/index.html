@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>ClickGui</title>
-
     <link rel="stylesheet" href="./style.css">
-
-    <!--    <script src="./modules.js"></script>-->
-    <script src="modules.js"></script>
+    <script src="./modules.js"></script>
 </head>
-
 
 <body>
 
@@ -37,13 +34,13 @@
             <div class="catagory">
                 <div class="light"></div>
                 <div class="catagory_icon"><img src="imgs/combat.png"></div>
-                <div class="catagory_name">combat</div>
+                <div class="catagory_name">Combat</div>
                 <div class="ricon"></div>
             </div>
             <div class="catagory">
                 <div class="light"></div>
                 <div class="catagory_icon"><img src="imgs/movement.png"></div>
-                <div class="catagory_name">movement</div>
+                <div class="catagory_name">Movement</div>
                 <div class="ricon"></div>
             </div>
             <div class="catagory">
@@ -75,7 +72,7 @@
                 <div class="catagory_icon">
                     <img src="imgs/misc.png">
                 </div>
-                <div class="catagory_name">misc</div>
+                <div class="catagory_name">Misc</div>
                 <div class="ricon"></div>
             </div>
         </div>
@@ -115,12 +112,21 @@
 <div class="module_container">
 
     <div class="module">
-        <div class="name">
-            <h2>Example Module</h2>
-            <div class="description">example description</div>
+        <span></span>
+        <div class="module_content">
+            <h2>ExampleModule</h2>
+            <p>this is an example module </p>
+            <a href="#">Settings</a>
+            <!-- Settings Page, initially hidden -->
+            <div id="settingsPage" class="settings-container" style="display: none;">
+                <button id="backButton">Back</button>
+                <h2 id="settingsTitle">Settings Page</h2>
+                <!-- Additional settings content can be added here -->
+            </div>
         </div>
     </div>
 </div>
 
 </body>
 </html>
+

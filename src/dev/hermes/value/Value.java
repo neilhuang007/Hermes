@@ -18,10 +18,12 @@ import java.util.function.Consumer;
 @Setter
 public abstract class Value<T> {
 
+    @Getter
     private final String name;
 
     public BooleanSupplier hideIf;
 
+    @Getter
     private T value;
     private boolean visible;
     private Module parent;

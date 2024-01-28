@@ -8,10 +8,7 @@ import dev.hermes.Hermes;
 import dev.hermes.module.Module;
 import dev.hermes.utils.url.URLUtil;
 import dev.hermes.value.Value;
-import dev.hermes.value.impl.BooleanValue;
-import dev.hermes.value.impl.ListValue;
-import dev.hermes.value.impl.NumberValue;
-import dev.hermes.value.impl.StringValue;
+import dev.hermes.value.impl.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,10 +24,10 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
         boolean isFound = false;
 
         for (Module module : Hermes.moduleManager.getAll()) {
-            if (module.getDisplayName().equals(moduleName)) {
+            if (module.getDisplayName().toLowerCase().equals(moduleName.toLowerCase())) {
                 JsonArray moduleJsonArray = new JsonArray();
                 isFound = true;
-                for (Value<?> setting : module.getValues()) {
+                for (final Value<?> setting : module.getAllValues()) {
                     JsonObject moduleSet = new JsonObject();
                     if (setting instanceof StringValue) {
                         moduleSet.addProperty("name", setting.getName());
@@ -41,20 +38,36 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
                         moduleSet.addProperty("type", "slider");
                         moduleSet.addProperty("min", ((NumberValue) setting).getMin().doubleValue());
                         moduleSet.addProperty("max", ((NumberValue) setting).getMax().doubleValue());
-                        moduleSet.addProperty("step", 1);
+                        moduleSet.addProperty("step", ((NumberValue) setting).getDecimalPlaces());
                         moduleSet.addProperty("value", ((NumberValue) setting).getValue().doubleValue());
                         moduleSet.addProperty("suffix", ((NumberValue) setting).getSuffix());
+                    }else if (setting instanceof ModeValue) {
+                        moduleSet.addProperty("name", setting.getName());
+                        moduleSet.addProperty("type", "mode");
+                        JsonArray values = new JsonArray();
+                        values.addAll(((ModeValue) setting).getAllSubValuesAsJson());
+                        moduleSet.add("values", values);
+                        moduleSet.addProperty("value", URLUtil.encode(((ModeValue) setting).getValue().getName()));
                     } else if (setting instanceof ListValue) {
                         moduleSet.addProperty("name", setting.getName());
-                        moduleSet.addProperty("type", "selection");
+                        moduleSet.addProperty("type", "radio");
+                        moduleSet.addProperty("value",setting.getValue().toString());
                         JsonArray values = new JsonArray();
-                        values.addAll(((ListValue) setting).getValuesAsJsonArray());
+                        values.addAll(((ListValue<?>) setting).getSubValuesAsJson());
                         moduleSet.add("values", values);
-                        moduleSet.addProperty("value", URLUtil.encode(((ListValue) setting).getValuesAsJsonArray().getAsString()));
                     } else if (setting instanceof BooleanValue) {
                         moduleSet.addProperty("name", setting.getName());
                         moduleSet.addProperty("type", "checkbox");
                         moduleSet.addProperty("value", ((BooleanValue) setting).getValue());
+                    } else if (setting instanceof BoundsNumberValue){
+                        moduleSet.addProperty("name", setting.getName());
+                        moduleSet.addProperty("type", "range_slider");
+                        moduleSet.addProperty("min", ((BoundsNumberValue) setting).getMin().doubleValue());
+                        moduleSet.addProperty("max", ((BoundsNumberValue) setting).getMax().doubleValue());
+                        moduleSet.addProperty("step", 1);
+                        moduleSet.addProperty("minvalue", ((BoundsNumberValue) setting).getValue().doubleValue());
+                        moduleSet.addProperty("maxvalue", ((BoundsNumberValue) setting).getSecondValue().doubleValue());
+                        moduleSet.addProperty("suffix", ((BoundsNumberValue) setting).getSuffix());
                     }
                     moduleJsonArray.add(moduleSet);
                 }
@@ -63,9 +76,16 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
         }
 
         jsonObject.addProperty("success", isFound);
+
         if (!isFound) jsonObject.addProperty("reason", "Can't find module");
 
         byte[] response = jsonObject.toString().getBytes(StandardCharsets.UTF_8);
+
+        // Set CORS headers
+        httpExchange.getResponseHeaders().set("Content-Type", "application/json");
+        httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");  // Allow requests from any origin
+        httpExchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, OPTIONS");
+        httpExchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
 
         httpExchange.sendResponseHeaders(200, response.length);
 
@@ -74,5 +94,4 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
         out.flush();
         out.close();
     }
-
 }
