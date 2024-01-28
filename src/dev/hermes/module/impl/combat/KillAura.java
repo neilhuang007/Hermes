@@ -45,4 +45,9 @@ public final class KillAura extends Module {
     public void onEnable(){
         System.out.println("KA ENABLED");
     }
+
+    @Override
+    public void onDisable() {
+        System.out.println("KA DISABLE");
+    }
 }
