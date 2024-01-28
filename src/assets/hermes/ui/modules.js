@@ -42,9 +42,32 @@ function addModule(module) {
         toggleModuleSettings(settingsContainer, module, titleElement, descriptionElement, toggleButton);
     });
 
+    // Create a toggle button (initially 'Settings')
+    const ModuletoggleButton = document.createElement('a');
+    ModuletoggleButton.setAttribute('href', '#');
+    if(module.enabled){
+        ModuletoggleButton.textContent = 'UnToggle';
+    }else{
+        ModuletoggleButton.textContent = 'Toggle';
+    }
+
+    ModuletoggleButton.style.marginLeft = '10px';
+    ModuletoggleButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        if(module.enabled){
+            toggleModuleState(module.name,false)
+            ModuletoggleButton.textContent = 'Toggle';
+        }else{
+            toggleModuleState(module.name,true)
+            ModuletoggleButton.textContent = 'UnToggle';
+        }
+    });
+
+
 
 
     moduleContent.appendChild(toggleButton);
+    moduleContent.appendChild(ModuletoggleButton);
 
     moduleElement.appendChild(moduleContent);
     moduleContainer.appendChild(moduleElement);

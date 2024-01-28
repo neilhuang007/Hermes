@@ -20,6 +20,7 @@ public class ClickGui extends Module {
 
     @Override
     public void onEnable() {
+        System.out.println("Enabled");
         // Define the URL to your HTML file
         String htmlFileUrl = ClickGui.class.getClassLoader().getResource("assets/hermes/ui/index.html").toString();
 

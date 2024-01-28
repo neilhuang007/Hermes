@@ -94,7 +94,7 @@ public abstract class Module implements InstanceAccess {
                     }
                 });
 
-        if (mc.thePlayer != null) this.onEnable();
+        this.onEnable();
     }
 
     /**
@@ -118,7 +118,7 @@ public abstract class Module implements InstanceAccess {
                     }
                 });
 
-        if (mc.thePlayer != null) this.onDisable();
+        this.onDisable();
     }
 
     protected void onEnable() {

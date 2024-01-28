@@ -21,8 +21,7 @@ public class ModuleInfoHttpHandler implements HttpHandler {
         JsonObject jsonObject = new JsonObject();
         JsonObject result = new JsonObject();
 
-
-        Hermes.moduleManager.getAll().stream().filter(it -> it.getDisplayName().equalsIgnoreCase(Displayname)).forEach(it -> it.setEnabled(Enabled));
+        Hermes.moduleManager.getAll().stream().filter(module -> module.getDisplayName().equalsIgnoreCase(Displayname)).forEach(Module -> Module.setEnabled(Enabled));
 
         jsonObject.add("result", result);
         jsonObject.addProperty("success", true);
