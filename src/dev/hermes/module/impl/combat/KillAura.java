@@ -1,6 +1,8 @@
 package dev.hermes.module.impl.combat;
 
 import dev.hermes.api.Hermes;
+import dev.hermes.event.EventTarget;
+import dev.hermes.event.events.impl.EventTick;
 import dev.hermes.module.Module;
 import dev.hermes.module.api.Category;
 import dev.hermes.module.api.ModuleInfo;
@@ -36,10 +38,10 @@ public final class KillAura extends Module {
         movementCorrection.setDefault(MovementFix.OFF);
     }
 
-//    @EventTarget
-//    public void onTick(EventTick eventTick) {
-//        System.out.println("TICK");
-//    }
+    @EventTarget
+    public void onTick(EventTick eventTick) {
+        System.out.println("TICK");
+    }
 
     @Override
     public void onEnable(){

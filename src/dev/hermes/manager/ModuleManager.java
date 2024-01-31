@@ -1,4 +1,4 @@
-package dev.hermes.module.api.manager;
+package dev.hermes.manager;
 
 
 import dev.hermes.event.EventManager;
@@ -6,8 +6,6 @@ import dev.hermes.event.EventTarget;
 import dev.hermes.event.events.impl.EventKey;
 import dev.hermes.module.Module;
 import dev.hermes.module.api.Category;
-import dev.hermes.module.impl.combat.KillAura;
-import dev.hermes.module.impl.render.ClickGui;
 import dev.hermes.utils.interfaces.InstanceAccess;
 
 import java.util.ArrayList;
@@ -27,12 +25,12 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
      */
     public void init() {
 
-        modules.add(new ClickGui());
-        modules.add(new KillAura());
-
-        for (Module module : modules) {
-            add(module);
-        };
+//        modules.add(new ClickGui());
+//        modules.add(new KillAura());
+//
+//        for (Module module : modules) {
+//            add(module);
+//        };
 
         // Automatic initializations
         this.stream().filter(module -> module.getModuleInfo().autoEnabled()).forEach(module -> module.setEnabled(true));

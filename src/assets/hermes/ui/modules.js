@@ -41,14 +41,14 @@ function addModule(module) {
 
     const ModuletoggleButton = document.createElement('a');
     ModuletoggleButton.setAttribute('href', '#');
-    ModuletoggleButton.textContent = module.enabled ? 'Toggle' : 'UnToggle';
+    ModuletoggleButton.textContent = module.enabled ? 'UnToggled' : 'Toggled';
     ModuletoggleButton.style.marginLeft = '10px';
 
     ModuletoggleButton.addEventListener('click', function(event) {
         event.preventDefault();
         toggleModuleState(module.name, !module.enabled);
         module.enabled = !module.enabled; // Update module.enabled property
-        ModuletoggleButton.textContent = module.enabled ? 'UnToggle' : 'Toggle';
+        ModuletoggleButton.textContent = module.enabled ? 'UnToggled' : 'Toggled';
         updateModuleUI(moduleElement, module.name, module.enabled); // Optional: Refresh module UI
     });
 

@@ -1,6 +1,8 @@
 package dev.hermes;
 
-import dev.hermes.module.api.manager.ModuleManager;
+import dev.hermes.api.Hidden;
+import dev.hermes.module.Module;
+import dev.hermes.manager.ModuleManager;
 import dev.hermes.server.HermesServer;
 import dev.hermes.utils.client.log.LogUtil;
 import dev.hermes.utils.file.FileManager;
@@ -8,14 +10,14 @@ import dev.hermes.utils.file.FileType;
 import dev.hermes.utils.file.config.ConfigFile;
 import dev.hermes.utils.file.config.ConfigManager;
 import dev.hermes.utils.file.data.DataManager;
-import dev.hermes.utils.localization.Locale;
+import dev.hermes.utils.reflection.ReflectionUtil;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 @Getter
 public class Hermes {
@@ -34,10 +36,7 @@ public class Hermes {
 
     private static ConfigFile configFile;
 
-    @Setter
-    public static Locale locale = Locale.EN_US; // The language of the client
-
-    public static void initHermes() {
+    public static void initHermes(){
         // Init
         Minecraft mc = Minecraft.getMinecraft();
         Display.setTitle(NAME + " " + VERSION + " | " + VERSION_DATE);
@@ -65,8 +64,40 @@ public class Hermes {
             HermesServer.start();
         } catch (IOException e) {
             LogUtil.printLog("Failed to initialize server");
+            e.printStackTrace();
         }
 
+        // Register
+        String[] paths = {
+                "dev.hermes"
+        };
+
+        // needed no spaced registration path
+        // somehting like c:/aa a/hacks/razor is not going to work
+        LogUtil.printLog("Please Make sure the current path does not contain spaces");
+
+        for (String path : paths) {
+            if (!ReflectionUtil.dirExist(path)) {
+                continue;
+            }
+
+            Class<?>[] classes = ReflectionUtil.getClassesInPackage(path);
+
+            for (Class<?> clazz : classes) {
+                try {
+                    if (clazz.isAnnotationPresent(Hidden.class)) continue;
+
+                    if (Module.class.isAssignableFrom(clazz) && clazz != Module.class) {
+                        moduleManager.add((Module) clazz.getConstructor().newInstance());
+                    }
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                         NoSuchMethodException exception) {
+                    exception.printStackTrace();
+                }
+            }
+
+            break;
+        }
 
 
 

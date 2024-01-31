@@ -13,6 +13,7 @@ body {
     /*animation: bgAnimation 45s linear infinite;*/
 }
 
+
 * {
     margin: 0;
     padding: 0;
@@ -55,14 +56,6 @@ body {
 
 .btn-item:nth-child(1) {
     background: #eb5a56;
-}
-
-.btn-item:nth-child(2) {
-    background: #f8bc33;
-}
-
-.btn-item:nth-child(3) {
-    background: #62cb44;
 }
 
 
