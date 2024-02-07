@@ -10,7 +10,7 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import dev.hermes.Hermes;
-import dev.hermes.event.EventManager;
+import dev.hermes.manager.EventManager;
 import dev.hermes.event.events.impl.EventKey;
 import dev.hermes.event.events.impl.EventTick;
 import net.minecraft.block.Block;
@@ -148,7 +148,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     private Entity renderViewEntity;
     public Entity pointedEntity;
     public EffectRenderer effectRenderer;
-    private final Session session;
+    public Session session;
     private boolean isGamePaused;
     public FontRenderer fontRendererObj;
     public FontRenderer standardGalacticFontRenderer;
@@ -448,7 +448,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
 
         this.renderGlobal.makeEntityOutlineShader();
-        Hermes.initHermes();
+        Hermes.initHermes(null);
     }
 
     private void registerMetadataSerializers()

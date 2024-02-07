@@ -1,7 +1,7 @@
 package dev.hermes.utils.component;
 
 
-import dev.hermes.event.EventManager;
+import dev.hermes.manager.EventManager;
 
 import java.util.ArrayList;
 

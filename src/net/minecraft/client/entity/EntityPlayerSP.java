@@ -1,6 +1,6 @@
 package net.minecraft.client.entity;
 
-import dev.hermes.event.EventManager;
+import dev.hermes.manager.EventManager;
 import dev.hermes.event.events.impl.EventPostMotion;
 import dev.hermes.event.events.impl.EventPreMotion;
 import dev.hermes.event.events.impl.EventUpdate;

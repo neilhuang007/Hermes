@@ -15,7 +15,8 @@ public enum Category {
     RENDER("render"),
     EXPLOIT("exploit"),
     GHOST("ghost"),
-    OTHER("other");
+    OTHER("other"),
+    API("api");
 //    SCRIPT("script"),
 //
 //    THEME("themes"),

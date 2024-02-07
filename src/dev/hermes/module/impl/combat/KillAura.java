@@ -40,7 +40,8 @@ public final class KillAura extends Module {
 
     @EventTarget
     public void onTick(EventTick eventTick) {
-        System.out.println("TICK");
+//        System.out.println("TICK");
+//        System.out.println(dev.hermes.Hermes.moduleManager.getAll());
     }
 
     @Override

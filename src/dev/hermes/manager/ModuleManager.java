@@ -1,7 +1,6 @@
 package dev.hermes.manager;
 
 
-import dev.hermes.event.EventManager;
 import dev.hermes.event.EventTarget;
 import dev.hermes.event.events.impl.EventKey;
 import dev.hermes.module.Module;
@@ -24,13 +23,6 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
      * Called on client start and when for some reason when we reinitialize (idk custom modules?)
      */
     public void init() {
-
-//        modules.add(new ClickGui());
-//        modules.add(new KillAura());
-//
-//        for (Module module : modules) {
-//            add(module);
-//        };
 
         // Automatic initializations
         this.stream().filter(module -> module.getModuleInfo().autoEnabled()).forEach(module -> module.setEnabled(true));

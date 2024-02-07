@@ -3,7 +3,7 @@ package net.minecraft.client.renderer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
-import dev.hermes.event.EventManager;
+import dev.hermes.manager.EventManager;
 import dev.hermes.event.events.impl.EventRender3D;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;

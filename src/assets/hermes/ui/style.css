@@ -54,7 +54,7 @@ body {
     border-radius: 50%;
 }
 
-.btn-item:nth-child(1) {
+.btn-item:nth-child{
     background: #eb5a56;
 }
 

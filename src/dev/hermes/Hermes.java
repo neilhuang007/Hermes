@@ -1,9 +1,12 @@
 package dev.hermes;
 
 import dev.hermes.api.Hidden;
-import dev.hermes.module.Module;
+import dev.hermes.manager.EventManager;
 import dev.hermes.manager.ModuleManager;
+import dev.hermes.manager.RenderManager;
+import dev.hermes.module.Module;
 import dev.hermes.server.HermesServer;
+import dev.hermes.ui.alt.account.AccountManager;
 import dev.hermes.utils.client.log.LogUtil;
 import dev.hermes.utils.file.FileManager;
 import dev.hermes.utils.file.FileType;
@@ -17,6 +20,7 @@ import org.lwjgl.opengl.Display;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 @Getter
@@ -28,22 +32,29 @@ public class Hermes {
     public static boolean DEVELOPMENT_SWITCH = true;
     public static ModuleManager moduleManager = new ModuleManager();
 
-    private static DataManager dataManager = new DataManager();
+    public static DataManager dataManager = new DataManager();
 
-    private static FileManager fileManager = new FileManager();
+    public static FileManager fileManager = new FileManager();
 
-    private static ConfigManager configManager = new ConfigManager();
+    public static ConfigManager configManager = new ConfigManager();
 
-    private static ConfigFile configFile;
+    public static RenderManager renderManager = new RenderManager();
 
-    public static void initHermes(){
+    public static ConfigFile configFile;
+
+    public static AccountManager accountManager = new AccountManager();
+
+    public static EventManager eventManager = new EventManager();
+
+    public static void initHermes(Instrumentation inst){
         // Init
         Minecraft mc = Minecraft.getMinecraft();
         Display.setTitle(NAME + " " + VERSION + " | " + VERSION_DATE);
 
-        fileManager.init();
-        configManager.init();
-        moduleManager.init();
+
+
+
+
 
         // Compatibility
         mc.gameSettings.guiScale = 2;
@@ -55,7 +66,7 @@ public class Hermes {
         mc.gameSettings.ofSmoothFps = false;
         mc.gameSettings.ofFastMath = false;
 
-        // client geting and stuff
+
 
 
         // this is the server stuff
@@ -90,6 +101,7 @@ public class Hermes {
                     if (Module.class.isAssignableFrom(clazz) && clazz != Module.class) {
                         moduleManager.add((Module) clazz.getConstructor().newInstance());
                     }
+                    eventManager.register(clazz);
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                          NoSuchMethodException exception) {
                     exception.printStackTrace();
@@ -99,15 +111,19 @@ public class Hermes {
             break;
         }
 
+        fileManager.init();
+        configManager.init();
+        moduleManager.init();
+        renderManager.init();
+        accountManager.init();
 
 
+        // client geting and stuff
         // read config
         final File file = new File(ConfigManager.CONFIG_DIRECTORY, "latest.json");
         configFile = new ConfigFile(file, FileType.CONFIG);
         configFile.allowKeyCodeLoading();
         configFile.read();
-
-
     }
 
     public static void stopHermes() {

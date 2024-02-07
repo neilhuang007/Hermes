@@ -1,8 +1,10 @@
-package dev.hermes.event;
+package dev.hermes.manager;
 
+import dev.hermes.event.EventTarget;
 import dev.hermes.event.events.Event;
 import dev.hermes.event.events.EventStoppable;
 import dev.hermes.event.types.Priority;
+import dev.hermes.utils.projection.ProjectionUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,6 +29,8 @@ public final class EventManager {
      * All methods in this class are static so there would be no reason to create an object of the EventManager class.
      */
     public EventManager() {
+        register(RenderManager.class);
+        register(ProjectionUtil.class);
     }
 
     /**
@@ -256,9 +260,8 @@ public final class EventManager {
     private static void invoke(MethodData data, Event argument) {
         try {
             data.getTarget().invoke(data.getSource(), argument);
-        } catch (IllegalAccessException e) {
-        } catch (IllegalArgumentException e) {
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+            e.printStackTrace(); // Add this line to each catch block
         }
     }
 

@@ -1,7 +1,7 @@
 package dev.hermes.module;
 
 
-import dev.hermes.event.EventManager;
+import dev.hermes.manager.EventManager;
 import dev.hermes.event.events.impl.EventModuleToggle;
 import dev.hermes.module.api.ModuleInfo;
 import dev.hermes.utils.client.log.LogUtil;

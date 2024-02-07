@@ -2,7 +2,7 @@ package net.minecraft.network;
 
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import dev.hermes.event.EventManager;
+import dev.hermes.manager.EventManager;
 import dev.hermes.event.events.impl.EventReceivePacket;
 import dev.hermes.event.events.impl.EventSendPacket;
 import io.netty.bootstrap.Bootstrap;

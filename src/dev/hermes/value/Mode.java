@@ -1,7 +1,7 @@
 package dev.hermes.value;
 
 
-import dev.hermes.event.EventManager;
+import dev.hermes.manager.EventManager;
 import dev.hermes.utils.interfaces.InstanceAccess;
 import dev.hermes.utils.interfaces.Toggleable;
 import lombok.Getter;
