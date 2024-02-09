@@ -1,7 +1,7 @@
-package dev.hermes.value.impl;
+package dev.hermes.module.value.impl;
 
 
-import dev.hermes.value.Mode;
+import dev.hermes.module.value.Mode;
 
 /**
  * A mode inside of a mode (inside of a module)

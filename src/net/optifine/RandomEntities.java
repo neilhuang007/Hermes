@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+
+import dev.hermes.event.events.impl.world.EventWorldChange;
+import dev.hermes.manager.EventManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.DataWatcher;
@@ -89,6 +92,7 @@ public class RandomEntities
     {
         if (newWorld != null)
         {
+            EventManager.call(new EventWorldChange(oldWorld, newWorld));
             List list = newWorld.getLoadedEntityList();
 
             for (int i = 0; i < list.size(); ++i)

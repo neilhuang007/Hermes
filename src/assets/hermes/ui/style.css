@@ -304,7 +304,7 @@ body {
 .module::before{
     content: "";
     position: absolute;
-    background: #fff;
+    background: linear-gradient(315deg, #ffbc00, #ff0058);
     top: 0;
     left: 50px;
     width: 50%;
@@ -337,20 +337,20 @@ body {
     width: calc(100% - 90px);
 }
 
-.module:nth-child(1)::before,
-.module:nth-child(1)::after{
+.module::before,
+.module::after{
     background: linear-gradient(315deg, #ffbc00, #ff0058);
 }
 
-.module:nth-child(2):before,
-.module:nth-child(2):after{
-    background: linear-gradient(315deg, #03a9f4, #ff0058);
-}
+/*.module:nth-child(2):before,*/
+/*.module:nth-child(2):after{*/
+/*    background: linear-gradient(315deg, #03a9f4, #ff0058);*/
+/*}*/
 
-.module:nth-child(3):before,
-.module:nth-child(3):after{
-    background: linear-gradient(315deg, #4dff03, #00d0ff);
-}
+/*.module:nth-child(3):before,*/
+/*.module:nth-child(3):after{*/
+/*    background: linear-gradient(315deg, #4dff03, #00d0ff);*/
+/*}*/
 
 .module span{
     display: block;

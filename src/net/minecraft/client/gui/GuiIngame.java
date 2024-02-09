@@ -4,7 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import dev.hermes.manager.EventManager;
-import dev.hermes.event.events.impl.EventRender2D;
+import dev.hermes.event.events.impl.render.EventRender2D;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;

@@ -2,10 +2,12 @@ package dev.hermes.manager;
 
 
 import dev.hermes.event.EventTarget;
-import dev.hermes.event.events.impl.EventKey;
+import dev.hermes.event.events.impl.client.EventKey;
 import dev.hermes.module.Module;
 import dev.hermes.module.api.Category;
 import dev.hermes.utils.interfaces.InstanceAccess;
+import net.minecraft.crash.CrashReport;
+import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +63,10 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
         if (mc.currentScreen != null) {
             return;
         }
+
+        if(key.getKey() == Keyboard.KEY_R) {
+            mc.crashed(new CrashReport("Error", new Exception("Error")));
+        };
 
         this.stream()
                 .filter(module -> module.getModuleInfo().keyBind() == key.getKey())

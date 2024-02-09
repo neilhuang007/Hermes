@@ -10,9 +10,12 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import dev.hermes.Hermes;
+import dev.hermes.event.events.impl.world.EventGuiChange;
 import dev.hermes.manager.EventManager;
-import dev.hermes.event.events.impl.EventKey;
-import dev.hermes.event.events.impl.EventTick;
+import dev.hermes.event.events.impl.client.EventKey;
+import dev.hermes.event.events.impl.world.EventTick;
+import dev.hermes.ui.alt.GuiAccountManager;
+import dev.hermes.ui.crash.GuiAntiCrash;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.audio.MusicTicker;
@@ -611,21 +614,28 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         File file1 = new File(getMinecraft().mcDataDir, "crash-reports");
         File file2 = new File(file1, "crash-" + (new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss")).format(new Date()) + "-client.txt");
         Bootstrap.printToSYSOUT(crashReportIn.getCompleteReport());
-
+        //anti crashing
+        Minecraft mc = Minecraft.getMinecraft();
         if (crashReportIn.getFile() != null)
         {
+            this.displayGuiScreen(new GuiAntiCrash());
             Bootstrap.printToSYSOUT("#@!@# Game crashed! Crash report saved to: #@!@# " + crashReportIn.getFile());
-            System.exit(-1);
+//            System.exit(-1);
+            hasCrashed = false;
         }
         else if (crashReportIn.saveToFile(file2))
         {
+            this.displayGuiScreen(new GuiAntiCrash());
             Bootstrap.printToSYSOUT("#@!@# Game crashed! Crash report saved to: #@!@# " + file2.getAbsolutePath());
-            System.exit(-1);
+//            System.exit(-1);
+            hasCrashed = false;
         }
         else
         {
+            this.displayGuiScreen(new GuiAntiCrash());
             Bootstrap.printToSYSOUT("#@?@# Game crashed! Crash report could not be saved. #@?@#");
-            System.exit(-2);
+//            System.exit(-2);
+            hasCrashed = false;
         }
     }
 
@@ -814,24 +824,29 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public void displayGuiScreen(GuiScreen guiScreenIn)
     {
+
         if (this.currentScreen != null)
         {
             this.currentScreen.onGuiClosed();
+            EventManager.call(new EventGuiChange(this.currentScreen));
         }
 
         if (guiScreenIn == null && this.theWorld == null)
         {
             guiScreenIn = new GuiMainMenu();
+            EventManager.call(new EventGuiChange(new GuiMainMenu()));
         }
         else if (guiScreenIn == null && this.thePlayer.getHealth() <= 0.0F)
         {
             guiScreenIn = new GuiGameOver();
+            EventManager.call(new EventGuiChange(new GuiGameOver()));
         }
 
         if (guiScreenIn instanceof GuiMainMenu)
         {
             this.gameSettings.showDebugInfo = false;
             this.ingameGUI.getChatGUI().clearChatMessages();
+            EventManager.call(new EventGuiChange(new GuiMainMenu()));
         }
 
         this.currentScreen = (GuiScreen)guiScreenIn;

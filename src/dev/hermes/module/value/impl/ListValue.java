@@ -1,11 +1,11 @@
-package dev.hermes.value.impl;
+package dev.hermes.module.value.impl;
 
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 import dev.hermes.module.Module;
-import dev.hermes.value.Mode;
-import dev.hermes.value.Value;
+import dev.hermes.module.value.Mode;
+import dev.hermes.module.value.Value;
 import lombok.Getter;
 
 import java.util.ArrayList;

@@ -2,6 +2,10 @@ package net.minecraft.client.gui;
 
 import java.io.IOException;
 import java.util.List;
+
+import dev.hermes.Hermes;
+import dev.hermes.event.events.impl.world.EventServerKick;
+import dev.hermes.manager.EventManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IChatComponent;
 
@@ -30,6 +34,7 @@ public class GuiDisconnected extends GuiScreen
         this.multilineMessage = this.fontRendererObj.listFormattedStringToWidth(this.message.getFormattedText(), this.width - 50);
         this.field_175353_i = this.multilineMessage.size() * this.fontRendererObj.FONT_HEIGHT;
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 2 + this.field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT, I18n.format("gui.toMenu", new Object[0])));
+        EventManager.call(new EventServerKick(multilineMessage));
     }
 
     protected void actionPerformed(GuiButton button) throws IOException

@@ -2,12 +2,12 @@ package dev.hermes.module.impl.combat;
 
 import dev.hermes.api.Hermes;
 import dev.hermes.event.EventTarget;
-import dev.hermes.event.events.impl.EventTick;
+import dev.hermes.event.events.impl.world.EventTick;
 import dev.hermes.module.Module;
 import dev.hermes.module.api.Category;
 import dev.hermes.module.api.ModuleInfo;
 import dev.hermes.utils.rotation.MovementFix;
-import dev.hermes.value.impl.*;
+import dev.hermes.module.value.impl.*;
 
 @Hermes
 @ModuleInfo(name = "KillAura", description = "KA", category = Category.COMBAT)

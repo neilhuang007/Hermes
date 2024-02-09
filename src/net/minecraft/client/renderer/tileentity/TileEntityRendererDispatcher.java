@@ -51,6 +51,8 @@ public class TileEntityRendererDispatcher
     private Tessellator batchBuffer = new Tessellator(2097152);
     private boolean drawingBatch = false;
 
+
+
     private TileEntityRendererDispatcher()
     {
         this.mapSpecialRenderers.put(TileEntitySign.class, new TileEntitySignRenderer());

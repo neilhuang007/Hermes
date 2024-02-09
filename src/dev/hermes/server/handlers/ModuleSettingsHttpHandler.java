@@ -7,8 +7,8 @@ import com.sun.net.httpserver.HttpHandler;
 import dev.hermes.Hermes;
 import dev.hermes.module.Module;
 import dev.hermes.utils.url.URLUtil;
-import dev.hermes.value.Value;
-import dev.hermes.value.impl.*;
+import dev.hermes.module.value.Value;
+import dev.hermes.module.value.impl.*;
 
 import java.io.IOException;
 import java.io.OutputStream;

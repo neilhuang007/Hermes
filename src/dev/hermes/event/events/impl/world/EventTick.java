@@ -1,4 +1,4 @@
-package dev.hermes.event.events.impl;
+package dev.hermes.event.events.impl.world;
 
 import dev.hermes.event.events.Event;
 import dev.hermes.manager.RenderManager;

@@ -3,13 +3,14 @@ package dev.hermes.ui.alt;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import dev.hermes.Hermes;
-import dev.hermes.manager.RenderManager;
+
 import dev.hermes.ui.alt.account.Account;
 import dev.hermes.ui.alt.impl.AuthThread;
 import dev.hermes.ui.alt.impl.GuiAddAccount;
 import dev.hermes.ui.alt.impl.GuiMicrosoftLogin;
 import dev.hermes.ui.alt.impl.GuiRenameAccount;
 import dev.hermes.utils.TimerUtil;
+import dev.hermes.utils.renderer.IngameRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -115,7 +116,7 @@ public class GuiAccountManager extends GuiScreen {
         Minecraft.getMinecraft().fontRendererObj.drawString(mc.session.getUsername(), 10, 10, 0xDDDDDD);
         Minecraft.getMinecraft().fontRendererObj.drawCenteredString("Account Manager - " + Hermes.accountManager.getAccounts().size() + " alts", width / 2, 10, -1);
         Minecraft.getMinecraft().fontRendererObj.drawCenteredString(loginThread == null ? status : loginThread.getStatus(), width / 2, 20, -1);
-        RenderManager.drawBorderedRect(50.0F, 33.0F, width - 100, height - 90, 1.0F, new Color(25, 25, 25, 255).getRGB(), new Color(15, 15, 15, 255).getRGB());
+        IngameRenderer.drawBorderedRect(50.0F, 33.0F, width - 100, height - 90, 1.0F, new Color(25, 25, 25, 255).getRGB(), new Color(15, 15, 15, 255).getRGB());
         GL11.glPushMatrix();
         prepareScissorBox(0.0F, 33.0F, width, height - 50);
         GL11.glEnable(3089);
@@ -133,16 +134,16 @@ public class GuiAccountManager extends GuiScreen {
                 }
                 if (alt == selectedAlt) {
                     if ((isMouseOverAlt(par1, par2, y - offset)) && (Mouse.isButtonDown(0))) {
-                        RenderManager.drawBorderedRect(52.0F, y - offset - 4, width - 104,   20, 1.0F, new Color(45, 45, 45, 255).getRGB(), -2142943931);
+                        IngameRenderer.drawBorderedRect(52.0F, y - offset - 4, width - 104,   20, 1.0F, new Color(45, 45, 45, 255).getRGB(), -2142943931);
                     } else if (isMouseOverAlt(par1, par2, y - offset)) {
-                        RenderManager.drawBorderedRect(52.0F, y - offset - 4, width - 104,   20, 1.0F, new Color(45, 45, 45, 255).getRGB(), -2142088622);
+                        IngameRenderer.drawBorderedRect(52.0F, y - offset - 4, width - 104,   20, 1.0F, new Color(45, 45, 45, 255).getRGB(), -2142088622);
                     } else {
-                        RenderManager.drawBorderedRect(52.0F, y - offset - 4, width - 104,   20, 1.0F, new Color(45, 45, 45, 255).getRGB(), -2144259791);
+                        IngameRenderer.drawBorderedRect(52.0F, y - offset - 4, width - 104,   20, 1.0F, new Color(45, 45, 45, 255).getRGB(), -2144259791);
                     }
                 } else if ((isMouseOverAlt(par1, par2, y - offset)) && (Mouse.isButtonDown(0))) {
-                    RenderManager.drawBorderedRect(52.0F, y - offset - 4, width - 104,   20, 1.0F, -new Color(45, 45, 45, 255).getRGB(), -2146101995);
+                    IngameRenderer.drawBorderedRect(52.0F, y - offset - 4, width - 104,   20, 1.0F, -new Color(45, 45, 45, 255).getRGB(), -2146101995);
                 } else if (isMouseOverAlt(par1, par2, y - offset)) {
-                    RenderManager.drawBorderedRect(52.0F, y - offset - 4, width - 104,  20, 1.0F, new Color(45, 45, 45, 255).getRGB(), -2145180893);
+                    IngameRenderer.drawBorderedRect(52.0F, y - offset - 4, width - 104,  20, 1.0F, new Color(45, 45, 45, 255).getRGB(), -2145180893);
                 }
                 Minecraft.getMinecraft().fontRendererObj.drawCenteredString(name, width / 2, y - offset, -1);
                 Minecraft.getMinecraft().fontRendererObj.drawCenteredString(pass, width / 2, y - offset + 10, 5592405);

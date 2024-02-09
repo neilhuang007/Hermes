@@ -7,8 +7,8 @@ import dev.hermes.module.Module;
 import dev.hermes.module.impl.render.ClickGui;
 
 import dev.hermes.utils.file.FileType;
-import dev.hermes.value.Value;
-import dev.hermes.value.impl.*;
+import dev.hermes.module.value.Value;
+import dev.hermes.module.value.impl.*;
 
 import java.awt.*;
 

@@ -2,13 +2,13 @@ package dev.hermes.module;
 
 
 import dev.hermes.manager.EventManager;
-import dev.hermes.event.events.impl.EventModuleToggle;
+import dev.hermes.event.events.impl.client.EventModuleToggle;
 import dev.hermes.module.api.ModuleInfo;
 import dev.hermes.utils.client.log.LogUtil;
 import dev.hermes.utils.interfaces.InstanceAccess;
-import dev.hermes.value.Value;
-import dev.hermes.value.impl.BooleanValue;
-import dev.hermes.value.impl.ModeValue;
+import dev.hermes.module.value.Value;
+import dev.hermes.module.value.impl.BooleanValue;
+import dev.hermes.module.value.impl.ModeValue;
 import lombok.Getter;
 import lombok.Setter;
 

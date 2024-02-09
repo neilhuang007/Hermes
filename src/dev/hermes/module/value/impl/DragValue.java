@@ -1,11 +1,11 @@
-package dev.hermes.value.impl;
+package dev.hermes.module.value.impl;
 
 
 import dev.hermes.module.Module;
 import dev.hermes.utils.interfaces.InstanceAccess;
 import dev.hermes.utils.vector.Vector2d;
-import dev.hermes.value.Mode;
-import dev.hermes.value.Value;
+import dev.hermes.module.value.Mode;
+import dev.hermes.module.value.Value;
 import lombok.Setter;
 import net.minecraft.client.gui.ScaledResolution;
 

@@ -1,4 +1,4 @@
-package dev.hermes.value;
+package dev.hermes.module.value;
 
 
 import dev.hermes.manager.EventManager;

@@ -1,4 +1,4 @@
-package dev.hermes.event.events.impl;
+package dev.hermes.event.events.impl.packet;
 
 import dev.hermes.event.events.callables.EventCancellable;
 import lombok.AllArgsConstructor;
@@ -9,6 +9,6 @@ import net.minecraft.network.Packet;
 @Getter
 @Setter
 @AllArgsConstructor
-public class EventReceivePacket extends EventCancellable {
+public class EventSendPacket extends EventCancellable {
     private Packet<?> packet;
 }

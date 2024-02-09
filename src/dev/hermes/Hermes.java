@@ -52,14 +52,42 @@ public class Hermes {
         Display.setTitle(NAME + " " + VERSION + " | " + VERSION_DATE);
 
 
-
-
-
-
         // Compatibility
         mc.gameSettings.guiScale = 2;
         mc.gameSettings.ofFastRender = false;
         mc.gameSettings.ofShowGlErrors = DEVELOPMENT_SWITCH;
+        mc.gameSettings.enableVsync = true;
+        mc.gameSettings.ofClouds = 3;
+        mc.gameSettings.fancyGraphics = false;
+        mc.gameSettings.useVbo = true;
+        mc.gameSettings.particleSetting = 0;
+        mc.gameSettings.ofWeather = false;
+        mc.gameSettings.ofFogType = 3;
+        mc.gameSettings.ofSunMoon = false;
+        mc.gameSettings.ofRain = 2;
+        mc.gameSettings.ofDroppedItems = 1;
+        mc.gameSettings.entityShadows = false;
+        mc.gameSettings.ofShowCapes = false;
+        mc.gameSettings.heldItemTooltips = false;
+        mc.gameSettings.ofTrees = 1;
+        mc.gameSettings.ofCustomEntityModels = false;
+        mc.gameSettings.ofCustomSky = false;
+        mc.gameSettings.ofConnectedTextures = 1;
+        mc.gameSettings.ofCustomItems = false;
+        mc.gameSettings.ofRandomEntities = false;
+        mc.gameSettings.ofStars = false;
+        mc.gameSettings.ofSky = false;
+        mc.gameSettings.viewBobbing = false;
+        mc.gameSettings.ofDynamicFov = false;
+        mc.gameSettings.ofSmoothFps = true;
+
+
+
+
+
+
+
+
 
         // Performance
         mc.gameSettings.ofSmartAnimations = true;

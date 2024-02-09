@@ -4,7 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
 import dev.hermes.manager.EventManager;
-import dev.hermes.event.events.impl.EventRender3D;
+import dev.hermes.event.events.impl.render.EventRender3D;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.Material;
@@ -1742,8 +1742,6 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
         if (flag)
         {
-            EventRender3D event = new EventRender3D(partialTicks);
-            EventManager.call(event);
 
             ShadersRender.renderHand0(this, partialTicks, pass);
             Shaders.preWater();
@@ -1829,6 +1827,9 @@ public class EntityRenderer implements IResourceManagerReloadListener
         {
             Shaders.endRender();
         }
+
+        EventRender3D event = new EventRender3D(partialTicks);
+        EventManager.call(event);
     }
 
     private void renderCloudsCheck(RenderGlobal renderGlobalIn, float partialTicks, int pass)

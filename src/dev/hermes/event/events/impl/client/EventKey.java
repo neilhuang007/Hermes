@@ -1,4 +1,4 @@
-package dev.hermes.event.events.impl;
+package dev.hermes.event.events.impl.client;
 
 import dev.hermes.event.events.Event;
 import lombok.AllArgsConstructor;
@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class EventRender2D implements Event {
-    private float partialTicks;
+public class EventKey implements Event {
+    private int key;
 }

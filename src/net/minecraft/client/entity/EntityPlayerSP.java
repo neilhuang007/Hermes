@@ -1,9 +1,9 @@
 package net.minecraft.client.entity;
 
 import dev.hermes.manager.EventManager;
-import dev.hermes.event.events.impl.EventPostMotion;
-import dev.hermes.event.events.impl.EventPreMotion;
-import dev.hermes.event.events.impl.EventUpdate;
+import dev.hermes.event.events.impl.Motion.EventPostMotion;
+import dev.hermes.event.events.impl.Motion.EventPreMotion;
+import dev.hermes.event.events.impl.world.EventUpdate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;

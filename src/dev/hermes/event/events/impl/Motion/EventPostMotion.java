@@ -1,4 +1,4 @@
-package dev.hermes.event.events.impl;
+package dev.hermes.event.events.impl.Motion;
 
 import dev.hermes.event.events.Event;
 import lombok.AllArgsConstructor;
