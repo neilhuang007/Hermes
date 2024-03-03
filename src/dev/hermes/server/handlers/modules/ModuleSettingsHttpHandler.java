@@ -1,4 +1,4 @@
-package dev.hermes.server.handlers;
+package dev.hermes.server.handlers.modules;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

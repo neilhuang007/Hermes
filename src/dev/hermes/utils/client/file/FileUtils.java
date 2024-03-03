@@ -22,6 +22,25 @@ public class FileUtils {
         return stringBuilder.toString();
     }
 
+    public static byte[] readBinaryPath(String path) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (InputStream inputStream = FileUtils.class.getResourceAsStream(path)) {
+            if (inputStream == null) {
+                System.err.println("Resource not found: " + path);
+                return null; // Early exit if resource is not found
+            }
+            byte[] buffer = new byte[4096]; // Use a buffer for efficient reading
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null; // Return null or handle accordingly on IOException
+        }
+    }
+
     public static String readPath(String path) {
         StringBuilder builder = new StringBuilder();
 

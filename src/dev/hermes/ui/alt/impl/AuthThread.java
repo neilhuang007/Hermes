@@ -87,12 +87,10 @@ public class AuthThread extends Thread {
     @Override
     public void run() {
         if(accounttype.equals("CRACKED")){
-            mc.session = new Session(username, "", "", "mojang");
+            mc.session = new Session(username, "", SkinUtil.uuidOf(username), "mojang");
             setStatus(ChatFormatting.GREEN + "Logged in. (" + username + " - offline name)");
             return;
         } else if (accounttype.equals("MOJANG")) {
-//            Hermes.switchToMojang();
-
             setStatus(ChatFormatting.AQUA + "Logging in...");
             Session auth = createSession(username, password);
             if (auth == null) {

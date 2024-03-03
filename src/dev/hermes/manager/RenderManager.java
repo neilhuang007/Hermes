@@ -1,11 +1,21 @@
 package dev.hermes.manager;
 
-import dev.hermes.event.EventTarget;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinUser;
+import com.sun.jna.win32.StdCallLibrary;
+import dev.hermes.injection.annotations.Inject;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.Node;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -19,25 +29,28 @@ import javafx.stage.StageStyle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
+import javax.swing.*;
+import java.awt.*;
+import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Timer;
 
 
 public class RenderManager {
 
     public static Map<String, Shape> shapesMap = new HashMap<>();
 
+    public static Map<String, Shape> buttonsMap = new HashMap<>();
 
     public static List<String> modifiedidbuffer = new ArrayList<>(); // Corrected initialization
-
-
     private static final Frustum FRUSTUM = new Frustum();
     private static final Pane root = new Pane(); // Static reference to the root pane
     private static Stage primaryStage; // Static reference to the primary stage
@@ -49,6 +62,15 @@ public class RenderManager {
     private static boolean isopen = true;
     private static double lastX = -1;
     private static double lastY = -1;
+
+    private static double lastwidth = -1;
+    private static double lastheight = -1;
+
+
+    private static JFrame frame; // Add this line
+
+
+    public static boolean isdrawinggui = false;
 
     static {
         new JFXPanel(); // Initialize JavaFX toolkit
@@ -62,9 +84,11 @@ public class RenderManager {
             @Override
             public void run() {
                 if(isopen){
-                    if(Display.getX() != lastX || Display.getY() != lastY) {
+                    if(Display.getX() != lastX || Display.getY() != lastY || Display.getHeight() != lastheight || Display.getWidth() != lastwidth) {
                         lastX = Display.getX();
                         lastY = Display.getY();
+                        lastwidth = Display.getWidth();
+                        lastheight = Display.getHeight();
                         updateWindowLocation();
                     }
                 }
@@ -82,7 +106,6 @@ public class RenderManager {
             public void handle(long now) {
                 Platform.runLater(() -> {
                     CheckCanvas(); // Ensure this is called to check and render shapes
-                    // Possibly other periodic tasks
                 });
             }
         };
@@ -95,6 +118,8 @@ public class RenderManager {
         while (iterator.hasNext()) {
             Map.Entry<String, Shape> entry = iterator.next();
             String id = entry.getKey();
+            Shape shape = entry.getValue();
+            shape.setMouseTransparent(true); // Ensure the shape is not interactive
             if (!modifiedidbuffer.contains(id)) {
                 // Directly remove from the iterator and root to avoid concurrent modification issues
                 Platform.runLater(() -> root.getChildren().remove(entry.getValue()));
@@ -103,22 +128,20 @@ public class RenderManager {
         }
         modifiedidbuffer.clear(); // Clear the buffer for the next check
 
-        if(mc.theWorld != null && mc.thePlayer != null && mc.currentScreen == null){
-            mc.setIngameFocus();
-
+        if(isdrawinggui){
+            if(!isopen){
+                isopen = true;
+            }
+        }else if(mc.theWorld != null && mc.thePlayer != null && mc.currentScreen == null){
+            // means ingame
+            if(!isopen){
+                isopen = true;
+            }
+        }else{
+            isopen = false;
         }
-
     }
 
-
-
-
-    // Determine if the overlay should be displayed based on game state
-    private static boolean shouldDisplayOverlay() {
-        GuiScreen currentScreen = mc.currentScreen;
-        return mc.theWorld != null && mc.thePlayer != null;
-//              && !(currentScreen instanceof GuiIngameMenu || currentScreen instanceof GuiWinGame || currentScreen instanceof GuiGameOver);
-    }
 
     // Initialize the overlay window
     public static void init() {
@@ -131,8 +154,10 @@ public class RenderManager {
         CheckWindowPosition();
         updateWindowLocation();
         setupAnimationTimer();
+
     }
 
+    // Create the overlay window
     // Create the overlay window
     private static void createOverlayWindow(double width, double height) {
 
@@ -169,7 +194,7 @@ public class RenderManager {
                     final int titleBarHeightEstimate = 30; // Adjust this value as necessary
 
                     // Adjust window size and position
-                    primaryStage.setX(Display.getX());
+                    primaryStage.setX(Display.getX() + 8);
                     primaryStage.setY(Display.getY() + titleBarHeightEstimate);
                     // Here, subtract the estimated title bar height from the height calculation
                     primaryStage.setWidth(scaledResolution.getScaledWidth_double() * factor);
@@ -182,116 +207,163 @@ public class RenderManager {
         });
     }
 
+    public static void setupGuiRefresher(GuiScreen guiScreen) {
+
+        TimerTask refresher = new TimerTask() {
+
+            @Override
+            public void run() {
+                if(isdrawinggui){
+                    guiScreen.drawScreen(Mouse.getX(),Mouse.getY(),mc.timer.renderPartialTicks);
+                }else {
+                    animationTimer.stop();
+                }
+            }
+        };
+        refresher.run();
+    }
+
+    public static void CloseOverlayGuiScreen(){
+        isdrawinggui = false;
+        buttonsMap.clear();
+    }
+
+    public static void createUIButton(String id, double x, double y, double width, double height, Runnable action) {
+        Platform.runLater(() -> {
+            Rectangle button = new Rectangle(x, y, width, height);
+            button.setFill(Color.TRANSPARENT); // Or any visually appropriate color
+
+            // Set an action to be performed when the rectangle is clicked
+            button.setOnMouseClicked(event -> {
+                System.out.println(id);
+                action.run(); // Execute the associated action
+            });
+
+            buttonsMap.put(id, button); // Optionally store the rectangle if needed for future reference
+            root.getChildren().add(button); // Add the rectangle to the scene
+        });
+    }
+
+
 
 
 
     public static void roundedRectangle(String id, final double x, final double y, final double width, final double height, final double arcWidth, final double arcHeight, final Color color) {
-        Platform.runLater(() -> {
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
-            final double factor = scaledResolution.getScaleFactor();
-            Rectangle roundedRectangle = (Rectangle) shapesMap.get(id);
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
+                Rectangle roundedRectangle = (Rectangle) shapesMap.get(id);
 
-            if (roundedRectangle == null) {
-                roundedRectangle = new Rectangle(x * factor, y * factor, width * factor, height * factor);
-                roundedRectangle.setArcWidth(arcWidth * factor);
-                roundedRectangle.setArcHeight(arcHeight * factor);
-                roundedRectangle.setFill(color);
-                shapesMap.put(id, roundedRectangle);
-                roundedRectangle.setMouseTransparent(true);
-                root.getChildren().add(roundedRectangle);
-            } else {
-                // Update properties for existing rectangle
-                roundedRectangle.setX(x * factor);
-                roundedRectangle.setY(y * factor);
-                roundedRectangle.setWidth(width * factor);
-                roundedRectangle.setHeight(height * factor);
-                roundedRectangle.setArcWidth(arcWidth * factor);
-                roundedRectangle.setArcHeight(arcHeight * factor);
-                roundedRectangle.setFill(color);
-            }
-            modifiedidbuffer.add(id);
-        });
+                if (roundedRectangle == null) {
+                    roundedRectangle = new Rectangle(x * factor, y * factor, width * factor, height * factor);
+                    roundedRectangle.setArcWidth(arcWidth * factor);
+                    roundedRectangle.setArcHeight(arcHeight * factor);
+                    roundedRectangle.setFill(color);
+                    shapesMap.put(id, roundedRectangle);
+                    roundedRectangle.setMouseTransparent(true);
+                    root.getChildren().add(roundedRectangle);
+                } else {
+                    // Update properties for existing rectangle
+                    roundedRectangle.setX(x * factor);
+                    roundedRectangle.setY(y * factor);
+                    roundedRectangle.setWidth(width * factor);
+                    roundedRectangle.setHeight(height * factor);
+                    roundedRectangle.setArcWidth(arcWidth * factor);
+                    roundedRectangle.setArcHeight(arcHeight * factor);
+                    roundedRectangle.setFill(color);
+                }
+                modifiedidbuffer.add(id);
+            });
+        }
     }
 
 
-
     public static void horizontalGradient(String id, final double x, final double y, final double width, final double height, final java.awt.Color leftColor, final java.awt.Color rightColor) {
-        Platform.runLater(() -> {
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
-            final double factor = scaledResolution.getScaleFactor();
-            Rectangle rect = (Rectangle) shapesMap.get(id);
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
+                Rectangle rect = (Rectangle) shapesMap.get(id);
 
-            if (rect == null) {
-                rect = new Rectangle(x * factor, y * factor, width * factor, height * factor);
-                shapesMap.put(id, rect);
-                rect.setMouseTransparent(true);
-                root.getChildren().add(rect);
-            }
+                if (rect == null) {
+                    rect = new Rectangle(x * factor, y * factor, width * factor, height * factor);
+                    shapesMap.put(id, rect);
+                    rect.setMouseTransparent(true);
+                    root.getChildren().add(rect);
+                }
 
-            javafx.scene.paint.Color fxLeftColor = convertColor(leftColor);
-            javafx.scene.paint.Color fxRightColor = convertColor(rightColor);
-            LinearGradient gradient = new LinearGradient(0, 0, 1, 0, true, null, new Stop(0, fxLeftColor), new Stop(1, fxRightColor));
-            rect.setFill(gradient);
+                javafx.scene.paint.Color fxLeftColor = convertColor(leftColor);
+                javafx.scene.paint.Color fxRightColor = convertColor(rightColor);
+                LinearGradient gradient = new LinearGradient(0, 0, 1, 0, true, null, new Stop(0, fxLeftColor), new Stop(1, fxRightColor));
+                rect.setFill(gradient);
 
-            rect.setX(x * factor);
-            rect.setY(y * factor);
-            rect.setWidth(width * factor);
-            rect.setHeight(height * factor);
+                rect.setX(x * factor);
+                rect.setY(y * factor);
+                rect.setWidth(width * factor);
+                rect.setHeight(height * factor);
 
-            modifiedidbuffer.add(id);
-        });
+                modifiedidbuffer.add(id);
+            });
+        }
     }
 
 
     public static void rectangle(String id, final double x, final double y, final double width, final double height, final java.awt.Color color) {
-        Platform.runLater(() -> {
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
-            final double factor = scaledResolution.getScaleFactor();
-            Rectangle rect = (Rectangle) shapesMap.get(id);
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
+                Rectangle rect = (Rectangle) shapesMap.get(id);
 
-            if (rect == null) {
-                rect = new Rectangle(x * factor, y * factor, width * factor, height * factor);
-                shapesMap.put(id, rect);
-                rect.setMouseTransparent(true);
-                root.getChildren().add(rect);
-            } else {
-                rect.setX(x * factor);
-                rect.setY(y * factor);
-                rect.setWidth(width * factor);
-                rect.setHeight(height * factor);
-            }
-            rect.setFill(convertColor(color));
-            modifiedidbuffer.add(id);
-        });
+                if (rect == null) {
+                    rect = new Rectangle(x * factor, y * factor, width * factor, height * factor);
+                    shapesMap.put(id, rect);
+                    rect.setMouseTransparent(true);
+                    root.getChildren().add(rect);
+                } else {
+                    rect.setX(x * factor);
+                    rect.setY(y * factor);
+                    rect.setWidth(width * factor);
+                    rect.setHeight(height * factor);
+                }
+                rect.setFill(convertColor(color));
+                modifiedidbuffer.add(id);
+            });
+        }
+
     }
 
     public static void verticalGradient(String id, final double x, final double y, final double width, final double height, final java.awt.Color topColor, final java.awt.Color bottomColor) {
-        Platform.runLater(() -> {
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
-            final double factor = scaledResolution.getScaleFactor();
-            Rectangle rect = (Rectangle) shapesMap.get(id);
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
+                Rectangle rect = (Rectangle) shapesMap.get(id);
 
-            if (rect == null) {
-                rect = new Rectangle(x * factor, y * factor, width * factor, height * factor);
-                shapesMap.put(id, rect);
-                rect.setMouseTransparent(true);
-                root.getChildren().add(rect);
+                if (rect == null) {
+                    rect = new Rectangle(x * factor, y * factor, width * factor, height * factor);
+                    shapesMap.put(id, rect);
+                    rect.setMouseTransparent(true);
+                    root.getChildren().add(rect);
 
-            } else {
-                rect.setX(x * factor);
-                rect.setY(y * factor);
-                rect.setWidth(width * factor);
-                rect.setHeight(height * factor);
-            }
+                } else {
+                    rect.setX(x * factor);
+                    rect.setY(y * factor);
+                    rect.setWidth(width * factor);
+                    rect.setHeight(height * factor);
+                }
 
-            javafx.scene.paint.Color fxTopColor = convertColor(topColor);
-            javafx.scene.paint.Color fxBottomColor = convertColor(bottomColor);
-            LinearGradient gradient = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-                    new Stop(0, fxTopColor), new Stop(1, fxBottomColor));
-            rect.setFill(gradient);
+                javafx.scene.paint.Color fxTopColor = convertColor(topColor);
+                javafx.scene.paint.Color fxBottomColor = convertColor(bottomColor);
+                LinearGradient gradient = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+                        new Stop(0, fxTopColor), new Stop(1, fxBottomColor));
+                rect.setFill(gradient);
 
-            modifiedidbuffer.add(id);
-        });
+                modifiedidbuffer.add(id);
+            });
+        }
+
     }
 
 
@@ -325,50 +397,50 @@ public class RenderManager {
 
     // Adapted drawBorderedRect for JavaFX
     public static void drawBorderedRect(String id, double x, double y, double width, double height, double lineSize, int borderColor, int fillColor) {
-        Platform.runLater(() -> {
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
-            final double factor = scaledResolution.getScaleFactor();
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
 
-            // Main rectangle
-            Rectangle mainRect = (Rectangle) shapesMap.computeIfAbsent(id, k -> new Rectangle());
-            mainRect.setX(x * factor);
-            mainRect.setY(y * factor);
-            mainRect.setWidth(width * factor);
-            mainRect.setHeight(height * factor);
-            mainRect.setFill(convertARGBtoColor(fillColor));
-            if (!root.getChildren().contains(mainRect)) {
-                mainRect.setMouseTransparent(true);
-                root.getChildren().add(mainRect);
-            }
-
-            // Border rectangles
-            String[] borderIds = {id + "_top", id + "_left", id + "_right", id + "_bottom"};
-            double[][] borderDimensions = {
-                    {x, y, width, lineSize}, // Top
-                    {x, y, lineSize, height}, // Left
-                    {(x + width - lineSize), y, lineSize, height}, // Right
-                    {x, (y + height - lineSize), width, lineSize} // Bottom
-            };
-
-            for (int i = 0; i < borderIds.length; i++) {
-                Rectangle borderRect = (Rectangle) shapesMap.computeIfAbsent(borderIds[i], k -> new Rectangle());
-                borderRect.setX(borderDimensions[i][0] * factor);
-                borderRect.setY(borderDimensions[i][1] * factor);
-                borderRect.setWidth(borderDimensions[i][2] * factor);
-                borderRect.setHeight(borderDimensions[i][3] * factor);
-                borderRect.setFill(convertARGBtoColor(borderColor));
-                if (!root.getChildren().contains(borderRect)) {
-                    borderRect.setMouseTransparent(true);
-                    root.getChildren().add(borderRect);
+                // Main rectangle
+                Rectangle mainRect = (Rectangle) shapesMap.computeIfAbsent(id, k -> new Rectangle());
+                mainRect.setX(x * factor);
+                mainRect.setY(y * factor);
+                mainRect.setWidth(width * factor);
+                mainRect.setHeight(height * factor);
+                mainRect.setFill(convertARGBtoColor(fillColor));
+                if (!root.getChildren().contains(mainRect)) {
+                    mainRect.setMouseTransparent(true);
+                    root.getChildren().add(mainRect);
                 }
-            }
 
-            modifiedidbuffer.add(id);
-            for (String borderId : borderIds) {
-                modifiedidbuffer.add(borderId);
-            }
-        });
+                // Border rectangles
+                String[] borderIds = {id + "_top", id + "_left", id + "_right", id + "_bottom"};
+                double[][] borderDimensions = {
+                        {x, y, width, lineSize}, // Top
+                        {x, y, lineSize, height}, // Left
+                        {(x + width - lineSize), y, lineSize, height}, // Right
+                        {x, (y + height - lineSize), width, lineSize} // Bottom
+                };
+
+                for (int i = 0; i < borderIds.length; i++) {
+                    Rectangle borderRect = (Rectangle) shapesMap.computeIfAbsent(borderIds[i], k -> new Rectangle());
+                    borderRect.setX(borderDimensions[i][0] * factor);
+                    borderRect.setY(borderDimensions[i][1] * factor);
+                    borderRect.setWidth(borderDimensions[i][2] * factor);
+                    borderRect.setHeight(borderDimensions[i][3] * factor);
+                    borderRect.setFill(convertARGBtoColor(borderColor));
+                    if (!root.getChildren().contains(borderRect)) {
+                        borderRect.setMouseTransparent(true);
+                        root.getChildren().add(borderRect);
+                    }
+                }
+
+                modifiedidbuffer.add(id);
+                for (String borderId : borderIds) {
+                    modifiedidbuffer.add(borderId);
+                }
+            });
+        }
     }
-
-
 }

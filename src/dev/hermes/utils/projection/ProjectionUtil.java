@@ -27,9 +27,6 @@ public class ProjectionUtil {
     public static ConcurrentMap<Entity, Vector4d> finalisedProjections = new ConcurrentHashMap<>();
     public static final ConcurrentMap<Entity, Vector4d> concurrentProjections = new ConcurrentHashMap<>();
 
-    public static ConcurrentMap<TileEntity, Vector4d> TileEntityfinalisedProjections = new ConcurrentHashMap<>();
-    public static final ConcurrentMap<TileEntity, Vector4d> TileEntityconcurrentProjections = new ConcurrentHashMap<>();
-
 
     public static boolean progress;
     public static TimerUtil stopWatch = new TimerUtil();
@@ -69,18 +66,6 @@ public class ProjectionUtil {
                 }
             }
 
-            for (TileEntity entity : TileEntitylist) {
-                try {
-                    final Vector4d position = projectTileEntity(entity, renderX, renderY, renderZ, partialTicks, factor);
-                    if (position != null) {
-                        TileEntityconcurrentProjections.put(entity, position);
-                    }
-                } catch (Exception ignored) {
-                    TileEntityconcurrentProjections.remove(entity);
-                }
-            }
-
-            TileEntityfinalisedProjections = new ConcurrentHashMap<>(TileEntityconcurrentProjections);
             finalisedProjections = new ConcurrentHashMap<>(concurrentProjections);
 
             progress = false;
@@ -97,15 +82,7 @@ public class ProjectionUtil {
         return projectAABB(aabb, factor);
     }
 
-    private static Vector4d projectTileEntity(TileEntity entity, double renderX, double renderY, double renderZ, float partialTicks, int factor) {
-        final double x = entity.getPos().getX() * partialTicks - renderX;
-        final double y = entity.getPos().getY() * partialTicks - renderY;
-        final double z = entity.getPos().getZ() * partialTicks - renderZ;
-        final double width = 0.6;
-        final double height = 1+0.2+0.05;
-        final AxisAlignedBB aabb = new AxisAlignedBB(x - width, y, z - width, x + width, y + height, z + width);
-        return projectAABB(aabb, factor);
-    }
+
 
     private static Vector4d projectAABB(AxisAlignedBB aabb, int factor) {
         final List<Vector3d> vectors = Arrays.asList(
@@ -142,8 +119,4 @@ public class ProjectionUtil {
         return finalisedProjections.get(entity);
     }
 
-    public static Vector4d get(TileEntity entity) {
-        if (entity == null) return null;
-        return TileEntityfinalisedProjections.get(entity);
-    }
 }

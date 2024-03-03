@@ -1,5 +1,288 @@
 console.log('modules.js loaded');
 
+// func for altmanager
+
+let altsData = {}; // Object to store fetched alts data for easy access
+
+let isHovered = false;
+let hoverTimeout;
+
+async function createAlt(Username, Accounttype) {
+    const altcontainer = document.querySelector('.alt-display');
+
+    const altcard = document.createElement('div');
+    altcard.classList.add('alt');
+
+    const playerhead = document.createElement('img');
+    playerhead.classList.add('player-head');
+    playerhead.src = `https://mc-heads.net/avatar/${Username}`;
+
+    const playerinfo = document.createElement('div');
+    playerinfo.classList.add('player-information');
+
+    const playerName = document.createElement('div');
+    playerName.classList.add('player-name');
+    playerName.textContent = Username;
+
+    const accountType = document.createElement('div');
+    accountType.classList.add('account-type');
+    accountType.textContent = Accounttype;
+
+    const altButtons = document.createElement('div');
+    altButtons.classList.add('alt-buttons');
+
+    const loginButton = document.createElement('a');
+    loginButton.setAttribute('href', '#');
+    loginButton.textContent = 'Login';
+    loginButton.dataset.username = Username; // Data attribute for identifying button
+    loginButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await loginAlt(Username, loginButton, altcard);
+    });
+
+    const removeButton = document.createElement('a');
+    removeButton.setAttribute('href', '#');
+    removeButton.textContent = 'Remove';
+    removeButton.style.marginLeft = '10px';
+    removeButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        removeButton.textContent = 'Deleting...';
+        try {
+            const response = await fetch(`http://localhost:1342/api/DeleteAlt?altname=${Username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                altcard.remove();
+            } else {
+                removeButton.textContent = 'Remove Failed';
+                console.error(data.reason);
+                setTimeout(() => { removeButton.textContent = 'Remove'; }, 3000);
+            }
+        } catch (error) {
+            console.error('Error deleting alt:', error);
+            removeButton.textContent = 'Delete Error';
+            setTimeout(() => { removeButton.textContent = 'Remove'; }, 3000);
+        }
+    });
+
+    altButtons.appendChild(loginButton);
+    altButtons.appendChild(removeButton);
+
+    playerinfo.appendChild(playerName);
+    playerinfo.appendChild(accountType);
+    playerinfo.appendChild(altButtons);
+
+    altcard.appendChild(playerhead);
+    altcard.appendChild(playerinfo);
+
+    altcontainer.appendChild(altcard);
+}
+
+async function loginAlt(Username, buttonElement, altCardElement) {
+    buttonElement.textContent = 'Logging in...';
+    try {
+        const response = await fetch(`http://localhost:1342/api/AltLogin?altname=${Username}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            buttonElement.textContent = 'Logged';
+            altCardElement.style.border = '1px solid white';
+        } else {
+            buttonElement.textContent = 'Login Failed';
+            console.error(data.reason);
+            setTimeout(() => { buttonElement.textContent = 'Login'; }, 3000);
+        }
+    } catch (error) {
+        console.error('Error logging in:', error);
+        buttonElement.textContent = 'Login Error';
+        setTimeout(() => { buttonElement.textContent = 'Login'; }, 3000);
+    }
+}
+
+async function updateAlts() {
+    try {
+        const altcontainer = document.querySelector('.alt-display');
+        altcontainer.innerHTML = ''; // Clear existing content
+        const response = await fetch(`http://localhost:1342/api/getAltAccounts`);
+        const altdata = await response.json();
+        altsData = altdata; // Store fetched data
+
+        Object.keys(altdata).forEach(username => {
+            const { username: Username, accounttype: Accounttype } = altdata[username];
+            createAlt(Username, Accounttype);
+        });
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function bindAddAccountButton() {
+    const addButton = document.querySelector('.add-account'); // Adjust this selector as needed
+    if (addButton) {
+        addButton.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            let shouldCreate = false;
+            let dropdownMenu = document.querySelector('.dropdown-menu');
+            if(dropdownMenu == null){
+                console.log('creating')
+                shouldCreate = true;
+                // Create the dropdown menu
+                dropdownMenu = document.createElement('div');
+                dropdownMenu.className = 'dropdown-menu';
+                // Append the dropdown menu to the "Add Account" button
+                addButton.appendChild(dropdownMenu);
+
+            }
+            console.log(shouldCreate)
+
+            // Create the "Offline" option
+            const offlineOption = document.createElement('a');
+            offlineOption.href = '#';
+            offlineOption.textContent = 'Offline';
+            offlineOption.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                // Create a card to contain the input box and buttons
+                const card = document.createElement('div');
+                card.className = 'card';
+                document.body.appendChild(card);
+
+                // Create an input box in the middle of the screen
+                const inputBox = document.createElement('div');
+                inputBox.innerHTML = `
+                    <div class="input-container">
+                        <input type="text" id="input" required="">
+                        <label for="input" class="label">Enter Username</label>
+                        <div class="underline"></div>
+                    </div>
+                `;
+                card.appendChild(inputBox);
+
+                // Create a div to contain the buttons
+                const cardButtons = document.createElement('div');
+                cardButtons.className = 'card-buttons';
+                card.appendChild(cardButtons);
+
+                // Create confirm and cancel buttons
+                const confirmButton = document.createElement('button');
+                confirmButton.textContent = 'Confirm';
+                cardButtons.appendChild(confirmButton);
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cardButtons.appendChild(cancelButton);
+
+                // Add event listeners to the buttons
+                confirmButton.addEventListener('click', async () => {
+                    // Call the API with the additional parameters
+                    // Remove the card after use
+                    document.body.removeChild(card);
+                });
+
+                cancelButton.addEventListener('click', () => {
+                    // Remove the card without making the API call
+                    document.body.removeChild(card);
+                });
+            });
+
+            // Create the "Microsoft" option
+            const microsoftOption = document.createElement('a');
+            microsoftOption.href = '#';
+            microsoftOption.textContent = 'Microsoft';
+            microsoftOption.addEventListener('click', async (e) => {
+                e.preventDefault();
+                // Call the API with the additional parameters
+                try {
+                    const response = await fetch(`http://localhost:1342/api/AddAlt?type=microsoft&username=neil_huang007`, {
+                        method: 'GET',
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        updateAlts(); // Refresh the alt list
+                    } else {
+                        console.error('Failed to add alt:', data.reason);
+                    }
+                } catch (error) {
+                    console.error('Error adding alt:', error);
+                }
+            });
+
+            addButton.addEventListener('mouseover', (e) => {
+                e.preventDefault();
+                isHovered = true;
+                dropdownMenu.style.display = 'block';
+                clearTimeout(hoverTimeout);
+            });
+
+            addButton.addEventListener('mouseout', (e) => {
+                e.preventDefault();
+                isHovered = false;
+                hoverTimeout = setTimeout(() => {
+                    if (!isHovered) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                }, 1500);
+            });
+
+            dropdownMenu.addEventListener('mouseover', (e) => {
+                e.preventDefault();
+                isHovered = true;
+                clearTimeout(hoverTimeout);
+            });
+
+            dropdownMenu.addEventListener('mouseout', (e) => {
+                e.preventDefault();
+                isHovered = false;
+                hoverTimeout = setTimeout(() => {
+                    if (!isHovered) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                }, 1500);
+            });
+            if(shouldCreate){
+                // Append the options to the dropdown menu
+                dropdownMenu.appendChild(offlineOption);
+                dropdownMenu.appendChild(microsoftOption);
+            }
+        });
+
+    }
+
+}
+
+function bindRandomButton() {
+    const randomButton = document.querySelector('.random'); // Adjust this selector as needed
+    randomButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (Object.keys(altsData).length > 0) {
+            const randomAltKey = Object.keys(altsData)[Math.floor(Math.random() * Object.keys(altsData).length)];
+            const alt = altsData[randomAltKey];
+            const loginButton = document.querySelector(`[data-username="${alt.username}"]`);
+            const altCard = loginButton.closest('.alt');
+            await loginAlt(alt.username, loginButton, altCard);
+        }
+    });
+}
+
+
+
+async function init() {
+    await updateAlts();
+    bindAddAccountButton();
+    bindRandomButton();
+}
+
 // Function to add a single module to the page
 
 function addModule(module) {
@@ -560,13 +843,38 @@ function createSettingElement(setting, container, moduleName) {
 }
 
 
-// Event listener for category buttons
 document.addEventListener('DOMContentLoaded', function () {
     const categoryButtons = document.querySelectorAll('.catagory_name');
     categoryButtons.forEach(button => {
         button.addEventListener('click', function () {
             const category = this.textContent; // Assuming the category name is the same as expected by the API
-            loadModules(category);
+            if (category === 'Alt Manager') {
+                const mainContentArea = document.querySelector('.module_container');
+                mainContentArea.innerHTML = ''; // Clear the main content area
+
+                // Create the Alt Manager page
+                const altManagerPage = document.createElement('div');
+                altManagerPage.innerHTML = `
+                    <div class="altmanager">
+                        <div class="AltManager_Title">
+                            Alt Account Manager
+                        </div>
+                        <div class="buttons-panel">
+                            <a href="#" class="add-account">+ Add Account</a>
+                            <a href="#" class="random" style="margin-left: 10px;">Random</a>
+                        </div>
+                        <div class="alt-display"></div>
+                    </div>
+                `;
+
+                // Append the Alt Manager page to the main content area
+                mainContentArea.appendChild(altManagerPage);
+
+                init(); // Call the initialization function to set everything up
+
+            } else {
+                loadModules(category);
+            }
         });
     });
     // Initial load with default category

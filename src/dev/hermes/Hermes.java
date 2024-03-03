@@ -95,8 +95,6 @@ public class Hermes {
         mc.gameSettings.ofFastMath = false;
 
 
-
-
         // this is the server stuff
 
         try {
@@ -139,19 +137,21 @@ public class Hermes {
             break;
         }
 
+
+
+
         fileManager.init();
         configManager.init();
         moduleManager.init();
         renderManager.init();
         accountManager.init();
 
-
-        // client geting and stuff
         // read config
         final File file = new File(ConfigManager.CONFIG_DIRECTORY, "latest.json");
         configFile = new ConfigFile(file, FileType.CONFIG);
         configFile.allowKeyCodeLoading();
         configFile.read();
+
     }
 
     public static void stopHermes() {

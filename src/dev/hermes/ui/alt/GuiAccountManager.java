@@ -84,7 +84,7 @@ public class GuiAccountManager extends GuiScreen {
             case 7:
                 if (!Hermes.accountManager.getAccounts().isEmpty()) {
                     Hermes.accountManager.getAccounts().clear();
-                    Hermes.accountManager.get("alts").read();
+                    Hermes.accountManager.get("alts").write();
                 }
                 break;
             case 8:

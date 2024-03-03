@@ -14,7 +14,6 @@ import java.util.jar.JarFile;
 public class ReflectionUtil {
     public static Class<?>[] getClassesInPackage(String packageName) {
         try {
-            System.out.println(Paths.get(ReflectionUtil.path()).toFile());
             Set<String> classnames = getClassNamesFromJarFile(Paths.get(ReflectionUtil.path()).toFile());
             List<Class<?>> classes = new ArrayList<>();
 
@@ -41,6 +40,9 @@ public class ReflectionUtil {
             return getClassesInPackage(packageName, directory);
         }
     }
+
+
+
 
     public static Set<String> getClassNamesFromJarFile(File givenFile) throws IOException {
         Set<String> classNames = new HashSet<>();

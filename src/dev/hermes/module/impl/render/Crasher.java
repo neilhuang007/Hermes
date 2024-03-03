@@ -7,7 +7,7 @@ import dev.hermes.module.api.ModuleInfo;
 import net.minecraft.crash.CrashReport;
 
 @Hermes
-@ModuleInfo(name = "Crasher", description = "Crashes the server", category = Category.RENDER)
+@ModuleInfo(name = "Crasher", description = "Crashes the game", category = Category.RENDER)
 public class Crasher extends Module {
     @Override
     public void onEnable() {

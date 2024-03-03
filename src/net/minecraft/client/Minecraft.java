@@ -140,7 +140,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public int displayWidth;
     public int displayHeight;
     private boolean connectedToRealms = false;
-    private Timer timer = new Timer(20.0F);
+    public Timer timer = new Timer(20.0F);
     private PlayerUsageSnooper usageSnooper = new PlayerUsageSnooper("client", this, MinecraftServer.getCurrentTimeMillis());
     public WorldClient theWorld;
     public RenderGlobal renderGlobal;
