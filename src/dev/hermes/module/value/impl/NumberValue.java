@@ -30,6 +30,15 @@ public class NumberValue extends Value<Number> {
         this.suffix = suffix;
     }
 
+    public NumberValue(final String name, final Module parent, final Number defaultValue,
+                       final Number min, final Number max, final BooleanSupplier hideIf) {
+        super(name, parent, defaultValue,hideIf);
+        this.decimalPlaces = 0.1;
+        this.min = min;
+        this.max = max;
+        this.suffix = "";
+    }
+
     public NumberValue(final String name, final Mode<?> parent, final Number defaultValue,
                        final Number min, final Number max, final Number decimalPlaces) {
         super(name, parent, defaultValue);

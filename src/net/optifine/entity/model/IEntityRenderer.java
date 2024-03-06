@@ -11,4 +11,5 @@ public interface IEntityRenderer
     ResourceLocation getLocationTextureCustom();
 
     void setLocationTextureCustom(ResourceLocation var1);
+
 }

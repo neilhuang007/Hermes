@@ -27,7 +27,7 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
     public void init() {
 
         // Automatic initializations
-        this.stream().filter(module -> module.getModuleInfo().autoEnabled() || module.isEnabled()).forEach(module -> module.setEnabled(true));
+        this.stream().filter(module -> module.getModuleInfo().autoEnabled()).forEach(module -> module.setEnabled(true));
 
 
         // Has to be a listener to handle the key presses
