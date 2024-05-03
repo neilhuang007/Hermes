@@ -1,17 +1,14 @@
 package net.minecraft.entity;
 
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockFence;
-import net.minecraft.block.BlockFenceGate;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.BlockWall;
+import dev.hermes.event.events.impl.Movement.EventPostStrafe;
+import dev.hermes.event.events.impl.Movement.EventStrafe;
+import dev.hermes.manager.EventManager;
+import dev.hermes.utils.vector.Vector3d;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.block.state.pattern.BlockPattern;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.crash.CrashReport;
@@ -31,21 +28,15 @@ import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.IChatComponent;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.ReportedException;
-import net.minecraft.util.StatCollector;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.Callable;
 
 public abstract class Entity implements ICommandSender
 {
@@ -64,15 +55,29 @@ public abstract class Entity implements ICommandSender
     public double posX;
     public double posY;
     public double posZ;
-    public double motionX;
-    public double motionY;
-    public double motionZ;
+    /**
+     * Entity motion X
+     */
+    public double motionX, lastMotionX;
+
+    /**
+     * Entity motion Y
+     */
+    public double motionY, lastMotionY;
+
+    /**
+     * Entity motion Z
+     */
+    public double motionZ, lastMotionZ;
+
+    public double threadDistance;
+
     public float rotationYaw;
     public float rotationPitch;
     public float prevRotationYaw;
     public float prevRotationPitch;
     private AxisAlignedBB boundingBox;
-    public boolean onGround;
+    public boolean onGround, lastGround;
     public boolean isCollidedHorizontally;
     public boolean isCollidedVertically;
     public boolean isCollided;
@@ -123,6 +128,8 @@ public abstract class Entity implements ICommandSender
     private boolean invulnerable;
     protected UUID entityUniqueID;
     private final CommandResultStats cmdResultStats;
+
+    public float movementYaw, velocityYaw, lastMovementYaw;
 
     public int getEntityId()
     {
@@ -962,6 +969,17 @@ public abstract class Entity implements ICommandSender
         }
     }
 
+    public Vec3 getLookCustom(float yaw, float pitch) {
+        return this.getVectorForRotation(pitch, yaw);
+    }
+
+    public MovingObjectPosition rayTraceCustom(double blockReachDistance, float yaw, float pitch) {
+        final Vec3 vec3 = this.getPositionEyes(1.0F);
+        final Vec3 vec31 = this.getLookCustom(yaw, pitch);
+        final Vec3 vec32 = vec3.addVector(vec31.xCoord * blockReachDistance, vec31.yCoord * blockReachDistance, vec31.zCoord * blockReachDistance);
+        return this.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
+    }
+
     protected void createRunningParticles()
     {
         int i = MathHelper.floor_double(this.posX);
@@ -1007,27 +1025,54 @@ public abstract class Entity implements ICommandSender
         return this.worldObj.isMaterialInBB(this.getEntityBoundingBox().expand(-0.10000000149011612D, -0.4000000059604645D, -0.10000000149011612D), Material.lava);
     }
 
-    public void moveFlying(float strafe, float forward, float friction)
-    {
+    public void moveFlying(float strafe, float forward, float friction) {
+        boolean player = this == Minecraft.getMinecraft().thePlayer;
+        float yaw = this.rotationYaw;
+
+        if (player) {
+            final EventStrafe event = new EventStrafe(forward, strafe, friction, rotationYaw);
+
+            EventManager.call(event);
+
+            if (event.isCancelled()) {
+                return;
+            }
+
+            forward = event.getForward();
+            strafe = event.getStrafe();
+            friction = event.getFriction();
+            yaw = event.getYaw();
+        }
+
         float f = strafe * strafe + forward * forward;
 
-        if (f >= 1.0E-4F)
-        {
+        if (f >= 1.0E-4F) {
             f = MathHelper.sqrt_float(f);
 
-            if (f < 1.0F)
-            {
+            if (f < 1.0F) {
                 f = 1.0F;
             }
 
             f = friction / f;
             strafe = strafe * f;
             forward = forward * f;
-            float f1 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F);
-            float f2 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F);
-            this.motionX += (double)(strafe * f2 - forward * f1);
-            this.motionZ += (double)(forward * f2 + strafe * f1);
+            float f1 = MathHelper.sin(yaw * (float) Math.PI / 180.0F);
+            float f2 = MathHelper.cos(yaw * (float) Math.PI / 180.0F);
+            this.motionX += (double) (strafe * f2 - forward * f1);
+            this.motionZ += (double) (forward * f2 + strafe * f1);
+
+//            ChatUtil.display(Math.hypot((double) (strafe * f2 - forward * f1), (double) (forward * f2 + strafe * f1)));
         }
+
+        if (player) {
+            final EventPostStrafe event = new EventPostStrafe();
+
+            EventManager.call(event);
+        }
+    }
+
+    public Vector3d getCustomPositionVector() {
+        return new dev.hermes.utils.vector.Vector3d(posX, posY, posZ);
     }
 
     public int getBrightnessForRender(float partialTicks)
@@ -1214,7 +1259,7 @@ public abstract class Entity implements ICommandSender
         }
     }
 
-    protected final Vec3 getVectorForRotation(float pitch, float yaw)
+    public final Vec3 getVectorForRotation(float pitch, float yaw)
     {
         float f = MathHelper.cos(-yaw * 0.017453292F - (float)Math.PI);
         float f1 = MathHelper.sin(-yaw * 0.017453292F - (float)Math.PI);

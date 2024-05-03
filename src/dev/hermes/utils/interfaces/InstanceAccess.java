@@ -10,9 +10,9 @@ import net.minecraft.client.Minecraft;
  * @since 03/08/2021
  */
 
+
 public interface InstanceAccess {
 
     Minecraft mc = Minecraft.getMinecraft();
-
 
 }

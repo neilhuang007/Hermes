@@ -402,7 +402,7 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
         this.hoveringText = p_146793_1_;
     }
 
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.serverListSelector.mouseClicked(mouseX, mouseY, mouseButton);

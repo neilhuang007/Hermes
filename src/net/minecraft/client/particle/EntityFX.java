@@ -144,6 +144,8 @@ public class EntityFX extends Entity
             this.motionX *= 0.699999988079071D;
             this.motionZ *= 0.699999988079071D;
         }
+
+
     }
 
     public void renderParticle(WorldRenderer worldRendererIn, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)

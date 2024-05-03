@@ -10,6 +10,7 @@ import dev.hermes.utils.url.URLUtil;
 import dev.hermes.module.value.Value;
 import dev.hermes.module.value.impl.*;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -19,10 +20,15 @@ public class SetModuleSettingsHttpHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         String[] param = URLUtil.getValues(httpExchange);
-        String moduleName = param[0];
-        String name = param[1];
-        String value = param[2];
-        String options = param[3];
+        String moduleName = param.length > 0 ? param[0] : null;
+        String name = param.length > 1 ? param[1] : null;
+        String value = param.length > 2 ? param[2] : null;
+        String options = param.length > 3 ? param[3] : null;
+
+        if (moduleName == null || name == null) {
+            // Handle error: required parameters are missing
+            return;
+        }
 
         Module module = Hermes.moduleManager.get(moduleName);
         JsonObject JsonObject = new JsonObject();
@@ -69,6 +75,16 @@ public class SetModuleSettingsHttpHandler implements HttpHandler {
                     Object Svalue = ((ListValue<?>) setting).getModes().get(currentIndex);
                     setting.setValueAsObject(Svalue);
                     JsonObject.addProperty("result", URLUtil.encode(value));
+                } else if (setting instanceof ColorValue) {
+                    String[] rgba = value.split(",");
+                    int r = (int) Float.parseFloat(rgba[0]);
+                    int g = (int) Float.parseFloat(rgba[1]);
+                    int b = (int) Float.parseFloat(rgba[2]);
+                    System.out.println(rgba[3]);
+                    int a = (int) (Float.parseFloat(rgba[3]) * 255);
+                    Color color = new Color(r,g,b,a);
+                    ((ColorValue) setting).setValue(color);
+                    JsonObject.addProperty("result", value);
                 }
             }
         }

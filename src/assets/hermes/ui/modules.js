@@ -285,7 +285,7 @@ async function init() {
 
 // Function to add a single module to the page
 
-function addModule(module) {
+async function addModule(module) {
     const moduleContainer = document.querySelector('.module_container');
 
     const moduleElement = document.createElement('div');
@@ -313,13 +313,15 @@ function addModule(module) {
         updateModuleUI(moduleElement, module.name, true);
     }
 
+    let page = 1
+
     // Create a toggle button (initially 'Settings')
     const toggleButton = document.createElement('a');
     toggleButton.setAttribute('href', '#');
     toggleButton.textContent = 'Settings';
-    toggleButton.addEventListener('click', function(event) {
+    toggleButton.addEventListener('click', function (event) {
         event.preventDefault();
-        toggleModuleSettings(settingsContainer, module, titleElement, descriptionElement, toggleButton);
+        toggleModuleSettings(settingsContainer, module, titleElement, descriptionElement, toggleButton, page);
     });
 
     const ModuletoggleButton = document.createElement('a');
@@ -327,7 +329,7 @@ function addModule(module) {
     ModuletoggleButton.textContent = module.enabled ? 'UnToggled' : 'Toggled';
     ModuletoggleButton.style.marginLeft = '10px';
 
-    ModuletoggleButton.addEventListener('click', function(event) {
+    ModuletoggleButton.addEventListener('click', function (event) {
         event.preventDefault();
         toggleModuleState(module.name, !module.enabled);
         module.enabled = !module.enabled; // Update module.enabled property
@@ -335,14 +337,77 @@ function addModule(module) {
         updateModuleUI(moduleElement, module.name, module.enabled); // Optional: Refresh module UI
     });
 
-    moduleContent.appendChild(toggleButton);
-    moduleContent.appendChild(ModuletoggleButton);
+    // Fetch module settings from the API
+    const response = await fetch(`http://localhost:1342/api/getModuleSetting?module=${module.name}`);
+    const settingsData = await response.json();
+
+    if (settingsData.success) {
+        const pageindecation = document.createElement('div');
+        pageindecation.id = 'pageIndicator';
+        // Calculate the total number of pages
+        const settingsPerPage = 5; // Maximum number of settings per page
+        const totalSettings = settingsData.result.length; // Total number of settings
+        let totalPages = Math.ceil(totalSettings / settingsPerPage); // Total number of pages
+
+        // Create navigation arrows dynamically
+        const leftArrow = document.createElement('href');
+        leftArrow.textContent = '<';
+        leftArrow.style.cursor = 'pointer';
+        leftArrow.id = 'leftArrow';
+        leftArrow.style.position = 'relative'
+        leftArrow.style.display = 'flex'
+        // Add styles or classes to leftArrow as needed
+
+        const rightArrow = document.createElement('href');
+        rightArrow.textContent = '>';
+        rightArrow.style.cursor = 'pointer';
+        rightArrow.id = 'rightArrow';
+        rightArrow.style.position = 'relative'
+        rightArrow.style.display = 'flex'
+        // Add styles or classes to rightArrow as needed
+
+        // Append arrows and the page indicator to your module's UI
+        pageindecation.appendChild(leftArrow);
+        // Your totalPagesElement or a similar element for current page indicator
+        const pagenumberindecator = document.createElement('span');
+        pagenumberindecator.textContent = `Page ${page} of ${totalPages}`;
+        pagenumberindecator.id = 'indecator';
+        pagenumberindecator.style.display = 'flex';
+        pagenumberindecator.style.position = 'relative';
+
+        // Pagination controls
+        leftArrow.addEventListener('click', () => {
+            if (page > 1) {
+                page--;
+                pagenumberindecator.textContent = `Page ${page} of ${totalPages}`;
+                populateSettings(settingsContainer, module, page);
+            }
+        });
+
+        rightArrow.addEventListener('click', () => {
+            if (page < totalPages) {
+                page++;
+                pagenumberindecator.textContent = `Page ${page} of ${totalPages}`;
+                populateSettings(settingsContainer, module, page);
+            }
+        });
+
+        pageindecation.appendChild(pagenumberindecator);
+        pageindecation.appendChild(rightArrow);
+        moduleContent.appendChild(pageindecation)
+        moduleContent.appendChild(toggleButton);
+        moduleContent.appendChild(ModuletoggleButton);
+    } else {
+        console.error('Failed to load settings:', settingsData.message);
+        moduleContent.appendChild(toggleButton);
+        moduleContent.appendChild(ModuletoggleButton);
+    }
 
     moduleElement.appendChild(moduleContent);
     moduleContainer.appendChild(moduleElement);
 }
 
-function toggleModuleSettings(settingsContainer, module, titleElement, descriptionElement, toggleButton) {
+function toggleModuleSettings(settingsContainer, module, titleElement, descriptionElement, toggleButton, settingpage) {
     const isSettingsVisible = settingsContainer.style.display !== 'none';
 
     // Toggle visibility of title, description, and change button text
@@ -352,15 +417,14 @@ function toggleModuleSettings(settingsContainer, module, titleElement, descripti
 
     // Populate settings if they are about to be shown
     if (!isSettingsVisible) {
-        populateSettings(settingsContainer, module);
-        loadSettings(module.name);
+        populateSettings(settingsContainer, module,settingpage);
     }
 
     // Toggle settings container visibility
     settingsContainer.style.display = isSettingsVisible ? 'none' : 'block';
 }
 
-function populateSettings(settingsContainer, module) {
+function populateSettings(settingsContainer, module, page) {
     settingsContainer.innerHTML = ''; // Clear previous content
 
     // Create settings title
@@ -374,7 +438,11 @@ function populateSettings(settingsContainer, module) {
     customDiv.className = "settings_content"
     customDiv.textContent = 'This is a custom div between the module name and the back button.';
     settingsContainer.appendChild(customDiv);
+
+    loadSettings(module.name,page,customDiv)
 }
+
+
 // Fetch and add modules based on the API response
 async function loadModules(category) {
     try {
@@ -395,28 +463,41 @@ async function loadModules(category) {
     }
 }
 
-async function loadSettings(moduleName) {
-    try {
-        // Clear existing settings content
-        const settingsContainer = document.querySelector('.settings_content');
-        settingsContainer.innerHTML = '';
+async function loadSettings(moduleName,page,settingsContainer) {
+    let currentPage = page;
+    let settingsPerPage = 5;
 
-        // Fetch module settings from the API
-        const response = await fetch(`http://localhost:1342/api/getModuleSetting?module=${moduleName}`);
-        const settingsData = await response.json();
+    settingsContainer.innerHTML = ''; // Clear existing content
 
-        if (settingsData.success) {
-            // Process and display each setting
-            settingsData.result.forEach(setting => {
-                createSettingElement(setting, settingsContainer,moduleName);
+    const response = await fetch(`http://localhost:1342/api/getModuleSetting?module=${moduleName}`);
+    const settingsData = await response.json();
+
+    if (settingsData.success) {
+        const totalSettings = settingsData.result.length;
+        const totalPages = Math.ceil(totalSettings / settingsPerPage);
+
+        // Function to render settings for the current page
+        function renderSettingsForPage(page) {
+            const start = (page) * settingsPerPage - 5;
+            const end = start + settingsPerPage;
+            const settingsToRender = settingsData.result.slice(start, end);
+
+            console.log('Rendering page:', page + 'start:', start, 'end:', end, 'settings:', settingsToRender.length)
+
+            // Clear current settings
+            settingsContainer.innerHTML = '';
+
+            // Add each setting to the container
+            settingsToRender.forEach(setting => {
+                console.log(setting.name)
+                createSettingElement(setting, settingsContainer, moduleName);
             });
-        } else {
-            console.error('Error loading settings:', settingsData.reason);
-            // Handle error (e.g., display a message to the user)
         }
-    } catch (error) {
-        console.error('Error fetching settings:', error);
-        // Handle network or other error
+
+        // Render the current page for the module
+        renderSettingsForPage(page);
+    } else {
+        console.error('Failed to load settings:', settingsData.message);
     }
 }
 
@@ -479,6 +560,7 @@ function createSliderSetting(setting, container, moduleName) {
     const minValueLabel = document.createElement('div');
     minValueLabel.className = 'value left';
     minValueLabel.textContent = setting.min;
+
     field.appendChild(minValueLabel);
 
     const slider = document.createElement('input');
@@ -503,14 +585,24 @@ function createSliderSetting(setting, container, moduleName) {
     field.appendChild(maxValueLabel);
 
     const updateProgressBar = () => {
-        const percentage = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+        const value = slider.value;
+        const valueMin = slider.min;
+        const valueMax = slider.max;
+        const totalInputWidth = slider.offsetWidth;
+        const thumbHalfWidth = 10;
+        const minValue = slider.min;
+        const maxValue = slider.max;
+        const left = (((value - minValue) / (valueMax - valueMin)) * ((totalInputWidth - thumbHalfWidth) - thumbHalfWidth)) + thumbHalfWidth;
+        const width = slider.value / (slider.max - slider.min) * slider.offsetWidth;
+        progressBar.style.left = slider.offsetLeft + 'px';
+        if(value === minValue){
+            progressBar.style.width = 0 + 'px';
+        }else{
+            progressBar.style.width = (left - 5) + 'px';
+        }
 
-        // Adjust the progress bar's width to align with the center of the thumb
-        const thumbOffset = 10; // Half of the thumb's width
-        const progressBarWidth = Math.min(percentage, 100) * (slider.offsetWidth - thumbOffset * 2) / 100 + thumbOffset - 5;
-        progressBar.style.width = `${progressBarWidth}px`;
-        progressBar.style.left = '35px'
-    };
+    }
+    slider.oninput = updateProgressBar;
 
     const updateValueIndicator = () => {
         slideValue.textContent = slider.value;
@@ -816,6 +908,70 @@ function createModeSetting(setting, container, moduleName) {
     rightArrow.addEventListener('click', () => updateModeValue('right'));
 }
 
+function createColorSetting(setting, container, moduleName) {
+    // Create the container element for the color setting
+    const settingElement = document.createElement('div');
+    settingElement.className = 'setting color-setting';
+
+    // Create the label element for the setting name
+    const label = document.createElement('label');
+    label.className = 'color-setting-name';
+    label.textContent = setting.name;
+    settingElement.appendChild(label);
+
+    // Create a new div block to wrap the color picker
+    const colorPickerWrapper = document.createElement('div');
+    colorPickerWrapper.style.display = 'flex';
+    settingElement.appendChild(colorPickerWrapper);
+
+    // Create the color picker element
+    const colorPicker = document.createElement('div');
+    colorPicker.className = 'color-picker';
+    colorPickerWrapper.appendChild(colorPicker);
+
+    // Set the default color based on the setting value (if available)
+    // let defaultColor = '#42445a'; // Default color
+    // if (setting.value) {
+    //     defaultColor = ;
+    // }
+
+    // Convert the RGBA array to a string
+    let defaultColor = 'rgba(' + `${setting.value[0]}, ${setting.value[1]}, ${setting.value[2]}` + ', 1)';
+    console.log(`Default color: ${defaultColor}`);
+
+    // Initialize the color picker
+    const pickr = Pickr.create({
+        el: colorPicker,
+        theme: 'monolith',
+        default: defaultColor,
+        defaultRepresentation: 'RGBA',
+        components: {
+            preview: true,
+            opacity: true,
+            hue: true,
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: true,
+                cmyk: false,
+                input: true,
+                clear: true,
+                save: true
+            }
+        }
+    });
+
+    // Update the color setting value when the color picker is closed
+    pickr.on('save', (color) => {
+        const rgbaColor = color.toRGBA();
+        updateModuleSettings(moduleName, setting.name, [rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]]);
+        pickr.hide();
+    });
+
+    container.appendChild(settingElement);
+}
+
 
 
 function createSettingElement(setting, container, moduleName) {
@@ -836,9 +992,13 @@ function createSettingElement(setting, container, moduleName) {
             CreateListSetting(setting, container, moduleName);
             break;
         // Add cases for other types as needed
+        case 'color':
+            createColorSetting(setting, container, moduleName);
+            break;
         case 'mode':
             createModeSetting(setting, container, moduleName);
             break;
+
     }
 }
 

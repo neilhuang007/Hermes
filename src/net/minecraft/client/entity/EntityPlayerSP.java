@@ -1,9 +1,10 @@
 package net.minecraft.client.entity;
 
-import dev.hermes.manager.EventManager;
 import dev.hermes.event.events.impl.Motion.EventPostMotion;
 import dev.hermes.event.events.impl.Motion.EventPreMotion;
 import dev.hermes.event.events.impl.world.EventUpdate;
+import dev.hermes.manager.EventManager;
+import dev.hermes.utils.vector.Vector2f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -51,6 +52,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
     public float renderArmPitch;
     public float prevRenderArmYaw;
     public float prevRenderArmPitch;
+
+    public float renderPitchHead;
+    public float prevRenderPitchHead;
     private int horseJumpPowerCounter;
     private float horseJumpPower;
     public float timeInPortal;
@@ -88,6 +92,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
+            prevRenderPitchHead = renderPitchHead;
+            renderPitchHead = rotationPitch;
             EventUpdate event = new EventUpdate();
             EventManager.call(event);
 
@@ -105,9 +111,13 @@ public class EntityPlayerSP extends AbstractClientPlayer
         }
     }
 
+    public Vector2f getPreviousRotation() {
+        return new Vector2f(lastReportedYaw, lastReportedPitch);
+    }
+
     public void onUpdateWalkingPlayer()
     {
-        EventPreMotion event = new EventPreMotion(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
+        EventPreMotion event = new EventPreMotion(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
         EventManager.call(event);
 
         boolean flag = this.isSprinting();

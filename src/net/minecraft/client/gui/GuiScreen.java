@@ -15,6 +15,8 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import dev.hermes.manager.RenderManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.stream.GuiTwitchUserMode;
 import net.minecraft.client.renderer.GlStateManager;
@@ -437,14 +439,13 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         this.mc.thePlayer.sendChatMessage(msg);
     }
 
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (mouseButton == 0)
         {
             for (int i = 0; i < this.buttonList.size(); ++i)
             {
                 GuiButton guibutton = (GuiButton)this.buttonList.get(i);
-
                 if (guibutton.mousePressed(this.mc, mouseX, mouseY))
                 {
                     this.selectedButton = guibutton;

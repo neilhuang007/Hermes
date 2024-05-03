@@ -1,16 +1,20 @@
 package dev.hermes.manager;
 
+import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class MathManager {
+@UtilityClass
+
+public class MathManager extends Manager{
     public static int[] toRGBAArray(int colorBuffer) {
         return new int[]{colorBuffer >> 16 & 0xFF, colorBuffer >> 8 & 0xFF, colorBuffer & 0xFF};
     }
@@ -212,5 +216,90 @@ public class MathManager {
 
     public static double normalize(double value, double min, double max) {
         return (value - min) / (max - min);
+    }
+
+    /**
+     * Method which returns a double between two input numbers
+     *
+     * @param min minimal number
+     * @param max maximal number
+     * @return random between both numbers
+     */
+    public double getRandom(double min, double max) {
+        if (min == max) {
+            return min;
+        } else if (min > max) {
+            final double d = min;
+            min = max;
+            max = d;
+        }
+        return ThreadLocalRandom.current().nextDouble(min, max);
+    }
+
+
+
+    public double round(final double value, final int scale, final double inc) {
+        final double halfOfInc = inc / 2.0;
+        final double floored = Math.floor(value / inc) * inc;
+
+        if (value >= floored + halfOfInc) {
+            return new BigDecimal(Math.ceil(value / inc) * inc)
+                    .setScale(scale, RoundingMode.HALF_UP)
+                    .doubleValue();
+        } else {
+            return new BigDecimal(floored)
+                    .setScale(scale, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
+    }
+
+    public double roundWithSteps(final double value, final double steps) {
+        double a = ((Math.round(value / steps)) * steps);
+        a *= 1000;
+        a = (int) a;
+        a /= 1000;
+        return a;
+    }
+
+    public double lerp(final double a, final double b, final double c) {
+        return a + c * (b - a);
+    }
+
+    public float lerp(final float a, final float b, final float c) {
+        return a + c * (b - a);
+    }
+
+    /**
+     * Gets the distance to the position. Args: x, y, z
+     */
+    public double getDistance(final double x1, final double y1, final double z1, final double x2, final double y2, final double z2) {
+        final double d0 = x2 - x1;
+        final double d1 = y2 - y1;
+        final double d2 = z2 - z1;
+        return MathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
+    }
+
+    public static float[] constrainAngle(float[] vector) {
+
+        vector[0] = (vector[0] % 360F);
+        vector[1] = (vector[1] % 360F);
+
+        while (vector[0] <= -180) {
+            vector[0] = (vector[0] + 360);
+        }
+
+        while (vector[1] <= -180) {
+            vector[1] = (vector[1] + 360);
+        }
+
+        while (vector[0] > 180) {
+            vector[0] = (vector[0] - 360);
+        }
+
+        while (vector[1] > 180) {
+            vector[1] = (vector[1] - 360);
+        }
+
+        return vector;
     }
 }

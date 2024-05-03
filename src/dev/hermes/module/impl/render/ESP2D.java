@@ -8,16 +8,15 @@ import dev.hermes.module.api.Category;
 import dev.hermes.module.api.ModuleInfo;
 import dev.hermes.module.value.impl.BooleanValue;
 import dev.hermes.module.value.impl.ListValue;
-import dev.hermes.module.value.impl.ModeValue;
 import dev.hermes.module.value.impl.NumberValue;
-import dev.hermes.utils.interfaces.InstanceAccess;
-import dev.hermes.utils.rotation.MovementFix;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragon;
@@ -31,12 +30,8 @@ import net.minecraft.entity.passive.EntityBat;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
-import net.optifine.entity.model.IEntityRenderer;
-import net.optifine.util.MathUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
@@ -55,11 +50,15 @@ import java.util.regex.Pattern;
 @ModuleInfo(name = "ESP2D", category = Category.RENDER)
 public class ESP2D extends Module {
 
+    private final BooleanValue Range = new BooleanValue("Range", this, false);
+
+    private final NumberValue DisplayRange = new NumberValue("DisplayRange", this, 32, 10, 64, 1, () -> Range.getValue());
+
     private final ListValue<Mode5> colorMode = new ListValue<>("Color Mode", this);
 
     private final BooleanValue TeamsColor = new BooleanValue("Teams Color", this, true);
 
-    public final BooleanValue bbtt = new BooleanValue("2B2T Mode",this, true);
+//    public final BooleanValue bbtt = new BooleanValue("2B2T Mode",this, true);
     public final BooleanValue outline = new BooleanValue("Outline", this, true);
     public final ListValue<mode> boxMode = new ListValue<>("Mode", this, outline::getValue);
 
@@ -76,7 +75,7 @@ public class ESP2D extends Module {
     public final BooleanValue itemValue = new BooleanValue("Item", this,  true, itemTagsValue::getValue);
     public final BooleanValue tagsValue = new BooleanValue("Tags", this,  true);
     public final BooleanValue tagsBGValue = new BooleanValue("Tags-Background", this,  true, () -> tagsValue.getValue() || itemTagsValue.getValue());
-    public final BooleanValue clearNameValue = new BooleanValue("Use-Clear-Name", this,  false, tagsValue::getValue);
+//    public final BooleanValue clearNameValue = new BooleanValue("Use-Clear-Name", this,  false, tagsValue::getValue);
     public final BooleanValue armorBar = new BooleanValue("ArmorBar", this,  true);
     public final BooleanValue armorItems = new BooleanValue("ArmorItems", this,  true);
     public final BooleanValue armorDur = new BooleanValue("ArmorDur", this,  true, armorItems::getValue);
@@ -219,34 +218,37 @@ public class ESP2D extends Module {
             if (!(living = entity instanceof EntityLivingBase)) continue;
             EntityLivingBase entityLivingBase = (EntityLivingBase) entity;
             if (health) {
-                float armorValue = entityLivingBase.getHealth();
-                float itemDurability = entityLivingBase.getMaxHealth();
-                if (this.bbtt.getValue() && entityLivingBase instanceof EntityPlayer) {
-                    armorValue = entityLivingBase.getHealth() + entityLivingBase.getAbsorptionAmount();
-                    itemDurability = entityLivingBase.getMaxHealth() + 16.0f;
-                }
-                if (armorValue > itemDurability) {
-                    armorValue = itemDurability;
-                }
-                double durabilityWidth = armorValue / itemDurability;
-                double textWidth = (endPosY - posY) * durabilityWidth;
+                float EntityHealth = entityLivingBase.getHealth();
+                float MaxHealth = entityLivingBase.getMaxHealth();
+
                 String healthDisplay = this.dFormat.format(entityLivingBase.getHealth() + entityLivingBase.getAbsorptionAmount()) + " \u00a7c\u2764";
-                String healthPercent = (int) (entityLivingBase.getHealth() / itemDurability * 100.0f) + "%";
+                String healthPercent = (int) (entityLivingBase.getHealth() / MaxHealth * 100.0f) + "%";
+
+                double HealthRatio = EntityHealth / MaxHealth;
+                double textWidth = (endPosY - posY) * HealthRatio;
+
                 if (this.healthNumber.getValue() && (!this.hoverValue.getValue() || entity == mc.thePlayer || this.isHovering(posX, endPosX, posY, endPosY, scaledResolution))) {
                     this.drawScaledString(this.hpMode.getValue() == Mode4.Health ? healthDisplay : healthPercent, posX - 4.0 - (double) ((float) TextManager.getStringWidth(this.hpMode.getValue() == Mode4.Health ? healthDisplay : healthPercent) * this.fontScaleValue.getValue().doubleValue()), endPosY - textWidth - (double) ((float) mc.fontRendererObj.FONT_HEIGHT / 2.0f * this.fontScaleValue.getValue().doubleValue()), this.fontScaleValue.getValue().doubleValue());
                 }
+
                 newDrawRect(entityName + "_health",posX - 3.5, posY - 0.5, posX - 1.5, endPosY + 0.5, this.backgroundColor);
-                if (armorValue > 0.0f) {
-                    int healthColor = getHealthColor(armorValue, itemDurability).getRGB();
-                    double deltaY = endPosY - posY;
-                    if (this.hpBarMode.getValue() == Mode2.Dot && deltaY >= 60.0) {
-                        for (double k = 0.0; k < 10.0; k += 1.0) {
-                            double reratio = MathManager.clamp((double) armorValue - k * ((double) itemDurability / 10.0), 0.0, (double) itemDurability / 10.0) / ((double) itemDurability / 10.0);
-                            double hei = (deltaY / 10.0 - 0.5) * reratio;
-                            newDrawRect(entityName+"_hpbar_" + k ,posX - 3.0, endPosY - (deltaY + 0.5) / 10.0 * k, posX - 2.0, endPosY - (deltaY + 0.5) / 10.0 * k - hei, healthColor);
+
+
+                if (EntityHealth > 0.0f) {
+                    double totalheight = (endPosY - posY) * HealthRatio;
+                    Color healthColor = getHealthColor(EntityHealth, MaxHealth);
+//                    RenderManager.rectangle(entityName + "_health_total",posX - 3.5, posY -0.5, 1.5, (endPosY - posY) * HealthRatio, healthColor);
+                    double gap = 0.5; // Define the size of the gap between each health bar
+                    double barheight = (endPosY - posY - gap*EntityHealth) / 20.0; // Define the height of each health bar
+                    double yvalue = endPosY;
+                    if(EntityHealth > 40){
+                        // prevent lagging out because of too many rectangles
+                        RenderManager.rectangle(entityName + "_health_total",posX - 3.5, posY -0.5, 1.5, (endPosY - posY) * HealthRatio, healthColor);
+                    }else{
+                        for (int i = 0; i < EntityHealth; i++) {
+                            RenderManager.rectangle(entityName + "_health_" + i, posX - 1.5, yvalue - barheight, 1, barheight, healthColor);
+                            yvalue -= barheight + gap;
                         }
-                    } else {
-                        newDrawRect(entityName+"_hpbar",posX - 3.0, endPosY, posX - 2.0, endPosY - textWidth, healthColor);
                     }
                 }
             }
@@ -276,8 +278,11 @@ public class ESP2D extends Module {
                         peice = "boots";
                     }
                     double theHeight = constHeight + 0.25;
-                    newDrawRect(entityName+"_armor_" + peice + "_durability", endPosX + 2.0, endPosY + 0.5 - theHeight * (double) (m) - 0.25, endPosX + 3.0, endPosY + 0.5 - theHeight * (double) (m) - 0.25 - (constHeight - 0.25) * MathManager.clamp((double) InventoryManager.getItemDurability(armorStack) / (double) armorStack.getMaxDamage(), 0.0, 1.0), new Color(0, 255, 255).getRGB());
-                    newDrawRect(entityName+"_armor_" + peice, endPosX + 1.5, endPosY + 0.5 - theHeight * (double) m, endPosX + 3.5, endPosY + 0.5 - theHeight * (double) (m - 1), new Color(0, 0, 0, 120).getRGB());
+                    if(armorStack != null){
+                        newDrawRect(entityName+"_armor_" + peice, endPosX + 1.5, endPosY + 0.5 - theHeight * (double) m, endPosX + 3.5, endPosY + 0.5 - theHeight * (double) (m - 1), new Color(0, 0, 0, 120).getRGB());
+                        newDrawRect(entityName+"_armor_" + peice + "_durability", endPosX + 2.0, endPosY + 0.5 - theHeight * (double) (m) - 0.25, endPosX + 3.0, endPosY + 0.5 - theHeight * (double) (m) - 0.25 - (constHeight - 0.25) * MathManager.clamp((double) InvManager.getItemDurability(armorStack) / (double) armorStack.getMaxDamage(), 0.0, 1.0), new Color(0, 255, 255).getRGB());
+                        newDrawRect(entityName+"_armor_" + peice, endPosX + 1.5, endPosY + 0.5 - theHeight * (double) m, endPosX + 3.5, endPosY + 0.5 - theHeight * (double) (m - 1), new Color(0, 0, 0, 120).getRGB());
+                    }
                 }
             }
             if (this.armorItems.getValue() && (!this.hoverValue.getValue() || entity == mc.thePlayer || this.isHovering(posX, endPosX, posY, endPosY, scaledResolution))) {
@@ -285,9 +290,9 @@ public class ESP2D extends Module {
                 for (m = 4; m > 0; --m) {
                     ItemStack armorStack = entityLivingBase.getCurrentArmor(m-1);
                     if(armorStack != null){
-                        this.renderItemStack(armorStack, endPosX + (this.armorBar.getValue() ? 4.0 : 2.0), posY + yDist * (double) (4 - m) + yDist / 2.0 - 5.0);
+                        this.renderItemStack(armorStack, endPosX + (this.armorBar.getValue() ? 10.0 : 2.0), posY + yDist * (double) (4 - m) + yDist / 2.0 - 5.0);
                         if (!this.armorDur.getValue()) continue;
-                        this.drawScaledCenteredString(String.valueOf(InventoryManager.getItemDurability(armorStack)), endPosX + (this.armorBar.getValue() ? 4.0 : 2.0) + 4.5, posY + yDist * (double) (4 - m) + yDist / 2.0 + 4.0, this.fontScaleValue.getValue().doubleValue(), -1);
+                        this.drawScaledCenteredString(String.valueOf(InvManager.getItemDurability(armorStack)), endPosX + (this.armorBar.getValue() ? 10.0 : 2.0) + 4.5, posY + yDist * (double) (4 - m) + yDist / 2.0 + 4.0, this.fontScaleValue.getValue().doubleValue(), -1);
                     }
                 }
             }
@@ -421,15 +426,6 @@ public class ESP2D extends Module {
         return frustrum.isBoundingBoxInFrustum(bb);
     }
 
-//    public static void quickDrawRect(float x, float y, float x2, float y2) {
-//        GL11.glBegin(7);
-//        GL11.glVertex2d(x2, y);
-//        GL11.glVertex2d(x, y);
-//        GL11.glVertex2d(x, y2);
-//        GL11.glVertex2d(x2, y2);
-//        GL11.glEnd();
-//    }
-
     public static void drawRect(String id, double x, double y, double x2, double y2, int color) {
         float alpha = (float)(color >> 24 & 0xFF) / 255.0f;
         float red = (float)(color >> 16 & 0xFF) / 255.0f;
@@ -437,14 +433,6 @@ public class ESP2D extends Module {
         float blue = (float)(color & 0xFF) / 255.0f;
         RenderManager.rectangle(id, x, y, Math.abs(x-x2), Math.abs(y-y2),new Color(red,green,blue,alpha));
     }
-
-//    public static void newDrawRect(String id, double left, double top, double right, double bottom, int color) {
-//        float alpha = (float)(color >> 24 & 0xFF) / 255.0f;
-//        float red = (float)(color >> 16 & 0xFF) / 255.0f;
-//        float green = (float)(color >> 8 & 0xFF) / 255.0f;
-//        float blue = (float)(color & 0xFF) / 255.0f;
-//        RenderManager.rectangle(id,left,top,Math.abs(left-right),Math.abs(top-bottom),new Color(red,green,blue,alpha));
-//    }
 
     public static void newDrawRect(String id, double left, double top, double right, double bottom, int hex) {
         float alpha = (float)(hex >> 24 & 0xFF) / 255.0f;
@@ -558,10 +546,10 @@ public class ESP2D extends Module {
 
     private void collectEntities() {
         collectedEntities.clear();
-        List playerEntities = mc.theWorld.loadedEntityList;
-        int playerEntitiesSize = playerEntities.size();
-        for (Object playerEntity : playerEntities) {
+        List EntitiesList = mc.theWorld.loadedEntityList;
+        for (Object playerEntity : EntitiesList) {
             Entity entity = (Entity) playerEntity;
+            if(Range.getValue() && entity.getDistanceSqToEntity(mc.thePlayer) > DisplayRange.getValue().doubleValue()) continue;
             if (!this.isSelected(entity, false) && (!this.localPlayer.getValue() || !(entity instanceof EntityPlayerSP) || mc.gameSettings.thirdPersonView == 0) && (!this.droppedItems.getValue() || !(entity instanceof EntityItem)))
                 continue;
             collectedEntities.add(entity);

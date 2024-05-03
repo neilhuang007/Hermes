@@ -45,6 +45,10 @@ public class KeyBinding implements Comparable<KeyBinding>
         }
     }
 
+    public void setPressed(final boolean pressed) {
+        this.pressed = pressed;
+    }
+
     public static void unPressAllKeys()
     {
         for (KeyBinding keybinding : keybindArray)

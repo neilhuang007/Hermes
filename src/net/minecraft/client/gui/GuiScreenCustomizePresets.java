@@ -55,7 +55,7 @@ public class GuiScreenCustomizePresets extends GuiScreen
         Keyboard.enableRepeatEvents(false);
     }
 
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         this.field_175317_i.mouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);

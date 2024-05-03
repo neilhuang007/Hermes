@@ -74,7 +74,7 @@ public class GuiControls extends GuiScreen
         }
     }
 
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (this.buttonId != null)
         {

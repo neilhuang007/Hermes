@@ -10,11 +10,11 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import dev.hermes.Hermes;
-import dev.hermes.event.events.impl.world.EventGuiChange;
-import dev.hermes.manager.EventManager;
+import dev.hermes.event.events.impl.Combat.EventAttack;
 import dev.hermes.event.events.impl.client.EventKey;
+import dev.hermes.event.events.impl.world.EventGuiChange;
 import dev.hermes.event.events.impl.world.EventTick;
-import dev.hermes.ui.alt.GuiAccountManager;
+import dev.hermes.manager.EventManager;
 import dev.hermes.ui.crash.GuiAntiCrash;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -174,7 +174,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     private final Proxy proxy;
     private ISaveFormat saveLoader;
     private static int debugFPS;
-    private int rightClickDelayTimer;
+    public int rightClickDelayTimer;
     private String serverName;
     private int serverPort;
     public boolean inGameHasFocus;
@@ -1355,9 +1355,13 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 switch (this.objectMouseOver.typeOfHit)
                 {
                     case ENTITY:
+                        EventAttack eventAttack = new EventAttack(this.objectMouseOver.entityHit);
+                        EventManager.call(eventAttack);
+                        if(eventAttack.isCancelled()){
+                            break;
+                        }
                         this.playerController.attackEntity(this.thePlayer, this.objectMouseOver.entityHit);
                         break;
-
                     case BLOCK:
                         BlockPos blockpos = this.objectMouseOver.getBlockPos();
 
@@ -1541,6 +1545,16 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public void runTick() throws IOException
     {
         EventManager.call(new EventTick());
+
+        if (thePlayer != null) {
+            thePlayer.lastMotionX = thePlayer.motionX;
+            thePlayer.lastMotionY = thePlayer.motionY;
+            thePlayer.lastMotionZ = thePlayer.motionZ;
+            thePlayer.lastGround = thePlayer.onGround;
+
+            thePlayer.lastMovementYaw = thePlayer.movementYaw;
+            thePlayer.movementYaw = thePlayer.velocityYaw = thePlayer.rotationYaw;
+        }
 
         if (this.rightClickDelayTimer > 0)
         {

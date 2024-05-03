@@ -4,7 +4,7 @@ package dev.hermes.utils.file.config;
 import com.google.gson.JsonObject;
 import dev.hermes.Hermes;
 import dev.hermes.module.Module;
-import dev.hermes.module.impl.render.clickgui.ClickGui;
+import dev.hermes.module.impl.render.ClickGui;
 
 import dev.hermes.utils.file.FileType;
 import dev.hermes.module.value.Value;

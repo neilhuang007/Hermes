@@ -469,7 +469,7 @@ public class GuiScreenBook extends GuiScreen
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (mouseButton == 0)
         {

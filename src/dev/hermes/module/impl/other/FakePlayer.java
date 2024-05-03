@@ -31,6 +31,7 @@ public class FakePlayer extends Module {
             blinkEntity.setInvisible(mc.thePlayer.isInvisible());
             blinkEntity.setSneaking(mc.thePlayer.isSneaking());
             blinkEntity.inventory = mc.thePlayer.inventory;
+            blinkEntity.setHealth(mc.thePlayer.getHealth());
 
             mc.theWorld.addEntityToWorld(blinkEntity.getEntityId(), blinkEntity);
         }

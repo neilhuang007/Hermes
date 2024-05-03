@@ -1,5 +1,8 @@
 package net.minecraft.client.multiplayer;
 
+import dev.hermes.Hermes;
+import dev.hermes.event.events.impl.world.BlockDamageEvent;
+import dev.hermes.manager.EventManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -13,19 +16,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
-import net.minecraft.network.play.client.C02PacketUseEntity;
-import net.minecraft.network.play.client.C07PacketPlayerDigging;
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
-import net.minecraft.network.play.client.C09PacketHeldItemChange;
-import net.minecraft.network.play.client.C0EPacketClickWindow;
-import net.minecraft.network.play.client.C10PacketCreativeInventoryAction;
-import net.minecraft.network.play.client.C11PacketEnchantItem;
+import net.minecraft.network.play.client.*;
 import net.minecraft.stats.StatFileWriter;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
 
@@ -84,6 +77,8 @@ public class PlayerControllerMP
 
     public boolean onPlayerDestroyBlock(BlockPos pos, EnumFacing side)
     {
+        final BlockDamageEvent bdEvent = new BlockDamageEvent(this.mc.thePlayer, this.mc.thePlayer.worldObj, pos);
+        EventManager.call(bdEvent);
         if (this.currentGameType.isAdventure())
         {
             if (this.currentGameType == WorldSettings.GameType.SPECTATOR)
@@ -296,6 +291,9 @@ public class PlayerControllerMP
 
     public float getBlockReachDistance()
     {
+        if(Hermes.moduleManager.get("Reach").isEnabled()){
+            return ((Double) Hermes.moduleManager.get("Reach").getAllValues().get(0).getValue()).floatValue();
+        }
         return this.currentGameType.isCreative() ? 5.0F : 4.5F;
     }
 

@@ -96,7 +96,7 @@ public class GuiAccountLogin extends GuiScreen {
     }
 
     @Override
-	protected void mouseClicked(int x, int y, int button) {
+    public void mouseClicked(int x, int y, int button) {
         try {
             super.mouseClicked(x, y, button);
         } catch (IOException e) {

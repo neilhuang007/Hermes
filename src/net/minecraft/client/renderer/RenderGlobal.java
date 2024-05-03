@@ -4,26 +4,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonSyntaxException;
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockChest;
-import net.minecraft.block.BlockEnderChest;
-import net.minecraft.block.BlockSign;
-import net.minecraft.block.BlockSkull;
+import dev.hermes.Hermes;
+import dev.hermes.event.events.impl.world.BlockDamageEvent;
+import dev.hermes.manager.EventManager;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -32,13 +16,7 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.EntityFX;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.client.renderer.chunk.CompiledChunk;
-import net.minecraft.client.renderer.chunk.IRenderChunkFactory;
-import net.minecraft.client.renderer.chunk.ListChunkFactory;
-import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.chunk.VboChunkFactory;
-import net.minecraft.client.renderer.chunk.VisGraph;
+import net.minecraft.client.renderer.chunk.*;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.culling.ClippingHelperImpl;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -73,31 +51,13 @@ import net.minecraft.item.ItemRecord;
 import net.minecraft.src.Config;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ClassInheritanceMultiMap;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.LongHashMap;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Matrix4f;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.ReportedException;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
-import net.minecraft.util.Vector3d;
+import net.minecraft.util.*;
 import net.minecraft.world.IWorldAccess;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.optifine.CustomColors;
-import net.optifine.CustomSky;
-import net.optifine.DynamicLights;
-import net.optifine.Lagometer;
-import net.optifine.RandomEntities;
-import net.optifine.SmartAnimations;
+import net.optifine.*;
 import net.optifine.model.BlockModelUtils;
 import net.optifine.reflect.Reflector;
 import net.optifine.render.ChunkVisibility;
@@ -115,6 +75,12 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import java.awt.*;
+import java.io.IOException;
+import java.util.List;
+import java.util.*;
+import java.util.concurrent.Callable;
 
 public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListener
 {
@@ -2595,6 +2561,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 }
 
                 drawSelectionBoundingBox(axisalignedbb.expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D).offset(-d0, -d1, -d2));
+                if(Hermes.moduleManager.get("Block Selection Highlight").isEnabled()){
+                    drawSelectedBoundingBoxFillings(axisalignedbb.expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D).offset(-d0, -d1, -d2));
+                }
             }
 
             GlStateManager.depthMask(true);
@@ -2613,6 +2582,10 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
     {
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        if(Hermes.moduleManager.get("Block Selection Highlight").isEnabled()){
+            Color LineColour = (Color) Hermes.moduleManager.get("Block Selection Highlight").getAllValues().get(1).getValue();;
+            GlStateManager.color(LineColour.getRed(), LineColour.getGreen(), LineColour.getBlue(), LineColour.getAlpha());
+        }
         worldrenderer.begin(3, DefaultVertexFormats.POSITION);
         worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
         worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
@@ -2639,8 +2612,93 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
         tessellator.draw();
     }
 
+    public static void drawSelectedBoundingBoxFillings(AxisAlignedBB boundingBox) {
+
+
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+
+        if(Hermes.moduleManager.get("Block Selection Highlight").isEnabled()){
+            // Get the filling color
+            Color fillingColor = (Color) Hermes.moduleManager.get("Block Selection Highlight").getAllValues().get(0).getValue();
+
+            // Set the filling color
+            GlStateManager.color(fillingColor.getRed()/255.0F, fillingColor.getGreen()/255.0F, fillingColor.getBlue()/255.0F, fillingColor.getAlpha()/255.0F);
+        }
+
+        // Draw the filled box
+        // North face
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
+        tessellator.draw();
+
+        // South face
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        tessellator.draw();
+
+        // Draw the filled box
+        // Bottom face
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        tessellator.draw();
+
+        // Top face
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        tessellator.draw();
+
+        // Draw the filled box
+        // Left face
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        tessellator.draw();
+
+        // Right face
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        tessellator.draw();
+
+        // West face
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        tessellator.draw();
+
+        // East face
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
+        worldrenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
+        tessellator.draw();
+
+
+    }
+
     public static void drawOutlinedBoundingBox(AxisAlignedBB boundingBox, int red, int green, int blue, int alpha)
     {
+
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
         worldrenderer.begin(3, DefaultVertexFormats.POSITION_COLOR);
@@ -3178,6 +3236,8 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
     {
         if (progress >= 0 && progress < 10)
         {
+            final BlockDamageEvent bdEvent = new BlockDamageEvent(this.mc.thePlayer, this.mc.thePlayer.worldObj, pos);
+            EventManager.call(bdEvent);
             DestroyBlockProgress destroyblockprogress = (DestroyBlockProgress)this.damagedBlocks.get(Integer.valueOf(breakerId));
 
             if (destroyblockprogress == null || destroyblockprogress.getPosition().getX() != pos.getX() || destroyblockprogress.getPosition().getY() != pos.getY() || destroyblockprogress.getPosition().getZ() != pos.getZ())

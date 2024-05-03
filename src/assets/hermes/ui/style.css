@@ -256,7 +256,7 @@ body {
 
 
 .module_content{
-    width: 320px;
+    width: auto;
     left: 0;
     padding: 20px 40px;
     color: #fff;
@@ -425,6 +425,15 @@ body {
     align-self: flex-start; /* Align module name to the top-left */
 }
 
+#pageIndicator {
+    display: inline-block;
+    align-items: center;
+    justify-content: space-between;
+}
+#pageIndicator, #leftArrow, #rightArrow, #indecator {
+    display: flex;
+}
+
 #backButton {
     align-self: flex-end; /* Position the back button at the bottom */
     cursor: pointer;
@@ -566,7 +575,8 @@ body {
     left: 25%;
     right: 25%;
     height: 100%;
-    background: #17a288;
+    background: #4c8bf5;
+    box-shadow: rgba(93, 166, 255, 0.01) 0px 0px 5px 5px;
     border-radius: 50px; /* Unchanged border-radius */
 }
 
@@ -585,7 +595,8 @@ body {
     -webkit-appearance: none;
     width: 17px; /* Unchanged width */
     height: 17px; /* Unchanged height */
-    background: #17a288;
+    background: #4c8bf5;
+    box-shadow: rgba(93, 166, 255, 0.1) 0px 0px 5px 5px;
     border-radius: 50px; /* Unchanged border-radius */
 }
 
@@ -702,6 +713,7 @@ body {
     margin-bottom: 20px;
 }
 
+
 .setting .field {
     margin-top: 30px;
     margin-bottom: 30px;
@@ -713,35 +725,7 @@ body {
     width: 100%;
 }
 
-.setting .field input[type="range"] {
-    margin-left: 20px;
-    -webkit-appearance: none;
-    width: 270px;
-    height: 3px;
-    background: #ddd;
-    border-radius: 5px;
-    outline: none;
-    border: none;
-}
 
-.setting .field input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #664AFF;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.setting .field .progress-bar {
-    position: absolute;
-    background: #664AFF;
-    height: 3px;
-    width: 0%;
-    left: 0;
-    border-radius: 5px;
-    z-index: 2;
-}
 
 .setting .field .sliderValue {
     position: absolute;
@@ -750,7 +734,7 @@ body {
     height: 45px; /* Height of the indicator */
     line-height: 45px; /* Aligns text vertically */
     color: #fff; /* Text color */
-    background: #664AFF; /* Background color */
+    background: #4c8bf5; /* Background color */
     border: 3px solid #fff; /* Border properties */
     display: flex; /* Enables Flexbox */
     justify-content: center; /* Centers content horizontally */
@@ -758,9 +742,11 @@ body {
     transform: scale(0); /* Initial transform */
     transition: transform 0.3s ease-in-out; /* Transition for scaling */
     z-index: 2; /* Ensures it's above other elements */
+    padding: 0 10px; /* Adjust as needed */
     border-top-left-radius: 50%;
     border-top-right-radius: 50%;
     border-bottom-right-radius: 50%;
+    box-shadow: 0 0 20px rgba(76, 139, 245, 0.8);
 
 }
 
@@ -768,23 +754,50 @@ body {
     transform: scale(1); /* Scales up when active */
 }
 
+.setting .field input[type="range"] {
+    -webkit-appearance: none;
+}
 
+.setting .field input{
+    position: relative;
+    width: 100%; /* Take up all available width */
+    box-sizing: border-box; /* Include padding and border in element's total width */
+    background: #cccccc;
+    height: 3px;
+}
 
+.setting .field input[type="range"]::-webkit-slider-thumb {
+    background-color: #4c8bf5;
+    box-shadow: 0 0 20px rgba(76, 139, 245, 0.8);
+    border: 20px transparent;
+    box-sizing: content-box;
+}
 
 .setting .field .value {
     position: absolute;
     font-size: 18px;
-    color: #664AFF;
+    color: #4c8bf5;
     font-weight: 600;
 }
 
+.setting .field .progress-bar{
+    position: absolute;
+    background-color: #4c8bf5;
+    border-color: transparent;
+    box-shadow: 0 0 20px rgba(76, 139, 245, 0.8);
+    height: 3px;
+    z-index: 2;
+}
+
 .setting .field .value.left {
+    position: relative;
     left: 0px; /* Adjust position to the left */
     margin-right: 10px;
 }
 
 .setting .field .value.right {
-    right: -15px; /* Adjust position to the right */
+    position: relative;
+    margin-left: 10px;
 }
 
 /*mode setting */
@@ -1051,6 +1064,14 @@ body {
 .input-container input[type="text"]:focus ~ .underline,
 .input-container input[type="text"]:valid ~ .underline {
     transform: scaleX(1);
+}
+
+/*color picker css*/
+
+.color-picker {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 

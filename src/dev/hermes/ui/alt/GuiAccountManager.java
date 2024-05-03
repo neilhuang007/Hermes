@@ -207,7 +207,7 @@ public class GuiAccountManager extends GuiScreen {
     }
 
     @Override
-    protected void mouseClicked(int par1, int par2, int par3) {
+    public void mouseClicked(int par1, int par2, int par3) {
         if (offset < 0) {
             offset = 0;
         }

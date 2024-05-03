@@ -2,6 +2,7 @@ package dev.hermes;
 
 import dev.hermes.api.Hidden;
 import dev.hermes.manager.EventManager;
+import dev.hermes.manager.Manager;
 import dev.hermes.manager.ModuleManager;
 import dev.hermes.manager.RenderManager;
 import dev.hermes.module.Module;
@@ -30,6 +31,8 @@ public class Hermes {
     public final static String VERSION_FULL = "1.0"; // Used to give more detailed build info on beta builds
     public final static String VERSION_DATE = "June 5, 2023";
     public static boolean DEVELOPMENT_SWITCH = true;
+
+    //managers
     public static ModuleManager moduleManager = new ModuleManager();
 
     public static DataManager dataManager = new DataManager();
@@ -45,6 +48,10 @@ public class Hermes {
     public static AccountManager accountManager = new AccountManager();
 
     public static EventManager eventManager = new EventManager();
+
+    public static Manager manager = new Manager();
+
+
 
     public static void initHermes(Instrumentation inst){
         // Init
@@ -81,14 +88,6 @@ public class Hermes {
         mc.gameSettings.ofDynamicFov = false;
         mc.gameSettings.ofSmoothFps = true;
 
-
-
-
-
-
-
-
-
         // Performance
         mc.gameSettings.ofSmartAnimations = true;
         mc.gameSettings.ofSmoothFps = false;
@@ -120,14 +119,17 @@ public class Hermes {
 
             Class<?>[] classes = ReflectionUtil.getClassesInPackage(path);
 
+            System.out.println("Classes: " + classes);
+
             for (Class<?> clazz : classes) {
                 try {
                     if (clazz.isAnnotationPresent(Hidden.class)) continue;
-
                     if (Module.class.isAssignableFrom(clazz) && clazz != Module.class) {
                         moduleManager.add((Module) clazz.getConstructor().newInstance());
                     }
-                    eventManager.register(clazz);
+
+                    EventManager.register(clazz);
+
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                          NoSuchMethodException exception) {
                     exception.printStackTrace();
@@ -140,17 +142,22 @@ public class Hermes {
 
 
 
+
         fileManager.init();
         configManager.init();
         moduleManager.init();
         renderManager.init();
         accountManager.init();
+        manager.init();
+
 
         // read config
         final File file = new File(ConfigManager.CONFIG_DIRECTORY, "latest.json");
         configFile = new ConfigFile(file, FileType.CONFIG);
         configFile.allowKeyCodeLoading();
         configFile.read();
+
+        renderManager.initwindow();
 
     }
 

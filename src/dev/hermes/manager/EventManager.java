@@ -4,7 +4,6 @@ import dev.hermes.event.EventTarget;
 import dev.hermes.event.events.Event;
 import dev.hermes.event.events.EventStoppable;
 import dev.hermes.event.types.Priority;
-import dev.hermes.utils.projection.ProjectionUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author DarkMagician6
  * @since February 2, 2014
  */
-public final class EventManager {
+public final class EventManager extends Manager{
 
     /**
      * HashMap containing all the registered MethodData sorted on the event parameters of the methods.
@@ -29,8 +28,6 @@ public final class EventManager {
      * All methods in this class are static so there would be no reason to create an object of the EventManager class.
      */
     public EventManager() {
-        register(RenderManager.class);
-        register(ProjectionUtil.class);
     }
 
     /**

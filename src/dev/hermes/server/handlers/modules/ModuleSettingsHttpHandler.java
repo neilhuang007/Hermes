@@ -68,6 +68,15 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
                         moduleSet.addProperty("minvalue", ((BoundsNumberValue) setting).getValue().doubleValue());
                         moduleSet.addProperty("maxvalue", ((BoundsNumberValue) setting).getSecondValue().doubleValue());
                         moduleSet.addProperty("suffix", ((BoundsNumberValue) setting).getSuffix());
+                    } else if (setting instanceof ColorValue){
+                        moduleSet.addProperty("name", setting.getName());
+                        moduleSet.addProperty("type", "color");
+                        JsonArray Color = new JsonArray();
+                        Color.add(((ColorValue) setting).getValue().getRed());
+                        Color.add(((ColorValue) setting).getValue().getGreen());
+                        Color.add(((ColorValue) setting).getValue().getBlue());
+                        Color.add(((ColorValue) setting).getValue().getAlpha());
+                        moduleSet.add("value", Color);
                     }
                     moduleJsonArray.add(moduleSet);
                 }

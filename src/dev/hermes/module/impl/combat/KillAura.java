@@ -9,6 +9,8 @@ import dev.hermes.module.api.ModuleInfo;
 import dev.hermes.utils.rotation.MovementFix;
 import dev.hermes.module.value.impl.*;
 
+import java.awt.*;
+
 @Hermes
 @ModuleInfo(name = "KillAura", description = "KA", category = Category.COMBAT)
 public final class KillAura extends Module {
@@ -28,6 +30,8 @@ public final class KillAura extends Module {
 
     private final ListValue<MovementFix> movementCorrection = new ListValue<>("Movement correction", this);
     private NumberValue height = new NumberValue("Height", this, 1, 0.1, 10, 0.1);
+
+    private ColorValue color = new ColorValue("Color", this, new Color(64, 133, 236, 255));
 
 
     public KillAura() {

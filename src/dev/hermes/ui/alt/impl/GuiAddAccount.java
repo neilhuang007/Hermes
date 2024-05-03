@@ -147,7 +147,7 @@ public class GuiAddAccount extends GuiScreen {
     }
 
     @Override
-	protected void mouseClicked(int par1, int par2, int par3) {
+    public void mouseClicked(int par1, int par2, int par3) {
         try {
             super.mouseClicked(par1, par2, par3);
         } catch (IOException e) {

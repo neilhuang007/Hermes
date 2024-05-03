@@ -6,8 +6,6 @@ import dev.hermes.event.events.impl.client.EventKey;
 import dev.hermes.module.Module;
 import dev.hermes.module.api.Category;
 import dev.hermes.utils.interfaces.InstanceAccess;
-import net.minecraft.crash.CrashReport;
-import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,8 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
 
         // Automatic initializations
         this.stream().filter(module -> module.getModuleInfo().autoEnabled()).forEach(module -> module.setEnabled(true));
-
+//        // register module?
+//        this.stream().filter(module -> module.getModuleInfo().autoEnabled()).forEach(EventManager::register);
 
         // Has to be a listener to handle the key presses
         EventManager.register(this);
@@ -38,11 +37,13 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
         return new ArrayList<>(this);
     }
 
-    public <T extends Module> T get(final String name) {
-        // noinspection unchecked
-        return (T) modules.stream()
-                .filter(module -> module.getDisplayName().equalsIgnoreCase(name.replace(" ", "")))
-                .findAny().orElse(null);
+    public Module get(final String name) {
+        for (Module module : getAll()) {
+            if (module.getDisplayName().equalsIgnoreCase(name)) {
+                return module;
+            }
+        }
+        return null;
     }
 
     public <T extends Module> T get(final Class<T> clazz) {
@@ -64,11 +65,6 @@ public final class ModuleManager extends ArrayList<Module> implements InstanceAc
         if (mc.currentScreen != null) {
             return;
         }
-
-        if(key.getKey() == Keyboard.KEY_R) {
-            mc.crashed(new CrashReport("Error", new Exception("Error")));
-        };
-
         this.stream()
                 .filter(module -> module.getModuleInfo().keyBind() == key.getKey())
                 .forEach(Module::toggle);

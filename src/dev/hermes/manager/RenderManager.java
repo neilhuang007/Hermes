@@ -1,22 +1,10 @@
 package dev.hermes.manager;
 
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.User32;
-import com.sun.jna.platform.win32.WinDef;
-import com.sun.jna.platform.win32.WinUser;
-import com.sun.jna.win32.StdCallLibrary;
-import dev.hermes.injection.annotations.Inject;
+import dev.hermes.api.Hermes;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -24,27 +12,27 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
 import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.Method;
-import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.*;
 
 
-public class RenderManager {
+@Hermes
+public class RenderManager extends Manager{
 
     public static Map<String, Shape> shapesMap = new HashMap<>();
 
@@ -65,6 +53,19 @@ public class RenderManager {
 
     private static double lastwidth = -1;
     private static double lastheight = -1;
+
+    public static double mouseX = 0;
+    public static double mouseY = 0;
+
+    public static double deltaMouseX = 0;
+    public static double deltaMouseY = 0;
+
+    public static boolean takeover = false;
+
+
+
+    // A reference to the current GUI
+    public static GuiScreen currentGui;
 
 
     private static JFrame frame; // Add this line
@@ -140,11 +141,12 @@ public class RenderManager {
         }else{
             isopen = false;
         }
+//        rectangle("capture",0,0, root.getWidth(), root.getHeight(), new java.awt.Color(0,0,0));
     }
 
 
     // Initialize the overlay window
-    public static void init() {
+    public void initwindow() {
         ScaledResolution scaledResolution = new ScaledResolution(mc);
         double width = scaledResolution.getScaledWidth_double();
         double height = scaledResolution.getScaledHeight_double();
@@ -155,7 +157,11 @@ public class RenderManager {
         updateWindowLocation();
         setupAnimationTimer();
 
+        Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
+        Mouse.setGrabbed(false);
+
     }
+
 
     // Create the overlay window
     // Create the overlay window
@@ -172,6 +178,7 @@ public class RenderManager {
             scene.setFill(Color.TRANSPARENT);
             System.out.println("Set scene");
             root.setMouseTransparent(true); // Make the root pane transparent to mouse events
+
             primaryStage.setScene(scene);
             System.out.println("Set stage");
 
@@ -179,9 +186,43 @@ public class RenderManager {
             primaryStage.setOnCloseRequest(event -> event.consume());
             System.out.println("Set on close request");
 
-            root.addEventFilter(MouseEvent.ANY, MouseEvent::consume);
+
+            scene.setOnMouseMoved(event -> {
+                if(takeover){
+                    if(isopen){
+                        // means ingame
+
+                        mouseX = event.getSceneX() / scaledResolution.getScaleFactor();
+                        mouseY = event.getSceneY() / scaledResolution.getScaleFactor();
+
+                        deltaMouseX = (event.getSceneX() - ((double) Display.getWidth() / 2)) * scaledResolution.getScaleFactor();
+                        deltaMouseY = (-(event.getSceneY() - Display.getHeight() / 2) + 1) * scaledResolution.getScaleFactor();
+                        Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
+                        Mouse.setGrabbed(true);
+                        System.out.println("deltaX: " + deltaMouseX + " deltaY: " + deltaMouseY);
+                    }
+                }
+            });
+
+            scene.setOnMouseEntered(event -> {
+                takeover = true;
+                System.out.println("Taking Over mouse control");
+            });
+
+            scene.setOnMouseExited(event -> {
+                takeover = false;
+                System.out.println("released mouse control");
+                if(mc.theWorld != null && mc.thePlayer != null && mc.currentScreen == null){
+                    Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
+                    Mouse.setGrabbed(true);
+                }else{
+                    Mouse.setGrabbed(false);
+                }
+            });
+
             primaryStage.show();
         });
+
     }
 
     public static void updateWindowLocation() {
@@ -277,6 +318,39 @@ public class RenderManager {
             });
         }
     }
+
+    public static void roundedRectangle(String id, final double x, final double y, final double width, final double height, final double arcWidth, final double arcHeight, final java.awt.Color color) {
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
+                Rectangle roundedRectangle = (Rectangle) shapesMap.get(id);
+
+                Color fillcolor = convertColor(color);
+                if (roundedRectangle == null) {
+                    roundedRectangle = new Rectangle(x * factor, y * factor, width * factor, height * factor);
+                    roundedRectangle.setArcWidth(arcWidth * factor);
+                    roundedRectangle.setArcHeight(arcHeight * factor);
+                    roundedRectangle.setFill(fillcolor);
+                    shapesMap.put(id, roundedRectangle);
+                    roundedRectangle.setMouseTransparent(true);
+                    root.getChildren().add(roundedRectangle);
+                } else {
+                    // Update properties for existing rectangle
+                    roundedRectangle.setX(x * factor);
+                    roundedRectangle.setY(y * factor);
+                    roundedRectangle.setWidth(width * factor);
+                    roundedRectangle.setHeight(height * factor);
+                    roundedRectangle.setArcWidth(arcWidth * factor);
+                    roundedRectangle.setArcHeight(arcHeight * factor);
+                    roundedRectangle.setFill(fillcolor);
+                }
+                modifiedidbuffer.add(id);
+            });
+        }
+    }
+
+
 
 
     public static void horizontalGradient(String id, final double x, final double y, final double width, final double height, final java.awt.Color leftColor, final java.awt.Color rightColor) {
@@ -443,4 +517,48 @@ public class RenderManager {
             });
         }
     }
+    public static void drawString(String id, String str, double x, double y, java.awt.Color color) {
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
+                Text text = (Text) shapesMap.get(id);
+                if (text == null) {
+                    text = new Text(x*factor, y*factor, str);
+                    shapesMap.put(id, text);
+                    root.getChildren().add(text);
+                } else {
+                    text.setX(x*factor);
+                    text.setY(y*factor);
+                    text.setText(str);
+                }
+                text.setFill(convertColor(color)); // Set color
+                // Set default font
+                text.setFont(javafx.scene.text.Font.font("Arial", 14));
+            });
+        }
+    }
+
+    public static void drawString(String id, String str, double x, double y, java.awt.Color color, Font font) {
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
+                Text text = (Text) shapesMap.get(id);
+                if (text == null) {
+                    text = new Text(x*factor, (y + (font.getSize()/2))*factor, str);
+                    shapesMap.put(id, text);
+                    root.getChildren().add(text);
+                } else {
+                    text.setX(x*factor);
+                    text.setY((y + (font.getSize()/2))*factor);
+                    text.setText(str);
+                }
+                text.setFont(javafx.scene.text.Font.font(font.getFontName(), font.getSize())); // Set font
+                text.setFill(convertColor(color)); // Set color
+            });
+        }
+    }
+
+
 }

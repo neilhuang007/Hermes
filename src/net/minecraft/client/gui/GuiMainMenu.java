@@ -25,6 +25,7 @@ import net.optifine.reflect.Reflector;
 import org.apache.commons.io.Charsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
@@ -634,8 +635,9 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         }
     }
 
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
+//        System.out.println("Mouse clicked " + Mouse.getX() + " " + Mouse.getY());
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
         synchronized (this.threadLock)
