@@ -10,5 +10,4 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EventMouseOver extends EventCancellable {
     private double range;
-    private float expand;
 }

@@ -1,4 +1,5 @@
 console.log('modules.js loaded');
+loadModules('Combat')
 
 // func for altmanager
 
@@ -6,6 +7,8 @@ let altsData = {}; // Object to store fetched alts data for easy access
 
 let isHovered = false;
 let hoverTimeout;
+
+const port = 1342;
 
 async function createAlt(Username, Accounttype) {
     const altcontainer = document.querySelector('.alt-display');
@@ -48,7 +51,7 @@ async function createAlt(Username, Accounttype) {
         e.preventDefault();
         removeButton.textContent = 'Deleting...';
         try {
-            const response = await fetch(`http://localhost:1342/api/DeleteAlt?altname=${Username}`, {
+            const response = await fetch(`http://localhost:${port}/api/DeleteAlt?altname=${Username}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -61,12 +64,16 @@ async function createAlt(Username, Accounttype) {
             } else {
                 removeButton.textContent = 'Remove Failed';
                 console.error(data.reason);
-                setTimeout(() => { removeButton.textContent = 'Remove'; }, 3000);
+                setTimeout(() => {
+                    removeButton.textContent = 'Remove';
+                }, 3000);
             }
         } catch (error) {
             console.error('Error deleting alt:', error);
             removeButton.textContent = 'Delete Error';
-            setTimeout(() => { removeButton.textContent = 'Remove'; }, 3000);
+            setTimeout(() => {
+                removeButton.textContent = 'Remove';
+            }, 3000);
         }
     });
 
@@ -86,7 +93,7 @@ async function createAlt(Username, Accounttype) {
 async function loginAlt(Username, buttonElement, altCardElement) {
     buttonElement.textContent = 'Logging in...';
     try {
-        const response = await fetch(`http://localhost:1342/api/AltLogin?altname=${Username}`, {
+        const response = await fetch(`http://localhost:${port}/api/AltLogin?altname=${Username}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -100,12 +107,16 @@ async function loginAlt(Username, buttonElement, altCardElement) {
         } else {
             buttonElement.textContent = 'Login Failed';
             console.error(data.reason);
-            setTimeout(() => { buttonElement.textContent = 'Login'; }, 3000);
+            setTimeout(() => {
+                buttonElement.textContent = 'Login';
+            }, 3000);
         }
     } catch (error) {
         console.error('Error logging in:', error);
         buttonElement.textContent = 'Login Error';
-        setTimeout(() => { buttonElement.textContent = 'Login'; }, 3000);
+        setTimeout(() => {
+            buttonElement.textContent = 'Login';
+        }, 3000);
     }
 }
 
@@ -113,12 +124,12 @@ async function updateAlts() {
     try {
         const altcontainer = document.querySelector('.alt-display');
         altcontainer.innerHTML = ''; // Clear existing content
-        const response = await fetch(`http://localhost:1342/api/getAltAccounts`);
+        const response = await fetch(`http://localhost:${port}/api/getAltAccounts`);
         const altdata = await response.json();
         altsData = altdata; // Store fetched data
 
         Object.keys(altdata).forEach(username => {
-            const { username: Username, accounttype: Accounttype } = altdata[username];
+            const {username: Username, accounttype: Accounttype} = altdata[username];
             createAlt(Username, Accounttype);
         });
     } catch (error) {
@@ -134,7 +145,7 @@ function bindAddAccountButton() {
 
             let shouldCreate = false;
             let dropdownMenu = document.querySelector('.dropdown-menu');
-            if(dropdownMenu == null){
+            if (dropdownMenu == null) {
                 console.log('creating')
                 shouldCreate = true;
                 // Create the dropdown menu
@@ -204,7 +215,7 @@ function bindAddAccountButton() {
                 e.preventDefault();
                 // Call the API with the additional parameters
                 try {
-                    const response = await fetch(`http://localhost:1342/api/AddAlt?type=microsoft&username=neil_huang007`, {
+                    const response = await fetch(`http://localhost:${port}/api/AddAlt?type=microsoft&username=neil_huang007`, {
                         method: 'GET',
                     });
                     const data = await response.json();
@@ -250,7 +261,7 @@ function bindAddAccountButton() {
                     }
                 }, 1500);
             });
-            if(shouldCreate){
+            if (shouldCreate) {
                 // Append the options to the dropdown menu
                 dropdownMenu.appendChild(offlineOption);
                 dropdownMenu.appendChild(microsoftOption);
@@ -274,7 +285,6 @@ function bindRandomButton() {
         }
     });
 }
-
 
 
 async function init() {
@@ -309,9 +319,10 @@ async function addModule(module) {
     moduleContent.appendChild(settingsContainer);
 
     // Check if the module is enabled and update UI
-    if (module.enabled) {
-        updateModuleUI(moduleElement, module.name, true);
-    }
+    // if (module.enabled) {
+    //     console.log('Module is enabled:', module.name);
+    //     updateModuleUI(moduleElement, module.name, true);
+    // }
 
     let page = 1
 
@@ -326,19 +337,20 @@ async function addModule(module) {
 
     const ModuletoggleButton = document.createElement('a');
     ModuletoggleButton.setAttribute('href', '#');
-    ModuletoggleButton.textContent = module.enabled ? 'UnToggled' : 'Toggled';
+    console.log(`module name: ${module.name} module enabled: ${module.enabled}`)
+    ModuletoggleButton.textContent = module.enabled ? 'Toggled' : 'UnToggled';
     ModuletoggleButton.style.marginLeft = '10px';
 
     ModuletoggleButton.addEventListener('click', function (event) {
         event.preventDefault();
-        toggleModuleState(module.name, !module.enabled);
         module.enabled = !module.enabled; // Update module.enabled property
-        ModuletoggleButton.textContent = module.enabled ? 'UnToggled' : 'Toggled';
+        toggleModuleState(module.name, module.enabled);
+        ModuletoggleButton.textContent = module.enabled ? 'Toggled' : 'UnToggled';
         updateModuleUI(moduleElement, module.name, module.enabled); // Optional: Refresh module UI
     });
 
     // Fetch module settings from the API
-    const response = await fetch(`http://localhost:1342/api/getModuleSetting?module=${module.name}`);
+    const response = await fetch(`http://localhost:${port}/api/getModuleSetting?module=${module.name}`);
     const settingsData = await response.json();
 
     if (settingsData.success) {
@@ -417,7 +429,7 @@ function toggleModuleSettings(settingsContainer, module, titleElement, descripti
 
     // Populate settings if they are about to be shown
     if (!isSettingsVisible) {
-        populateSettings(settingsContainer, module,settingpage);
+        populateSettings(settingsContainer, module, settingpage);
     }
 
     // Toggle settings container visibility
@@ -439,7 +451,7 @@ function populateSettings(settingsContainer, module, page) {
     customDiv.textContent = 'This is a custom div between the module name and the back button.';
     settingsContainer.appendChild(customDiv);
 
-    loadSettings(module.name,page,customDiv)
+    loadSettings(module.name, page, customDiv)
 }
 
 
@@ -450,7 +462,7 @@ async function loadModules(category) {
         const moduleContainer = document.querySelector('.module_container');
         moduleContainer.innerHTML = '';
 
-        const response = await fetch(`http://localhost:1342/api/modulesList?category=${category}`);
+        const response = await fetch(`http://localhost:${port}/api/modulesList?category=${category}`);
         const modulesData = await response.json();
 
         // Assuming modulesData is an object with module names as keys
@@ -463,13 +475,13 @@ async function loadModules(category) {
     }
 }
 
-async function loadSettings(moduleName,page,settingsContainer) {
+async function loadSettings(moduleName, page, settingsContainer) {
     let currentPage = page;
     let settingsPerPage = 5;
 
     settingsContainer.innerHTML = ''; // Clear existing content
 
-    const response = await fetch(`http://localhost:1342/api/getModuleSetting?module=${moduleName}`);
+    const response = await fetch(`http://localhost:${port}/api/getModuleSetting?module=${moduleName}`);
     const settingsData = await response.json();
 
     if (settingsData.success) {
@@ -541,7 +553,6 @@ function createBooleanSetting(setting, container, moduleName) {
 }
 
 
-
 // ... other functions ...
 
 function createSliderSetting(setting, container, moduleName) {
@@ -595,9 +606,9 @@ function createSliderSetting(setting, container, moduleName) {
         const left = (((value - minValue) / (valueMax - valueMin)) * ((totalInputWidth - thumbHalfWidth) - thumbHalfWidth)) + thumbHalfWidth;
         const width = slider.value / (slider.max - slider.min) * slider.offsetWidth;
         progressBar.style.left = slider.offsetLeft + 'px';
-        if(value === minValue){
+        if (value === minValue) {
             progressBar.style.width = 0 + 'px';
-        }else{
+        } else {
             progressBar.style.width = (left - 5) + 'px';
         }
 
@@ -628,7 +639,6 @@ function createSliderSetting(setting, container, moduleName) {
         hideIndicatorTimeout = setTimeout(hideValueIndicator, 1000); // Hide after 1 second of inactivity
         updateModuleSettings(moduleName, setting.name, slider.value);
     };
-
 
 
     container.appendChild(settingElement);
@@ -724,7 +734,7 @@ function createRangeSliderSetting(setting, container, moduleName) {
     maxRange.addEventListener('input', () => {
         updateRangeSlider(minRange, maxRange, progressBar, minValueInput, maxValueInput);
         // Update module setting with option indicating 'max' value change
-        updateModuleSettings(moduleName, setting.name, maxRange.value,  'max');
+        updateModuleSettings(moduleName, setting.name, maxRange.value, 'max');
     });
     // Initial update of the range slider
     updateRangeSlider(minRange, maxRange, progressBar, minValueInput, maxValueInput);
@@ -973,7 +983,6 @@ function createColorSetting(setting, container, moduleName) {
 }
 
 
-
 function createSettingElement(setting, container, moduleName) {
     switch (setting.type) {
         case 'checkbox':
@@ -1008,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', function () {
     categoryButtons.forEach(button => {
         button.addEventListener('click', function () {
             const category = this.textContent; // Assuming the category name is the same as expected by the API
-            if (category === 'Alt Manager') {
+            /*if (category === 'Alt Manager') {
                 const mainContentArea = document.querySelector('.module_container');
                 mainContentArea.innerHTML = ''; // Clear the main content area
 
@@ -1032,7 +1041,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 init(); // Call the initialization function to set everything up
 
-            } else {
+            } else*/
+            {
                 loadModules(category);
             }
         });
@@ -1043,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function updateModuleSettings(moduleName, settingName, settingValue, options = "none") {
     // Construct the URL with query parameters
-    let url = `http://localhost:1342/api/setModuleSettingValue?module=${encodeURIComponent(moduleName)}&name=${encodeURIComponent(settingName)}&value=${encodeURIComponent(settingValue)}&options=${encodeURIComponent(options)}`;
+    let url = `http://localhost:${port}/api/setModuleSettingValue?module=${encodeURIComponent(moduleName)}&name=${encodeURIComponent(settingName)}&value=${encodeURIComponent(settingValue)}&options=${encodeURIComponent(options)}`;
 
     try {
         const response = await fetch(url);
@@ -1067,7 +1077,7 @@ async function updateModuleSettings(moduleName, settingName, settingValue, optio
 
 
 async function toggleModuleState(moduleName, isEnabled) {
-    const url = `http://localhost:1342/api/updateModulesInfo?displayname=${encodeURIComponent(moduleName)}&enable=${!isEnabled}`;
+    const url = `http://localhost:${port}/api/updateModulesInfo?displayname=${encodeURIComponent(moduleName)}&enable=${isEnabled}`;
 
     try {
         const response = await fetch(url);
@@ -1084,13 +1094,12 @@ async function toggleModuleState(moduleName, isEnabled) {
 }
 
 function updateModuleUI(moduleElement, moduleName, isEnabled) {
-    const titleElement = document.querySelector('.module_content h2');
+    /*cconst titleElement = document.querySelector('.module_content h2');
 
-    console.log("aa")
+    onsole.log("aa")
     if (isEnabled) {
         titleElement.style.content += '(enabled)';
     } else {
         titleElement.style.color = 'White';
-    }
+    }*/
 }
-
