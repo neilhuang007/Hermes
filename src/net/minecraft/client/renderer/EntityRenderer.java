@@ -1796,6 +1796,9 @@ public class EntityRenderer implements IResourceManagerReloadListener
         GlStateManager.disableBlend();
         GlStateManager.disableFog();
 
+        EventRender3D event = new EventRender3D(partialTicks);
+        EventManager.call(event);
+
         if (entity.posY + (double)entity.getEyeHeight() >= 128.0D + (double)(this.mc.gameSettings.ofCloudsHeight * 128.0F))
         {
             this.mc.mcProfiler.endStartSection("aboveClouds");
@@ -1836,9 +1839,6 @@ public class EntityRenderer implements IResourceManagerReloadListener
         {
             Shaders.endRender();
         }
-
-        EventRender3D event = new EventRender3D(partialTicks);
-        EventManager.call(event);
     }
 
     private void renderCloudsCheck(RenderGlobal renderGlobalIn, float partialTicks, int pass)

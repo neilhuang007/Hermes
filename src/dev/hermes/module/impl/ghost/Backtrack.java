@@ -125,7 +125,6 @@ public class Backtrack extends Module {
     @EventTarget
     private void onRender(EventRender3D e) {
         if (virtualEntity != null) {
-            System.out.println(virtualEntity.cacheX + " " + virtualEntity.cacheY + " " + virtualEntity.cacheZ + "");
             RenderManager.drawEntityBox(
                     virtualEntity.getEntityBoundingBox(), virtualEntity.cacheX, virtualEntity.cacheY, virtualEntity.cacheZ, virtualEntity.posX, virtualEntity.posY, virtualEntity.posZ,
                     new Color(255,255,255, 87), true, true, 1, e.getPartialTicks()

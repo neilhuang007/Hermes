@@ -584,7 +584,6 @@ public class RenderManager extends Manager{
                 - renderManager.renderPosY;
         final double z = lastTickPosZ + (posZ - lastTickPosZ) * partialTicks
                 - renderManager.renderPosZ;
-        ;
         final AxisAlignedBB axisAlignedBB = new AxisAlignedBB(
                 entityBox.minX - posX + x - 0.05D,
                 entityBox.minY - posY + y,
@@ -607,7 +606,6 @@ public class RenderManager extends Manager{
 
         GlStateManager.resetColor();
 
-        GlStateManager.resetColor();
         GL11.glDepthMask(true);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
