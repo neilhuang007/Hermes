@@ -1,5 +1,8 @@
 package dev.hermes.manager;
 
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinUser;
 import dev.hermes.api.Hermes;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -76,9 +79,6 @@ public class RenderManager extends Manager{
     public static GuiScreen currentGui;
 
 
-    private static JFrame frame; // Add this line
-
-
     public static boolean isdrawinggui = false;
 
     static {
@@ -88,6 +88,7 @@ public class RenderManager extends Manager{
 
     // Check the window position every second
     public static void CheckWindowPosition() {
+
         Timer timer = new Timer();
         TimerTask checkPositionTask = new TimerTask() {
             @Override
@@ -165,8 +166,10 @@ public class RenderManager extends Manager{
         updateWindowLocation();
         setupAnimationTimer();
 
-        Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
-        Mouse.setGrabbed(false);
+//        Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
+//        Mouse.setGrabbed(false);
+
+//        Platform.runLater(() -> setTransparent("Hermes Renderer"));
 
     }
 
@@ -183,9 +186,10 @@ public class RenderManager extends Manager{
             System.out.println("Set always on top");
 
             scene = new Scene(root, width * scaledResolution.getScaleFactor(), height * scaledResolution.getScaleFactor());
+//            scene.setFill(new Color(0,0,0,0.5));
             scene.setFill(Color.TRANSPARENT);
             System.out.println("Set scene");
-            root.setMouseTransparent(true); // Make the root pane transparent to mouse events
+//            root.setMouseTransparent(true); // Make the root pane transparent to mouse events
 
             primaryStage.setScene(scene);
             System.out.println("Set stage");
@@ -194,44 +198,60 @@ public class RenderManager extends Manager{
             primaryStage.setOnCloseRequest(event -> event.consume());
             System.out.println("Set on close request");
 
+            primaryStage.setTitle("Hermes Renderer");
 
-            scene.setOnMouseMoved(event -> {
-                if(takeover){
-                    if(isopen){
-                        // means ingame
 
-                        mouseX = event.getSceneX() / scaledResolution.getScaleFactor();
-                        mouseY = event.getSceneY() / scaledResolution.getScaleFactor();
-
-                        deltaMouseX = (event.getSceneX() - ((double) Display.getWidth() / 2)) * scaledResolution.getScaleFactor();
-                        deltaMouseY = (-(event.getSceneY() - Display.getHeight() / 2) + 1) * scaledResolution.getScaleFactor();
-                        Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
-                        Mouse.setGrabbed(true);
-                        System.out.println("deltaX: " + deltaMouseX + " deltaY: " + deltaMouseY);
-                    }
-                }
-            });
-
-            scene.setOnMouseEntered(event -> {
-                takeover = true;
-                System.out.println("Taking Over mouse control");
-            });
-
-            scene.setOnMouseExited(event -> {
-                takeover = false;
-                System.out.println("released mouse control");
-                if(mc.theWorld != null && mc.thePlayer != null && mc.currentScreen == null){
-                    Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
-                    Mouse.setGrabbed(true);
-                }else{
-                    Mouse.setGrabbed(false);
-                }
-            });
+//            scene.setOnMouseMoved(event -> {
+//                if(takeover){
+//                    if(isopen){
+//                        // means ingame
+//
+//                        mouseX = event.getSceneX() / scaledResolution.getScaleFactor();
+//                        mouseY = event.getSceneY() / scaledResolution.getScaleFactor();
+//
+//                        deltaMouseX = (event.getSceneX() - ((double) Display.getWidth() / 2)) * scaledResolution.getScaleFactor();
+//                        deltaMouseY = (-(event.getSceneY() - Display.getHeight() / 2) + 1) * scaledResolution.getScaleFactor();
+//                        Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
+//                        Mouse.setGrabbed(true);
+//                        System.out.println("deltaX: " + deltaMouseX + " deltaY: " + deltaMouseY);
+//                    }
+//                }
+//            });
+//
+//            scene.setOnMouseEntered(event -> {
+//                takeover = true;
+//                System.out.println("Taking Over mouse control");
+//            });
+//
+//            scene.setOnMouseExited(event -> {
+//                takeover = false;
+//                System.out.println("released mouse control");
+//                if(mc.theWorld != null && mc.thePlayer != null && mc.currentScreen == null){
+//                    Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
+//                    Mouse.setGrabbed(true);
+//                }else{
+//                    Mouse.setGrabbed(false);
+//                }
+//            });
 
             primaryStage.show();
-        });
 
+        });
     }
+
+
+//    private static void setTransparent(String windowTitle) {
+//        WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, windowTitle);
+//        System.out.println(hwnd);
+//        int extendedStyle = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_EXSTYLE);
+//        int newExtendedStyle = extendedStyle | WinUser.WS_EX_LAYERED;
+//        User32.INSTANCE.SetWindowLong(hwnd, WinUser.GWL_EXSTYLE, newExtendedStyle);
+//        User32.INSTANCE.SetLayeredWindowAttributes(hwnd, 0x00000000, (byte) 0, WinUser.LWA_COLORKEY);
+//        newExtendedStyle = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_EXSTYLE);
+//        newExtendedStyle |= WinUser.WS_EX_TRANSPARENT;
+//        User32.INSTANCE.SetWindowLong(hwnd, WinUser.GWL_EXSTYLE, newExtendedStyle);
+//    }
+
 
     public static void updateWindowLocation() {
         Platform.runLater(() -> {
