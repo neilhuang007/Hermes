@@ -165,12 +165,6 @@ public class RenderManager extends Manager{
         CheckWindowPosition();
         updateWindowLocation();
         setupAnimationTimer();
-
-//        Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
-//        Mouse.setGrabbed(false);
-
-//        Platform.runLater(() -> setTransparent("Hermes Renderer"));
-
     }
 
 
@@ -186,10 +180,8 @@ public class RenderManager extends Manager{
             System.out.println("Set always on top");
 
             scene = new Scene(root, width * scaledResolution.getScaleFactor(), height * scaledResolution.getScaleFactor());
-//            scene.setFill(new Color(0,0,0,0.5));
             scene.setFill(Color.TRANSPARENT);
             System.out.println("Set scene");
-//            root.setMouseTransparent(true); // Make the root pane transparent to mouse events
 
             primaryStage.setScene(scene);
             System.out.println("Set stage");
@@ -200,57 +192,24 @@ public class RenderManager extends Manager{
 
             primaryStage.setTitle("Hermes Renderer");
 
-
-//            scene.setOnMouseMoved(event -> {
-//                if(takeover){
-//                    if(isopen){
-//                        // means ingame
-//
-//                        mouseX = event.getSceneX() / scaledResolution.getScaleFactor();
-//                        mouseY = event.getSceneY() / scaledResolution.getScaleFactor();
-//
-//                        deltaMouseX = (event.getSceneX() - ((double) Display.getWidth() / 2)) * scaledResolution.getScaleFactor();
-//                        deltaMouseY = (-(event.getSceneY() - Display.getHeight() / 2) + 1) * scaledResolution.getScaleFactor();
-//                        Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
-//                        Mouse.setGrabbed(true);
-//                        System.out.println("deltaX: " + deltaMouseX + " deltaY: " + deltaMouseY);
-//                    }
-//                }
-//            });
-//
-//            scene.setOnMouseEntered(event -> {
-//                takeover = true;
-//                System.out.println("Taking Over mouse control");
-//            });
-//
-//            scene.setOnMouseExited(event -> {
-//                takeover = false;
-//                System.out.println("released mouse control");
-//                if(mc.theWorld != null && mc.thePlayer != null && mc.currentScreen == null){
-//                    Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2);
-//                    Mouse.setGrabbed(true);
-//                }else{
-//                    Mouse.setGrabbed(false);
-//                }
-//            });
-
             primaryStage.show();
-
+            setTransparent(true, primaryStage.getTitle());
         });
     }
 
 
-//    private static void setTransparent(String windowTitle) {
-//        WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, windowTitle);
-//        System.out.println(hwnd);
-//        int extendedStyle = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_EXSTYLE);
-//        int newExtendedStyle = extendedStyle | WinUser.WS_EX_LAYERED;
-//        User32.INSTANCE.SetWindowLong(hwnd, WinUser.GWL_EXSTYLE, newExtendedStyle);
-//        User32.INSTANCE.SetLayeredWindowAttributes(hwnd, 0x00000000, (byte) 0, WinUser.LWA_COLORKEY);
-//        newExtendedStyle = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_EXSTYLE);
-//        newExtendedStyle |= WinUser.WS_EX_TRANSPARENT;
-//        User32.INSTANCE.SetWindowLong(hwnd, WinUser.GWL_EXSTYLE, newExtendedStyle);
-//    }
+    public static void setTransparent(boolean transparent, String windowTitle) {
+        WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, windowTitle);
+        int wl = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_EXSTYLE);
+        if (transparent) {
+            // 设置窗口为透明
+            wl |= WinUser.WS_EX_LAYERED | WinUser.WS_EX_TRANSPARENT;
+        } else {
+            // 清除透明样式，允许窗口接收绘制消息
+            wl &= ~(WinUser.WS_EX_LAYERED | WinUser.WS_EX_TRANSPARENT);
+        }
+        User32.INSTANCE.SetWindowLong(hwnd, WinUser.GWL_EXSTYLE, wl);
+    }
 
 
     public static void updateWindowLocation() {
@@ -343,6 +302,7 @@ public class RenderManager extends Manager{
                     roundedRectangle.setFill(color);
                 }
                 modifiedidbuffer.add(id);
+
             });
         }
     }
@@ -545,52 +505,118 @@ public class RenderManager extends Manager{
             });
         }
     }
-    public static void drawString(String id, String str, double x, double y, java.awt.Color color) {
+
+    public static void drawTextWithBox(String id, double x, double y, String text, javafx.scene.paint.Color backgroundcolor, javafx.scene.paint.Color textColor, double boxWidth, double boxHeight, double boxarc, double fontSize) {
         if(isopen){
             Platform.runLater(() -> {
-                ScaledResolution scaledResolution = new ScaledResolution(mc);
-                final double factor = scaledResolution.getScaleFactor();
-                Text text = (Text) shapesMap.get(id);
-                if (text == null) {
-                    text = new Text(x*factor, y*factor, str);
-                    shapesMap.put(id, text);
-                    root.getChildren().add(text);
-                } else {
-                    text.setX(x*factor);
-                    text.setY(y*factor);
-                    text.setText(str);
+                Rectangle box = (Rectangle) shapesMap.get(id);
+                if(box == null){
+                    box = new Rectangle(boxWidth, boxHeight);
+                    box.setX(x);
+                    box.setY(y);
+                    box.setFill(backgroundcolor);
+                    box.setWidth(boxWidth);
+                    box.setHeight(boxHeight);
+                    box.setArcHeight(boxarc);
+                    box.setArcWidth(boxarc);
+                    shapesMap.put(id, box);
+                    box.setMouseTransparent(true);
+                    root.getChildren().add(box);
+                }else{
+                    box.setX(x);
+                    box.setY(y);
+                    box.setFill(backgroundcolor);
+                    box.setWidth(boxWidth);
+                    box.setHeight(boxHeight);
+                    box.setArcHeight(boxarc);
+                    box.setArcWidth(boxarc);
                 }
-                text.setFill(convertColor(color)); // Set color
-                // Set default font
-                text.setFont(javafx.scene.text.Font.font("Arial", 14));
+
+                Text textNode = (Text) shapesMap.get(id + "_text");
+                if(textNode == null){
+                    textNode = new Text(text);
+                    textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
+                    textNode.setFill(textColor);
+                    shapesMap.put(id + "_text", textNode);
+                    root.getChildren().add(textNode);
+                }else{
+                    textNode.setText(text);
+                    textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
+                    textNode.setFill(textColor);
+                }
+
+                // Calculate position of the text within the box
+                double textX = x + (boxWidth - textNode.getBoundsInLocal().getWidth()) / 2;
+                double textY = y + (boxHeight - textNode.getBoundsInLocal().getHeight()) / 2 + fontSize; // Add fontSize to align to the bottom
+
+                // Position the text
+                textNode.setX(textX);
+                textNode.setY(textY);
             });
         }
+
     }
 
-    public static void drawString(String id, String str, double x, double y, java.awt.Color color, Font font) {
+    public static void drawTextWithBox(String id, double x, double y, String text, java.awt.Color backgroundcolor, java.awt.Color textColor, double boxWidth, double boxHeight, double boxarc, double fontSize) {
         if(isopen){
+            Color newbackgroundcolor = convertColor(backgroundcolor);
             Platform.runLater(() -> {
-                ScaledResolution scaledResolution = new ScaledResolution(mc);
-                final double factor = scaledResolution.getScaleFactor();
-                Text text = (Text) shapesMap.get(id);
-                if (text == null) {
-                    text = new Text(x*factor, (y + (font.getSize()/2))*factor, str);
-                    shapesMap.put(id, text);
-                    root.getChildren().add(text);
-                } else {
-                    text.setX(x*factor);
-                    text.setY((y + (font.getSize()/2))*factor);
-                    text.setText(str);
+                Rectangle box = (Rectangle) shapesMap.get(id);
+                if(box == null){
+                    box = new Rectangle(boxWidth, boxHeight);
+                    box.setX(x);
+                    box.setY(y);
+                    box.setFill(newbackgroundcolor);
+                    box.setWidth(boxWidth);
+                    box.setHeight(boxHeight);
+                    box.setArcHeight(boxarc);
+                    box.setArcWidth(boxarc);
+                    shapesMap.put(id, box);
+                    box.setMouseTransparent(true);
+                    root.getChildren().add(box);
+                }else{
+                    box.setX(x);
+                    box.setY(y);
+                    box.setFill(newbackgroundcolor);
+                    box.setWidth(boxWidth);
+                    box.setHeight(boxHeight);
+                    box.setArcHeight(boxarc);
+                    box.setArcWidth(boxarc);
                 }
-                text.setFont(javafx.scene.text.Font.font(font.getFontName(), font.getSize())); // Set font
-                text.setFill(convertColor(color)); // Set color
+
+
+                Color newtextColor = convertColor(textColor);
+                Text textNode = (Text) shapesMap.get(id + "_text");
+                if(textNode == null){
+                    textNode = new Text(text);
+                    textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
+                    textNode.setFill(newtextColor);
+                    shapesMap.put(id + "_text", textNode);
+                    root.getChildren().add(textNode);
+                }else{
+                    textNode.setText(text);
+                    textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
+                    textNode.setFill(newtextColor);
+                }
+
+                // Calculate position of the text within the box
+                double textX = x + (boxWidth - textNode.getBoundsInLocal().getWidth()) / 2;
+                double textY = y + (boxHeight - textNode.getBoundsInLocal().getHeight()) / 2 + fontSize; // Add fontSize to align to the bottom
+
+                // Position the text
+                textNode.setX(textX);
+                textNode.setY(textY);
+
+
             });
         }
+
     }
 
 
 
-    public static void drawEntityBox(AxisAlignedBB entityBox, double lastTickPosX, double lastTickPosY, double lastTickPosZ, double posX, double posY, double posZ, final java.awt.Color color, final boolean outline, final boolean box, final float outlineWidth, float partialTicks) {
+
+    public static void drawEntityBox(AxisAlignedBB entityBox, double posX, double posY, double posZ, final java.awt.Color color, final boolean outline, final boolean box, final float outlineWidth) {
         final net.minecraft.client.renderer.entity.RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glEnable(GL11.GL_BLEND);
@@ -598,11 +624,11 @@ public class RenderManager extends Manager{
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(false);
 
-        final double x = lastTickPosX + (posX - lastTickPosX) * partialTicks
+        final double x = posX
                 - renderManager.renderPosX;
-        final double y = lastTickPosY + (posY - lastTickPosY) * partialTicks
+        final double y = posY
                 - renderManager.renderPosY;
-        final double z = lastTickPosZ + (posZ - lastTickPosZ) * partialTicks
+        final double z = posZ
                 - renderManager.renderPosZ;
         final AxisAlignedBB axisAlignedBB = new AxisAlignedBB(
                 entityBox.minX - posX + x - 0.05D,
@@ -615,12 +641,12 @@ public class RenderManager extends Manager{
 
         if (outline) {
             GL11.glLineWidth(outlineWidth);
-            glColor4f(color.getRed(), color.getGreen(), color.getBlue(), box ? 170 : 255);
+            glColor4f(color.getRed(), color.getGreen(), color.getBlue(), (box ? 170 : 255) / 255F);
             drawSelectionBoundingBox(axisAlignedBB);
         }
 
         if (box) {
-            glColor4f(color.getRed(), color.getGreen(), color.getBlue(), outline ? 26 : 35);
+            glColor4f(color.getRed(), color.getGreen(), color.getBlue(), (outline ? 26 : 35) / 255F);
             drawFilledBox(axisAlignedBB);
         }
 

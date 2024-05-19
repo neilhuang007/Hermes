@@ -59,20 +59,7 @@ public class CombatSettings extends Module {
         if(ToggleSprint.getValue()){
             // Change the color of the rectangle to a more appealing color (e.g., dark gray)
             Color rectangleColor = new Color(50, 50, 50, 98);
-
-            // Increase the size of the rectangle to make it more visible
-            double rectangleWidth = 100;
-            double rectangleHeight = 20;
-
-            // Change the font, size, and color of the text to make it more readable
-            Font textFont = new Font("Arial", Font.BOLD, 40);
-            Color textColor = Color.white;
-
-
-
-            // Draw the rectangle and the text
-            RenderManager.roundedRectangle("Sprint-indecator", 2, 50, rectangleWidth, rectangleHeight, 2, 2, rectangleColor);
-            RenderManager.drawString("sprint-text", isSprinting ? "Sprinting" : "NotSprinting", 4, 50, textColor, textFont);
+            RenderManager.drawTextWithBox("sprint-text", 5, 80, isSprinting ? "Sprinting" : "NotSprinting", rectangleColor, Color.white, 160,60,15,25);
         }
     }
 

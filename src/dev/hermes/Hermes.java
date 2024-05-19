@@ -142,10 +142,6 @@ public class Hermes {
             break;
         }
 
-
-
-
-
         fileManager.init();
         configManager.init();
         moduleManager.init();

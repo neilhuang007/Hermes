@@ -4,7 +4,6 @@ import dev.hermes.event.EventTarget;
 import dev.hermes.event.events.impl.Motion.EventPostMotion;
 import dev.hermes.event.events.impl.packet.EventReceivePacket;
 import dev.hermes.event.events.impl.render.EventRender3D;
-import dev.hermes.event.events.impl.world.EventUpdate;
 import dev.hermes.manager.EventManager;
 import dev.hermes.manager.RenderManager;
 import dev.hermes.module.Module;
@@ -14,6 +13,7 @@ import dev.hermes.module.value.impl.BooleanValue;
 import dev.hermes.module.value.impl.NumberValue;
 import dev.hermes.utils.player.DelayedPacket;
 import dev.hermes.utils.player.PendingVelocity;
+import dev.hermes.utils.player.VirtualEntity;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.Entity;
@@ -24,7 +24,6 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import net.minecraft.network.play.server.*;
-import net.minecraft.util.AxisAlignedBB;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -68,54 +67,48 @@ public class Backtrack extends Module {
                 clearPackets();
                 EventManager.unregister(virtualEntity);
                 virtualEntity = null;
-            } else {
-                if (event.getPacket() instanceof S14PacketEntity) {
-                    S14PacketEntity packet = (S14PacketEntity) event.getPacket();
+            }else if (event.getPacket() instanceof S14PacketEntity) {
+                S14PacketEntity packet = (S14PacketEntity) event.getPacket();
 
-                    NetHandlerPlayClient NetHandlerPlayClient = mc.getNetHandler();
-                    if (packet.getEntity(NetHandlerPlayClient.clientWorldController) == currentTarget) {
+                NetHandlerPlayClient NetHandlerPlayClient = mc.getNetHandler();
+                if (packet.getEntity(NetHandlerPlayClient.clientWorldController) == currentTarget) {
+                    int x = currentTarget.serverPosX + packet.getX();
+                    int y = currentTarget.serverPosY + packet.getY();
+                    int z = currentTarget.serverPosZ + packet.getZ();
+                    double posX = (double) x / 32.0D;
+                    double posY = (double) y / 32.0D;
+                    double posZ = (double) z / 32.0D;
+                    if (virtualEntity != null) virtualEntity.handleVirtualMovement(posX, posY, posZ);
 
-                        int x = currentTarget.serverPosX + packet.func_149062_c();
-                        int y = currentTarget.serverPosY + packet.func_149061_d();
-                        int z = currentTarget.serverPosZ + packet.func_149064_e();
+                }
+            } else if (event.getPacket() instanceof S18PacketEntityTeleport) {
+                S18PacketEntityTeleport packet = (S18PacketEntityTeleport) event.getPacket();
+                if (packet.getEntityId() == currentTarget.getEntityId()) {
+                    double serverX = packet.getX();
+                    double serverY = packet.getY();
+                    double serverZ = packet.getZ();
 
-                        double posX = (double) x / 32.0D;
-                        double posY = (double) y / 32.0D;
-                        double posZ = (double) z / 32.0D;
-
-                        event.setCancelled(true);
-                        delayedPackets.add(new DelayedPacket(packet));
-                        if (virtualEntity != null) virtualEntity.handleVirtualMovement(posX, posY, posZ);
+                    if (virtualEntity != null) virtualEntity.handleVirtualTeleport(serverX, serverY, serverZ);
+                }
+            } else if (event.getPacket() instanceof S32PacketConfirmTransaction || event.getPacket() instanceof S00PacketKeepAlive) {
+                if (!delayedPackets.isEmpty() && delayPing.getValue()) {
+                    if(currentTarget.hurtTime > 0){
+//                        event.setCancelled(true);
+//                        delayedPackets.add(new DelayedPacket((Packet<INetHandlerPlayClient>) event.getPacket()));
                     }
-                } else if (event.getPacket() instanceof S18PacketEntityTeleport) {
-                    S18PacketEntityTeleport packet = (S18PacketEntityTeleport) event.getPacket();
+                }
+            } else if (event.getPacket() instanceof S12PacketEntityVelocity) {
+                S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
 
-                    if (packet.getEntityId() == currentTarget.getEntityId()) {
-                        double serverX = packet.getX();
-                        double serverY = packet.getY();
-                        double serverZ = packet.getZ();
-
-                        event.setCancelled(true);
-                        delayedPackets.add(new DelayedPacket(packet));
-                        if (virtualEntity != null) virtualEntity.handleVirtualTeleport(serverX, serverY, serverZ);
-                    }
-                } else if (event.getPacket() instanceof S32PacketConfirmTransaction || event.getPacket() instanceof S00PacketKeepAlive) {
-                    if (!delayedPackets.isEmpty() && delayPing.getValue()) {
-                        event.setCancelled(true);
-                        delayedPackets.add(new DelayedPacket((Packet<INetHandlerPlayClient>) event.getPacket()));
-                    }
-                } else if (event.getPacket() instanceof S12PacketEntityVelocity) {
-                    S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
-
-                    if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
-                        if (!delayedPackets.isEmpty() && delayPing.getValue() && delayVelocity.getValue()) {
-                            event.setCancelled(true);
-                            lastVelocity = new PendingVelocity(packet.getMotionX() / 8000.0, packet.getMotionY() / 8000.0, packet.getMotionZ() / 8000.0);
+                if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
+                    if (!delayedPackets.isEmpty() && delayPing.getValue() && delayVelocity.getValue()) {
+                        if(currentTarget.hurtTime > 0) {
+//                            event.setCancelled(true);
+//                            lastVelocity = new PendingVelocity(packet.getMotionX() / 8000.0, packet.getMotionY() / 8000.0, packet.getMotionZ() / 8000.0);
                         }
                     }
                 }
             }
-
             lastTarget = currentTarget;
         } catch (Throwable e) {
             System.out.println("Error in Backtrack: " + e.getMessage());
@@ -126,8 +119,8 @@ public class Backtrack extends Module {
     private void onRender(EventRender3D e) {
         if (virtualEntity != null) {
             RenderManager.drawEntityBox(
-                    virtualEntity.getEntityBoundingBox(), virtualEntity.cacheX, virtualEntity.cacheY, virtualEntity.cacheZ, virtualEntity.posX, virtualEntity.posY, virtualEntity.posZ,
-                    new Color(255,255,255, 87), true, true, 1, e.getPartialTicks()
+                    virtualEntity.getEntityBoundingBox(), virtualEntity.getPosX(), virtualEntity.getPosY(), virtualEntity.getPosZ(),
+                    new Color(255,255,255, 87), true, true, 1
             );
         }
     }
@@ -147,6 +140,9 @@ public class Backtrack extends Module {
         ).sorted(
                 Comparator.comparingInt(entity -> (int) (entity.getDistanceToEntity(mc.thePlayer) * 100))
         ).collect(Collectors.toList());
+        if (mc.thePlayer.getAttackingEntity() != null) {
+            return (EntityLivingBase) mc.thePlayer.getAttackingEntity();
+        }
         if (!entityList.isEmpty()) return (EntityLivingBase) entityList.get(0);
         return null;
     }
@@ -202,11 +198,11 @@ public class Backtrack extends Module {
         Entity entity = packetIn.getEntity(NetHandlerPlayClient.clientWorldController);
 
         if (entity != null) {
-            entity.serverPosX += packetIn.func_149062_c();
-            entity.serverPosY += packetIn.func_149061_d();
-            entity.serverPosZ += packetIn.func_149064_e();
-            byte yaw = packetIn.func_149066_f();
-            byte pitch = packetIn.func_149063_g();
+            entity.serverPosX += packetIn.getX();
+            entity.serverPosY += packetIn.getY();
+            entity.serverPosZ += packetIn.getZ();
+            byte yaw = packetIn.getYaw();
+            byte pitch = packetIn.getPitch();
             double d0 = (double) entity.serverPosX / 32.0D;
             double d1 = (double) entity.serverPosY / 32.0D;
             double d2 = (double) entity.serverPosZ / 32.0D;
@@ -253,50 +249,6 @@ public class Backtrack extends Module {
 
         if (container != null && !packetIn.func_148888_e()) {
             mc.getNetHandler().addToSendQueue(new C0FPacketConfirmTransaction(packetIn.getWindowId(), packetIn.getActionNumber(), true));
-        }
-    }
-
-    private static class VirtualEntity {
-        private double posX, posY, posZ;
-        private double cacheX, cacheY, cacheZ;
-        private final float width, height;
-
-        public VirtualEntity(Entity entity) {
-            cacheX = this.posX = entity.posX;
-            cacheY = this.posY = entity.posY;
-            cacheZ = this.posZ = entity.posZ;
-            this.width = entity.width;
-            this.height = entity.height;
-        }
-
-        public void handleVirtualMovement(double posX, double posY, double posZ) {
-            this.posX = posX;
-            this.posY = posY;
-            this.posZ = posZ;
-        }
-
-        public void handleVirtualTeleport(double serverPosX, double serverPosY, double serverPosZ) {
-            double d0 = serverPosX / 32.0D;
-            double d1 = serverPosY / 32.0D;
-            double d2 = serverPosZ / 32.0D;
-
-            if (!(Math.abs(posX - d0) < 0.03125D && Math.abs(posY - d1) < 0.015625D && Math.abs(posZ - d2) < 0.03125D)) {
-                posX = d0;
-                posY = d1;
-                posZ = d2;
-            }
-        }
-
-        @EventTarget
-        public void onUpdate(EventUpdate eventUpdate){
-            cacheX += (posX - cacheX) * 0.2;
-            cacheY += (posY - cacheY) * 0.2;
-            cacheZ += (posZ - cacheZ) * 0.2;
-        }
-
-        public AxisAlignedBB getEntityBoundingBox() {
-            float f = this.width / 2.0F;
-            return new AxisAlignedBB(cacheX - (double) f, cacheY, cacheZ - (double) f, cacheX + (double) f, cacheY + (double) this.height, cacheZ + (double) f);
         }
     }
 

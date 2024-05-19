@@ -282,6 +282,8 @@ public class GuiIngame extends Gui
         }
 
         Scoreboard scoreboard = this.mc.theWorld.getScoreboard();
+        EventRender2D event = new EventRender2D(partialTicks);
+        EventManager.call(event);
         ScoreObjective scoreobjective = null;
         ScorePlayerTeam scoreplayerteam = scoreboard.getPlayersTeam(this.mc.thePlayer.getName());
 
@@ -357,8 +359,7 @@ public class GuiIngame extends Gui
             GlStateManager.disableRescaleNormal();
             GlStateManager.disableBlend();
 
-            EventRender2D event = new EventRender2D(partialTicks);
-            EventManager.call(event);
+
         }
     }
 

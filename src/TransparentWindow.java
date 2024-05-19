@@ -15,9 +15,6 @@ public class TransparentWindow extends Application {
     @Override
     public void start(Stage primaryStage) {
         setTransparent("Hermes Renderer");
-
-
-
     }
 
     private static void setTransparent(String windowTitle) {

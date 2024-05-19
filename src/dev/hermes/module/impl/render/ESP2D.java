@@ -9,6 +9,7 @@ import dev.hermes.module.api.ModuleInfo;
 import dev.hermes.module.value.impl.BooleanValue;
 import dev.hermes.module.value.impl.ListValue;
 import dev.hermes.module.value.impl.NumberValue;
+import dev.hermes.utils.projection.ProjectionUtil;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -58,7 +59,6 @@ public class ESP2D extends Module {
 
     private final BooleanValue TeamsColor = new BooleanValue("Teams Color", this, true);
 
-//    public final BooleanValue bbtt = new BooleanValue("2B2T Mode",this, true);
     public final BooleanValue outline = new BooleanValue("Outline", this, true);
     public final ListValue<mode> boxMode = new ListValue<>("Mode", this, outline::getValue);
 
@@ -159,34 +159,14 @@ public class ESP2D extends Module {
             Entity entity = (Entity) collectedEntity;
             int color = this.getColor(entity).getRGB();
             if (!isInViewFrustrum(entity)) continue;
-            double x = interpolate(entity.posX, entity.lastTickPosX, partialTicks);
-            double y = interpolate(entity.posY, entity.lastTickPosY, partialTicks);
-            double z = interpolate(entity.posZ, entity.lastTickPosZ, partialTicks);
-            double width = (double) entity.width / 1.5;
-            double height = (double) entity.height + (entity.isSneaking() ? -0.3 : 0.2);
-            AxisAlignedBB aabb = new AxisAlignedBB(x - width, y, z - width, x + width, y + height, z + width);
-            List<Vector3d> vectors = Arrays.asList(new Vector3d(aabb.minX, aabb.minY, aabb.minZ), new Vector3d(aabb.minX, aabb.maxY, aabb.minZ), new Vector3d(aabb.maxX, aabb.minY, aabb.minZ), new Vector3d(aabb.maxX, aabb.maxY, aabb.minZ), new Vector3d(aabb.minX, aabb.minY, aabb.maxZ), new Vector3d(aabb.minX, aabb.maxY, aabb.maxZ), new Vector3d(aabb.maxX, aabb.minY, aabb.maxZ), new Vector3d(aabb.maxX, aabb.maxY, aabb.maxZ));
-            mc.entityRenderer.setupCameraTransform(partialTicks, 0);
-            Vector4d position = null;
-            for (Vector3d vector3d : vectors) {
-                Vector3d o;
-                Vector3d vector = o = vector3d;
-                vector = this.project2D(scaleFactor, vector.x - renderMng.viewerPosX, vector.y - renderMng.viewerPosY, vector.z - renderMng.viewerPosZ);
-                if (vector == null || !(vector.z >= 0.0) || !(vector.z < 1.0)) continue;
-                if (position == null) {
-                    position = new Vector4d(vector.x, vector.y, vector.z, 0.0);
-                }
-                position.x = Math.min(vector.x, position.x);
-                position.y = Math.min(vector.y, position.y);
-                position.z = Math.max(vector.x, position.z);
-                position.w = Math.max(vector.y, position.w);
-            }
+            Vector4d position = ProjectionUtil.get(entity);
+            entityRenderer.setupCameraTransform(partialTicks, 0);
             if (position == null) continue;
-            entityRenderer.setupOverlayRendering();
             double posX = position.x;
             double posY = position.y;
             double endPosX = position.z;
             double endPosY = position.w;
+            entityRenderer.setupOverlayRendering();
             String entityName = entity.getName(); // Assuming 'entity' is the entity you're working with
             if (this.boxMode.getValue() == mode.Box) {
                 newDrawRect(entityName + "_box_top", posX - 1.0, posY, posX + 0.5, endPosY + 0.5, black);
