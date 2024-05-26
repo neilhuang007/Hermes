@@ -31,7 +31,6 @@ public class ApiModule extends Module {
     @EventTarget
     public void onRender2D(EventRender2D event) {
 //        RenderManager.CheckCanvas();
-        ProjectionUtil.Render2D(event);
     }
 
     @EventTarget

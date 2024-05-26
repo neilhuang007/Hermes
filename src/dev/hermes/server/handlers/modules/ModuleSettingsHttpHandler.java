@@ -64,7 +64,7 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
                         moduleSet.addProperty("type", "range_slider");
                         moduleSet.addProperty("min", ((BoundsNumberValue) setting).getMin().doubleValue());
                         moduleSet.addProperty("max", ((BoundsNumberValue) setting).getMax().doubleValue());
-                        moduleSet.addProperty("step", 1);
+                        moduleSet.addProperty("step", ((BoundsNumberValue) setting).getDecimalPlaces().doubleValue());
                         moduleSet.addProperty("minvalue", ((BoundsNumberValue) setting).getValue().doubleValue());
                         moduleSet.addProperty("maxvalue", ((BoundsNumberValue) setting).getSecondValue().doubleValue());
                         moduleSet.addProperty("suffix", ((BoundsNumberValue) setting).getSuffix());

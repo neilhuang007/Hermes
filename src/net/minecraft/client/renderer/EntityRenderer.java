@@ -4,6 +4,7 @@ import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
 import dev.hermes.Hermes;
 import dev.hermes.event.events.impl.Combat.EventMouseOver;
+import dev.hermes.event.events.impl.render.EventRender2D;
 import dev.hermes.event.events.impl.render.EventRender3D;
 import dev.hermes.manager.EventManager;
 import net.minecraft.block.Block;
@@ -1189,15 +1190,13 @@ public class EntityRenderer implements IResourceManagerReloadListener
         }
 
 
-//        if (flag)
-        if (this.mc.inGameHasFocus && flag)
+        if (mc.inGameHasFocus && flag)
         {
             this.mc.mouseHelper.mouseXYChange();
             float f = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
             float f1 = f * f * f * 8.0F;
             float f2 = (float)this.mc.mouseHelper.deltaX * f1;
             float f3 = (float)this.mc.mouseHelper.deltaY * f1;
-//            System.out.println("f2: " + f2 + " f3: " + f3);
             int i = 1;
 
             if (this.mc.gameSettings.invertMouse)
@@ -1262,6 +1261,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
                 this.renderEndNanoTime = System.nanoTime();
                 this.mc.mcProfiler.endStartSection("gui");
+
 
                 if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
                 {

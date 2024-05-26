@@ -56,7 +56,7 @@ body {
     border-radius: 50%;
 }
 
-.btn-item:nth-child{
+.btn-item:nth-child {
     background: #eb5a56;
 }
 
@@ -217,7 +217,6 @@ body {
 
 .serve {
     width: 60px;
-    /*    background: rgba(98, 203, 68, 0.5);*/
     background: rgba(0, 0, 0, 0.7);
     margin-left: 25px;
     border-radius: 10px;
@@ -238,7 +237,7 @@ body {
     width: fit-content;
     padding: 20px; /* Padding around the container */
     box-sizing: border-box; /* Include padding in the calculation */
-    
+    gap:15px;
 }
 
 /*module*/
@@ -249,38 +248,36 @@ body {
     justify-content: center;
     align-items: center;
     transition: 0.5s;
-    flex: 1 1 auto; /* This allows the module to grow and shrink based on content */
-    box-sizing: border-box; /* Include padding and borders in the calculation */
-    margin: 40px 30px 20px;
+
+    border-radius: 8px;
 }
 
 
-.module_content{
+.module_content {
+    border: solid rgba(255, 255, 255, 0.15) 2px;
     width: auto;
     left: 0;
     padding: 20px 40px;
     color: #fff;
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(15px);
+    box-shadow: rgba(255, 255, 255, 0.15);
     border-radius: 8px;
-    z-index: 1;
-    transition: 0.5s;
 }
 
-.module_content h2{
+.module_content h2 {
     font-size: 2em;
     color: #fff;
     margin-bottom: 10px;
 }
 
-.module_content p{
+.module_content p {
     font-size: 1.1em;
     margin-bottom: 10px;
     line-height: 1.4em;
 }
 
-.module_content a{
+.module_content a {
     display: inline-block;
     font-size: 1.1em;
     color: #111;
@@ -293,40 +290,8 @@ body {
     transition: 0.6s;
 }
 
-.module:hover .module_content{
-    left: -25px;
-    padding: 60px 40px;
-}
 
-.module_content a:hover{
-    background: #222;
-    color: #fff;
-    border-radius: 16px;
-    box-shadow: 0 2px 15px #222;
-}
-
-
-.module::after {
-    content: "";
-    position: absolute;
-    top: -10px;
-    right: 30%;
-    bottom: -15px;
-    width: 200px;
-    background: linear-gradient(315deg, #ffbc00, #ff0058);
-    border-radius: 8px;
-    z-index: -1; /* Place it behind the content */
-    transform: skewX(15deg);
-    transition: 0.5s;
-}
-
-.module:hover::before,
-.module:hover::after{
-    transform: skewX(0deg);
-}
-
-
-.module span{
+.module span {
     display: block;
     position: absolute;
     top: 0;
@@ -337,75 +302,20 @@ body {
     pointer-events: none;
 }
 
-/*.module span::before{*/
-/*    content: "";*/
-/*    position: absolute;*/
-/*    background: rgba(255, 255, 255, 0.1);*/
-/*    top: 0;*/
-/*    left: 0;*/
-/*    width: 0;*/
-/*    height: 0;*/
-/*    opacity: 0;*/
-/*    transition: 0.3s;*/
-/*    backdrop-filter: blur(10px);*/
-/*    border-radius: 8px;*/
-/*    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);*/
-/*    animation: animate 2s ease-in-out infinite;*/
-/*}*/
 
-/*.module span::after{*/
-/*    content: "";*/
-/*    position: absolute;*/
-/*    bottom: 0;*/
-/*    right: 0;*/
-/*    width: 100%;*/
-/*    height: 100%;*/
-/*    background: rgba(255, 255, 255, 0.1);*/
-/*    opacity: 0;*/
-/*    transition: 0.5s;*/
-/*    backdrop-filter: blur(10px);*/
-/*    border-radius: 8px;*/
-/*    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);*/
-/*    animation: animate 2s ease-in-out infinite;*/
-/*    animation-delay: -1s;*/
-/*}*/
-
-
-
-.module:hover span::before{
-    opacity: 1;
-    top: -50px;
-    left: 50px;
-    width: 100px;
-    height: 100px;
-}
-
-
-
-.module:hover span::after{
-    bottom: -50px;
-    right: 50px;
-    width: 100px;
-    height: 100px;
-    opacity: 1;
-}
 
 @keyframes animate {
     0%,
-    100%{
+    100% {
         transform: translateY(10px);
     }
-    50%{
+    50% {
         transform: translate(-10px);
     }
 }
 
 .se
-
-/* settings */
-
-
-
+    /* settings */
 .settings-container {
     display: none; /* Initially hidden */
     position: absolute; /* Position over the module container */
@@ -430,6 +340,7 @@ body {
     align-items: center;
     justify-content: space-between;
 }
+
 #pageIndicator, #leftArrow, #rightArrow, #indecator {
     display: flex;
 }
@@ -446,11 +357,11 @@ body {
     font-size: 1em;
 }
 
-.settings_content{
+.settings_content {
     margin-bottom: 20px;
 }
 
-.setting{
+.setting {
     margin-top: 15px;
     margin-bottom: 15px;
 }
@@ -529,11 +440,15 @@ body {
 }
 
 .rangevalue_wrapper {
-    margin: 0;
+    margin-top: 30px;
+    margin-bottom: 30px;
     padding: 0;
     display: grid;
-    place-items: center;
+    place-items: flex-start;
+    width: fit-content;
 }
+
+
 
 .container {
     position: relative; /* instead of position: static */
@@ -544,17 +459,45 @@ body {
     height: auto;
 }
 
+.container .sliderValue{
+    position: absolute;
+    top: -55px; /* Adjust as needed */
+    width: 45px; /* Width of the indicator */
+    height: 45px; /* Height of the indicator */
+    line-height: 45px; /* Aligns text vertically */
+    color: #fff; /* Text color */
+    background: #4c8bf5; /* Background color */
+    border: 3px solid #fff; /* Border properties */
+    display: flex; /* Enables Flexbox */
+    justify-content: center; /* Centers content horizontally */
+    align-items: center; /* Centers content vertically */
+    transform: scale(0); /* Initial transform */
+    transition: transform 0.3s ease-in-out; /* Transition for scaling */
+    z-index: 2; /* Ensures it's above other elements */
+    padding: 0 10px; /* Adjust as needed */
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+    box-shadow: 0 0 20px rgba(76, 139, 245, 0.8);
+}
+
+.container .sliderValue.show{
+    transform: scale(1);
+}
+
 .container input[type="number"] {
-    width: 25px; /* Reduced width */
-    height: 30px; /* Unchanged height */
-    font-size: 15px; /* Unchanged font size */
-    font-weight: 700;
-    text-align: center;
+    width: 18px; /* Reduced width */
+    height: 27px; /* Unchanged height */
+    font-size: 18px; /* Unchanged font size */
+    font-weight: 600;
+    text-align: left;
     border-radius: 5px;
-    color: #fff; /* White text color */
+    color: #4c8bf5; /* White text color */
     background: transparent; /* Transparent background */
     border: none; /* Remove border */
+    margin-left: 0;
 }
+
 .container input[type="number"]::-webkit-outer-spin-button,
 .container input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -562,8 +505,8 @@ body {
 
 .container .range-slider {
     position: relative;
-    min-width: 250px; /* Reduced width */
-    height: 5px; /* Unchanged height */
+    width: 314px;
+    height: 3px; /* Unchanged height */
     background: #ddd;
     outline: none;
     top: 1px;
@@ -693,7 +636,7 @@ body {
 
 .radio-button__label:hover .radio-button__custom {
     transform: scale(1.05) translateY(-10%);
-    border-color:#4c8bf5;
+    border-color: #4c8bf5;
     box-shadow: 0 0 20px #4c8bf580;
 }
 
@@ -724,7 +667,6 @@ body {
     height: 100%;
     width: 100%;
 }
-
 
 
 .setting .field .sliderValue {
@@ -758,7 +700,7 @@ body {
     -webkit-appearance: none;
 }
 
-.setting .field input{
+.setting .field input {
     position: relative;
     width: 100%; /* Take up all available width */
     box-sizing: border-box; /* Include padding and border in element's total width */
@@ -780,7 +722,7 @@ body {
     font-weight: 600;
 }
 
-.setting .field .progress-bar{
+.setting .field .progress-bar {
     position: absolute;
     background-color: #4c8bf5;
     border-color: transparent;
@@ -829,9 +771,8 @@ body {
 }
 
 
-
 /* for altmanager */
-.AltManager_Title{
+.AltManager_Title {
     display: block;
     width: 600px;
     height: auto;
@@ -848,13 +789,13 @@ body {
     font-weight: bolder;
 }
 
-.buttons-panel{
+.buttons-panel {
     display: flex;
     align-items: flex-start;
     margin-bottom: 15px;
 }
 
-.buttons-panel a{
+.buttons-panel a {
     display: inline-block;
     font-size: 1.1em;
     color: #111;
@@ -867,7 +808,7 @@ body {
     transition: 0.6s;
 }
 
-.alt-display{
+.alt-display {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -875,7 +816,7 @@ body {
 
 }
 
-.alt{
+.alt {
     display: flex;
     flex-wrap: wrap;
     padding: 15px;
@@ -889,7 +830,7 @@ body {
     margin-bottom: 10px;
 }
 
-.player-head{
+.player-head {
     width: 108px;
     height: 108px;
     overflow: hidden;
@@ -897,14 +838,14 @@ body {
     display: flex;
 }
 
-.player-information{
+.player-information {
     display: block;
     margin-left: 10px;
     min-width: 150px;
     height: auto;
 }
 
-.player-name{
+.player-name {
     color: white;
     font-size: 1.5em;
     font-weight: bolder;
@@ -915,7 +856,7 @@ body {
 
 }
 
-.account-type{
+.account-type {
     color: white;
     font-size: 1.3em;
     font-weight: bolder;
@@ -923,7 +864,7 @@ body {
     border-bottom: 15px;
 }
 
-.player-information a{
+.player-information a {
     font-size: 1.1em;
     color: #111;
     background: #fff;
@@ -935,7 +876,7 @@ body {
     transition: 0.6s;
 }
 
-.alt-buttons{
+.alt-buttons {
     display: flex;
 }
 
@@ -945,7 +886,7 @@ body {
     background-color: rgba(232, 232, 232, 0.79);
     border-radius: 5px;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     padding: 10px;
     z-index: 1;
     left: 160px; /* Align with the left edge of the "Add Account" button */
@@ -990,7 +931,7 @@ body {
     background-color: #ffffff;
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     width: 260px; /* Adjust the width as needed */
     height: 160px; /* Adjust the height as needed */
 }
@@ -1043,11 +984,11 @@ body {
     top: -20px;
     font-size: 16px;
     color: #333;
-    .card{
+
+    .card {
         width: +20px;
     }
 }
-
 
 
 .input-container .underline {
@@ -1073,8 +1014,6 @@ body {
     align-items: center;
     margin-bottom: 20px;
 }
-
-
 
 
 /* bg animation */

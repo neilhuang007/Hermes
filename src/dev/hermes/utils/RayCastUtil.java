@@ -2,6 +2,7 @@ package dev.hermes.utils;
 
 
 import com.google.common.base.Predicates;
+import dev.hermes.Hermes;
 import dev.hermes.manager.RotationManager;
 import dev.hermes.utils.interfaces.InstanceAccess;
 import dev.hermes.utils.vector.Vector2f;
@@ -21,11 +22,12 @@ public final class RayCastUtil implements InstanceAccess {
         return rayCast(rotation, range, 0);
     }
 
+
     public static boolean inView(final Entity entity) {
         int renderDistance = 16 * mc.gameSettings.renderDistanceChunks;
 
         if (entity.threadDistance > 100 || !(entity instanceof EntityPlayer)) {
-            Vector2f rotations = RotationManager.calculate(entity);
+            Vector2f rotations = Hermes.rotationManager.calculate(entity);
 
             if (Math.abs(MathHelper.wrapAngleTo180_float(rotations.x) - MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw)) > mc.gameSettings.fovSetting) {
                 return false;
@@ -37,7 +39,7 @@ public final class RayCastUtil implements InstanceAccess {
             for (double yPercent = 1; yPercent >= -1; yPercent -= 0.5) {
                 for (double xPercent = 1; xPercent >= -1; xPercent -= 1) {
                     for (double zPercent = 1; zPercent >= -1; zPercent -= 1) {
-                        Vector2f subRotations = RotationManager.calculate(entity.getCustomPositionVector().add(
+                        Vector2f subRotations = Hermes.rotationManager.calculate(entity.getCustomPositionVector().add(
                                 (entity.getEntityBoundingBox().maxX - entity.getEntityBoundingBox().minX) * xPercent,
                                 (entity.getEntityBoundingBox().maxY - entity.getEntityBoundingBox().minY) * yPercent,
                                 (entity.getEntityBoundingBox().maxZ - entity.getEntityBoundingBox().minZ) * zPercent));

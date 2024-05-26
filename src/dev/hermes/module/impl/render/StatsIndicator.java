@@ -46,10 +46,10 @@ public class StatsIndicator extends Module {
         double startX = position.getValue().getX() + 10;
         double startY = position.getValue().getY() + 10;
 
-//        // Draw the column headers
-//        for (int i = 0; i < headers.length; i++) {
-//            RenderManager.drawString("header_" + i, headers[i], startX + i * 100, startY + 20); // Increased gap between categories
-//        }
+        // Draw the column headers
+        for (int i = 0; i < headers.length; i++) {
+//            RenderManager.drawText("header_" + i, startX + i * 100, startY + 20, headers[i], Color.BLACK); // Increased gap between categories
+        }
 
         // Draw each row of the spreadsheet
         for (int i = 0; i < playerNames.size(); i++) {
@@ -63,9 +63,9 @@ public class StatsIndicator extends Module {
                     String.valueOf(playerWins.get(playerName))
             };
 
-//            for (int j = 0; j < stats.length; j++) {
-//                RenderManager.drawString(playerName + "_stat_" + j, stats[j], startX + j * 70, startY + 40 + (i + 1) * 20); // Increased gap between categories
-//            }
+            for (int j = 0; j < stats.length; j++) {
+//                RenderManager.drawText(playerName + "_stat_" + j, stats[j], startX + j * 70, startY + 40 + (i + 1) * 20); // Increased gap between categories
+            }
         }
     }
 
@@ -84,5 +84,20 @@ public class StatsIndicator extends Module {
         playerWinLossRate.put("TestPlayer2", 1.8);
         playerFinalKills.put("TestPlayer2", 8);
         playerWins.put("TestPlayer2", 15);
+    }
+
+    public double getBedWarsLevel(int exp) {
+        int level = 100 * (exp / 487000);
+        exp = exp % 487000;
+        if(exp < 500) return level + (double)exp / 500;
+        level++;
+        if(exp < 1500) return level + (double)(exp - 500) / 1000;
+        level++;
+        if(exp < 3500) return level + (double)(exp - 1500) / 2000;
+        level++;
+        if(exp < 7000) return level + (double)(exp - 3500) / 3500;
+        level++;
+        exp -= 7000;
+        return level + (double)exp / 5000;
     }
 }

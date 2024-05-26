@@ -39,6 +39,7 @@ import org.lwjgl.util.glu.GLU;
 
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector4d;
+import javax.vecmath.Vector4f;
 import java.awt.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -95,8 +96,7 @@ public class ESP2D extends Module {
     private final DecimalFormat dFormat = new DecimalFormat("0.0");
 
     public static final ArrayList collectedEntities = new ArrayList();
-    private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)\u00a7[0-9A-FK-OR]");
-    private static final int[] DISPLAY_LISTS_2D = new int[4];
+    private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-OR]");
     private static final Frustum frustrum = new Frustum();
 
 
@@ -148,7 +148,6 @@ public class ESP2D extends Module {
         double scaling = (double)scaleFactor / Math.pow(scaleFactor, 2.0);
         GL11.glScaled(scaling, scaling, scaling);
         int black = this.black;
-        net.minecraft.client.renderer.entity.RenderManager renderMng = mc.getRenderManager();
         EntityRenderer entityRenderer = mc.entityRenderer;
         boolean outline = this.outline.getValue();
         boolean health = this.healthBar.getValue();
@@ -159,13 +158,12 @@ public class ESP2D extends Module {
             Entity entity = (Entity) collectedEntity;
             int color = this.getColor(entity).getRGB();
             if (!isInViewFrustrum(entity)) continue;
-            Vector4d position = ProjectionUtil.get(entity);
+            Vector4f position = ProjectionUtil.getEntityPositionsOn2D(entity, 1);
             entityRenderer.setupCameraTransform(partialTicks, 0);
-            if (position == null) continue;
-            double posX = position.x;
-            double posY = position.y;
-            double endPosX = position.z;
-            double endPosY = position.w;
+            double posX = position.getX();
+            double posY = position.getY();
+            double endPosX = position.getZ();
+            double endPosY = position.getW();
             entityRenderer.setupOverlayRendering();
             String entityName = entity.getName(); // Assuming 'entity' is the entity you're working with
             if (this.boxMode.getValue() == mode.Box) {
@@ -217,7 +215,6 @@ public class ESP2D extends Module {
                 if (EntityHealth > 0.0f) {
                     double totalheight = (endPosY - posY) * HealthRatio;
                     Color healthColor = getHealthColor(EntityHealth, MaxHealth);
-//                    RenderManager.rectangle(entityName + "_health_total",posX - 3.5, posY -0.5, 1.5, (endPosY - posY) * HealthRatio, healthColor);
                     double gap = 0.5; // Define the size of the gap between each health bar
                     double barheight = (endPosY - posY - gap*EntityHealth) / 20.0; // Define the height of each health bar
                     double yvalue = endPosY;
@@ -388,12 +385,8 @@ public class ESP2D extends Module {
     }
 
     public static int getRainbowOpaque(int seconds, float saturation, float brightness, int index) {
-        float hue = (float)((System.currentTimeMillis() + (long)index) % (long)(seconds * 1000L)) / (float)(seconds * 1000);
+        float hue = (float) ((System.currentTimeMillis() + (long) index) % (long) (seconds * 1000L)) / (float) (seconds * 1000);
         return Color.HSBtoRGB(hue, saturation, brightness);
-    }
-
-    public static double interpolate(double current, double old, double scale) {
-        return old + (current - old) * scale;
     }
 
     public static boolean isInViewFrustrum(Entity entity) {
@@ -518,10 +511,6 @@ public class ESP2D extends Module {
             mc.fontRendererObj.drawStringWithShadow(text2, 0.0f, 0.0f, -1);
         }
         GlStateManager.popMatrix();
-    }
-
-    private void drawScaledCenteredString(String text2, double x, double y, double scale) {
-        this.drawScaledString(text2, x - (double)((float)mc.fontRendererObj.getStringWidth(text2) / 2.0f) * scale, y, scale);
     }
 
     private void collectEntities() {

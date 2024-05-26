@@ -4,10 +4,7 @@ import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinUser;
 import dev.hermes.api.Hidden;
-import dev.hermes.manager.EventManager;
-import dev.hermes.manager.Manager;
-import dev.hermes.manager.ModuleManager;
-import dev.hermes.manager.RenderManager;
+import dev.hermes.manager.*;
 import dev.hermes.module.Module;
 import dev.hermes.server.HermesServer;
 import dev.hermes.ui.alt.account.AccountManager;
@@ -45,6 +42,8 @@ public class Hermes {
     public static ConfigManager configManager = new ConfigManager();
 
     public static RenderManager renderManager = new RenderManager();
+
+    public static RotationManager rotationManager = new RotationManager();
 
     public static ConfigFile configFile;
 
@@ -157,6 +156,8 @@ public class Hermes {
         configFile.read();
 
         renderManager.initwindow();
+
+        EventManager.register(rotationManager);
 
 
     }

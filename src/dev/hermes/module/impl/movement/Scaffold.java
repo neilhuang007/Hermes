@@ -20,10 +20,12 @@ import dev.hermes.utils.player.EnumFacingOffset;
 import dev.hermes.utils.player.PlayerUtil;
 import dev.hermes.utils.rotation.MovementFix;
 import dev.hermes.utils.vector.Vector2f;
+import dev.hermes.utils.vector.Vector3d;
 import net.minecraft.block.BlockAir;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C0APacketAnimation;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -34,7 +36,7 @@ import net.minecraft.util.Vec3;
  */
 
 @Hermes
-@ModuleInfo(name = "Scaffold", description = "aa", category = Category.PLAYER)
+@ModuleInfo(name = "Scaffold", description = "aa", category = Category.MOVEMENT)
 public class Scaffold extends Module {
 
     private final ModeValue mode = new ModeValue("Mode", this)
@@ -88,10 +90,8 @@ public class Scaffold extends Module {
         float rotationSpeed = (float) MathManager.getRandom(minRotationSpeed, maxRotationSpeed);
 
         if (rotationSpeed != 0) {
-//            System.out.println(mc.thePlayer.rotationYaw + " " + targetYaw + " " + targetPitch);
             RotationManager.setRotations(new Vector2f(targetYaw, targetPitch), rotationSpeed, MovementFix.OFF);
         }
-
 
     }
 
@@ -147,7 +147,8 @@ public class Scaffold extends Module {
             return;
         }
 
-        if (ticksOnAir >= MathManager.getRandom(placeDelay.getValue().intValue(), placeDelay.getSecondValue().intValue())) {
+        if(ticksOnAir > MathManager.getRandom(placeDelay.getValue().intValue(), placeDelay.getSecondValue().intValue()) &&
+                (RayCastUtil.overBlock(enumFacing.getEnumFacing(), blockFace, true)) ){
 
             Vec3 hitVec = this.getHitVec();
 
@@ -173,18 +174,21 @@ public class Scaffold extends Module {
     }
 
     public void getRotations(final float yawOffset) {
-        double calculatedyaw = RotationManager.calculate(targetBlock).x;
-        if(calculatedyaw == 180) {
-            calculatedyaw = 45;
-        }else if(calculatedyaw == 0) {
-            calculatedyaw = -45;
+        boolean found = false;
+        if (RayCastUtil.overBlock(new Vector2f(mc.thePlayer.rotationYaw - 180 + yawOffset, 82.5F), enumFacing.getEnumFacing(), blockFace, false)) {
+            targetYaw = mc.thePlayer.rotationYaw - 180 + yawOffset;
+            targetPitch = 80.5F;
+            found = true;
         }
 
-        System.out.println(calculatedyaw);
-        targetYaw = (float) Math.round(calculatedyaw / 45) * 45 - 180 + yawOffset;
+        if (!found) {
+            final Vector2f rotations = dev.hermes.Hermes.rotationManager.calculate(
+                    new Vector3d(blockFace.getX(), blockFace.getY(), blockFace.getZ()), enumFacing.getEnumFacing());
 
-//        targetYaw = (float) Math.round(mc.thePlayer.rotationYaw / 45) * 45 - 180 + yawOffset;
-        targetPitch = RotationManager.calculate(targetBlock).y;
+            // Round rotations.x to the nearest 45 degrees
+            targetYaw = Math.round(rotations.x / 45) * 45;
+            targetPitch = 80.5F;
+        }
     }
 
     public Vec3 getHitVec() {

@@ -613,6 +613,29 @@ public class RenderManager extends Manager{
 
     }
 
+    public static void drawText(String id, double x, double y, String text, java.awt.Color color, double fontSize) {
+        if(isopen){
+            Platform.runLater(() -> {
+                Text textNode = (Text) shapesMap.get(id);
+                if(textNode == null){
+                    textNode = new Text(text);
+                    textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
+                    textNode.setFill(convertColor(color));
+                    shapesMap.put(id, textNode);
+                    root.getChildren().add(textNode);
+                }else{
+                    textNode.setText(text);
+                    textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
+                    textNode.setFill(convertColor(color));
+                }
+
+                textNode.setX(x);
+                textNode.setY(y);
+            });
+        }
+
+    }
+
 
 
 

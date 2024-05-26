@@ -15,9 +15,6 @@ public class Manager extends ArrayList<Manager> implements InstanceAccess {
     public void registerToEventBus() {
         for (final Manager component : this) {
             EventManager.register(component);
-            if (component instanceof Manager) {
-                ((Manager) component).registerToEventBus();
-            }
         }
     }
 

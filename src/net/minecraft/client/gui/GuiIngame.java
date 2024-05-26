@@ -95,6 +95,7 @@ public class GuiIngame extends Gui
         ScaledResolution scaledresolution = new ScaledResolution(this.mc);
         int i = scaledresolution.getScaledWidth();
         int j = scaledresolution.getScaledHeight();
+
         this.mc.entityRenderer.setupOverlayRendering();
         GlStateManager.enableBlend();
 
@@ -156,6 +157,7 @@ public class GuiIngame extends Gui
         }
 
         GlStateManager.disableBlend();
+
 
         if (this.mc.thePlayer.getSleepTimer() > 0)
         {
@@ -282,8 +284,6 @@ public class GuiIngame extends Gui
         }
 
         Scoreboard scoreboard = this.mc.theWorld.getScoreboard();
-        EventRender2D event = new EventRender2D(partialTicks);
-        EventManager.call(event);
         ScoreObjective scoreobjective = null;
         ScorePlayerTeam scoreplayerteam = scoreboard.getPlayersTeam(this.mc.thePlayer.getName());
 
@@ -325,6 +325,8 @@ public class GuiIngame extends Gui
             this.overlayPlayerList.updatePlayerList(false);
         }
 
+        
+
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableLighting();
         GlStateManager.enableAlpha();
@@ -335,6 +337,8 @@ public class GuiIngame extends Gui
         if (this.mc.getRenderViewEntity() instanceof EntityPlayer)
         {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            EventRender2D event = new EventRender2D(partialTicks);
+            EventManager.call(event);
             this.mc.getTextureManager().bindTexture(widgetsTexPath);
             EntityPlayer entityplayer = (EntityPlayer)this.mc.getRenderViewEntity();
             int i = sr.getScaledWidth() / 2;

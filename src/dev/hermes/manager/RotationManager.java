@@ -21,8 +21,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
 @Hermes
-@UtilityClass
-public class RotationManager extends Manager{
+public final class RotationManager extends Manager{
 
     private static boolean active, smoothed;
     public static Vector2f rotations, lastRotations, targetRotations, lastServerRotations;
@@ -95,12 +94,11 @@ public class RotationManager extends Manager{
             event.setYaw(yaw);
             event.setPitch(pitch);
 
-//            mc.thePlayer.rotationYaw = yaw;
-//            mc.thePlayer.rotationPitch = pitch;
-
             mc.thePlayer.renderYawOffset = yaw;
             mc.thePlayer.rotationYawHead = yaw;
             mc.thePlayer.renderPitchHead = pitch;
+            mc.thePlayer.rotationPitch = pitch;
+
 
             lastServerRotations = new Vector2f(yaw, pitch);
 
@@ -257,7 +255,7 @@ public class RotationManager extends Manager{
         return calculate(new Vector3d(x, y, z));
     }
 
-    public Vector2f applySensitivityPatch(final Vector2f rotation) {
+    public static Vector2f applySensitivityPatch(final Vector2f rotation) {
         final Vector2f previousRotation = mc.thePlayer.getPreviousRotation();
         final float mouseSensitivity = (float) (mc.gameSettings.mouseSensitivity * (1 + Math.random() / 10000000) * 0.6F + 0.2F);
         final double multiplier = mouseSensitivity * mouseSensitivity * mouseSensitivity * 8.0F * 0.15D;
@@ -281,7 +279,7 @@ public class RotationManager extends Manager{
         return new Vector2f(yaw, pitch);
     }
 
-    public Vector2f resetRotation(final Vector2f rotation) {
+    public static Vector2f resetRotation(final Vector2f rotation) {
         if (rotation == null) {
             return null;
         }
