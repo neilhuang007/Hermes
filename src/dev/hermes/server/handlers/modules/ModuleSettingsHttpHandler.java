@@ -30,10 +30,16 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
                 for (final Value<?> setting : module.getAllValues()) {
                     JsonObject moduleSet = new JsonObject();
                     if (setting instanceof StringValue) {
+                        if (setting.getValue() != null && setting.getHideIf() != null && setting.getHideIf().getAsBoolean()) {
+                            continue;
+                        }
                         moduleSet.addProperty("name", setting.getName());
                         moduleSet.addProperty("type", "input");
                         moduleSet.addProperty("value", ((StringValue) setting).getValue());
                     } else if (setting instanceof NumberValue) {
+                        if (setting.getValue() != null && setting.getHideIf() != null && setting.getHideIf().getAsBoolean()) {
+                            continue;
+                        }
                         moduleSet.addProperty("name", setting.getName());
                         moduleSet.addProperty("type", "slider");
                         moduleSet.addProperty("min", ((NumberValue) setting).getMin().doubleValue());
@@ -42,6 +48,9 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
                         moduleSet.addProperty("value", ((NumberValue) setting).getValue().doubleValue());
                         moduleSet.addProperty("suffix", ((NumberValue) setting).getSuffix());
                     }else if (setting instanceof ModeValue) {
+                        if (setting.getValue() != null && setting.getHideIf() != null && setting.getHideIf().getAsBoolean()) {
+                            continue;
+                        }
                         moduleSet.addProperty("name", setting.getName());
                         moduleSet.addProperty("type", "mode");
                         JsonArray values = new JsonArray();
@@ -49,6 +58,9 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
                         moduleSet.add("values", values);
                         moduleSet.addProperty("value", URLUtil.encode(((ModeValue) setting).getValue().getName()));
                     } else if (setting instanceof ListValue) {
+                        if (setting.getValue() != null && setting.getHideIf() != null && setting.getHideIf().getAsBoolean()) {
+                            continue;
+                        }
                         moduleSet.addProperty("name", setting.getName());
                         moduleSet.addProperty("type", "radio");
                         moduleSet.addProperty("value",setting.getValue().toString());
@@ -56,10 +68,16 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
                         values.addAll(((ListValue<?>) setting).getSubValuesAsJson());
                         moduleSet.add("values", values);
                     } else if (setting instanceof BooleanValue) {
+                        if (setting.getValue() != null && setting.getHideIf() != null && setting.getHideIf().getAsBoolean()) {
+                            continue;
+                        }
                         moduleSet.addProperty("name", setting.getName());
                         moduleSet.addProperty("type", "checkbox");
                         moduleSet.addProperty("value", ((BooleanValue) setting).getValue());
                     } else if (setting instanceof BoundsNumberValue){
+                        if (setting.getValue() != null && setting.getHideIf() != null && setting.getHideIf().getAsBoolean()) {
+                            continue;
+                        }
                         moduleSet.addProperty("name", setting.getName());
                         moduleSet.addProperty("type", "range_slider");
                         moduleSet.addProperty("min", ((BoundsNumberValue) setting).getMin().doubleValue());
@@ -69,6 +87,9 @@ public class ModuleSettingsHttpHandler implements HttpHandler {
                         moduleSet.addProperty("maxvalue", ((BoundsNumberValue) setting).getSecondValue().doubleValue());
                         moduleSet.addProperty("suffix", ((BoundsNumberValue) setting).getSuffix());
                     } else if (setting instanceof ColorValue){
+                        if (setting.getValue() != null && setting.getHideIf() != null && setting.getHideIf().getAsBoolean()) {
+                            continue;
+                        }
                         moduleSet.addProperty("name", setting.getName());
                         moduleSet.addProperty("type", "color");
                         JsonArray Color = new JsonArray();

@@ -157,24 +157,20 @@ public class PlayerUtil implements InstanceAccess {
         final Entity entity = mc.getRenderViewEntity();
 
         if (entity != null && mc.theWorld != null) {
-            mc.mcProfiler.startSection("pick");
             pointedEntity = null;
-            double blockReachDistance = Reach;
-            mc.objectMouseOver = entity.rayTrace(blockReachDistance, partialTicks);
-            double distance = blockReachDistance;
             final Vec3 vec3 = entity.getPositionEyes(partialTicks);
 
-            if (mc.objectMouseOver != null) {
-                distance = mc.objectMouseOver.hitVec.distanceTo(vec3);
-            }
+//            if (mc.objectMouseOver != null) {
+//                distance = mc.objectMouseOver.hitVec.distanceTo(vec3);
+//            }
 
             final Vec3 vec31 = entity.getLook(partialTicks);
-            final Vec3 vec32 = vec3.addVector(vec31.xCoord * blockReachDistance, vec31.yCoord * blockReachDistance, vec31.zCoord * blockReachDistance);
+            final Vec3 vec32 = vec3.addVector(vec31.xCoord * Reach, vec31.yCoord * Reach, vec31.zCoord * Reach);
             pointedEntity = null;
             Vec3 vec33 = null;
             final float f = 1.0F;
-            final List<Entity> list = mc.theWorld.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().addCoord(vec31.xCoord * blockReachDistance, vec31.yCoord * blockReachDistance, vec31.zCoord * blockReachDistance), Predicates.and(EntitySelectors.NOT_SPECTATING, Entity::canBeCollidedWith));
-            double d2 = distance;
+            final List<Entity> list = mc.theWorld.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().addCoord(vec31.xCoord * Reach, vec31.yCoord * Reach, vec31.zCoord * Reach), Predicates.and(EntitySelectors.NOT_SPECTATING, Entity::canBeCollidedWith));
+            double d2 = Reach;
 
             for (final Entity entity1 : list) {
                 final float f1 = entity1.getCollisionBorderSize();
@@ -187,27 +183,11 @@ public class PlayerUtil implements InstanceAccess {
                     final double d3 = vec3.distanceTo(movingobjectposition.hitVec);
 
                     if (d3 < d2 || d2 == 0.0D) {
-                        boolean flag1 = false;
-
-                        if (Reflector.ForgeEntity_canRiderInteract.exists()) {
-                            flag1 = Reflector.callBoolean(entity1, Reflector.ForgeEntity_canRiderInteract);
-                        }
-
-                        if (!flag1 && entity1 == entity.ridingEntity) {
-                            if (d2 == 0.0D) {
-                                pointedEntity = entity1;
-                                vec33 = movingobjectposition.hitVec;
-                            }
-                        } else {
-                            pointedEntity = entity1;
-                            vec33 = movingobjectposition.hitVec;
-                            d2 = d3;
-                        }
+                        pointedEntity = entity1;
                     }
                 }
             }
 
-            mc.mcProfiler.endSection();
             return pointedEntity;
         }
         return null;

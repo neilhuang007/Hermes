@@ -13,6 +13,10 @@ public class PacketManager extends Manager{
         mc.getNetHandler().addToSendQueueUnregistered(packet);
     }
 
+    public void receiveNoEvent(final Packet<?> packet) {
+        mc.getNetHandler().addToReceiveQueueUnregistered(packet);
+    }
+
     private boolean isServerPacket(final Packet<?> packet) {
         return packet.toString().toCharArray()[34] == 'S';
     }

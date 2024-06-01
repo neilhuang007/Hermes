@@ -14,19 +14,20 @@ public class TransparentWindow extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        setTransparent("Hermes Renderer");
+        setTransparent(true,"Transparent Blurred Window");
     }
 
-    private static void setTransparent(String windowTitle) {
+    public static void setTransparent(boolean transparent, String windowTitle) {
         WinDef.HWND hwnd = User32.INSTANCE.FindWindow(null, windowTitle);
-        System.out.println(hwnd);
-        int extendedStyle = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_EXSTYLE);
-        int newExtendedStyle = extendedStyle | WinUser.WS_EX_LAYERED;
-        User32.INSTANCE.SetWindowLong(hwnd, WinUser.GWL_EXSTYLE, newExtendedStyle);
-        User32.INSTANCE.SetLayeredWindowAttributes(hwnd, 0x00000000, (byte) 0, WinUser.LWA_COLORKEY);
-        newExtendedStyle = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_EXSTYLE);
-        newExtendedStyle |= WinUser.WS_EX_TRANSPARENT;
-        User32.INSTANCE.SetWindowLong(hwnd, WinUser.GWL_EXSTYLE, newExtendedStyle);
+        int wl = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_EXSTYLE);
+        if (transparent) {
+            // 设置窗口为透明
+            wl |= WinUser.WS_EX_LAYERED | WinUser.WS_EX_TRANSPARENT;
+        } else {
+            // 清除透明样式，允许窗口接收绘制消息
+            wl &= ~(WinUser.WS_EX_LAYERED | WinUser.WS_EX_TRANSPARENT);
+        }
+        User32.INSTANCE.SetWindowLong(hwnd, WinUser.GWL_EXSTYLE, wl);
     }
 
 

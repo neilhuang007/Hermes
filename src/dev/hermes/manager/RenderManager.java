@@ -8,6 +8,8 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
+import javafx.scene.effect.Bloom;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -235,86 +237,23 @@ public class RenderManager extends Manager{
         });
     }
 
-    public static void setupGuiRefresher(GuiScreen guiScreen) {
-
-        TimerTask refresher = new TimerTask() {
-
-            @Override
-            public void run() {
-                if(isdrawinggui){
-                    guiScreen.drawScreen(Mouse.getX(),Mouse.getY(),mc.timer.renderPartialTicks);
-                }else {
-                    animationTimer.stop();
-                }
-            }
-        };
-        refresher.run();
-    }
-
-    public static void CloseOverlayGuiScreen(){
-        isdrawinggui = false;
-        buttonsMap.clear();
-    }
-
-    public static void createUIButton(String id, double x, double y, double width, double height, Runnable action) {
-        Platform.runLater(() -> {
-            Rectangle button = new Rectangle(x, y, width, height);
-            button.setFill(Color.TRANSPARENT); // Or any visually appropriate color
-
-            // Set an action to be performed when the rectangle is clicked
-            button.setOnMouseClicked(event -> {
-                System.out.println(id);
-                action.run(); // Execute the associated action
-            });
-
-            buttonsMap.put(id, button); // Optionally store the rectangle if needed for future reference
-            root.getChildren().add(button); // Add the rectangle to the scene
-        });
-    }
-
-
-
-
-
-    public static void roundedRectangle(String id, final double x, final double y, final double width, final double height, final double arcWidth, final double arcHeight, final Color color) {
-        if(isopen){
-            Platform.runLater(() -> {
-                ScaledResolution scaledResolution = new ScaledResolution(mc);
-                final double factor = scaledResolution.getScaleFactor();
-                Rectangle roundedRectangle = (Rectangle) shapesMap.get(id);
-
-                if (roundedRectangle == null) {
-                    roundedRectangle = new Rectangle(x * factor, y * factor, width * factor, height * factor);
-                    roundedRectangle.setArcWidth(arcWidth * factor);
-                    roundedRectangle.setArcHeight(arcHeight * factor);
-                    roundedRectangle.setFill(color);
-                    shapesMap.put(id, roundedRectangle);
-                    roundedRectangle.setMouseTransparent(true);
-                    root.getChildren().add(roundedRectangle);
-                } else {
-                    // Update properties for existing rectangle
-                    roundedRectangle.setX(x * factor);
-                    roundedRectangle.setY(y * factor);
-                    roundedRectangle.setWidth(width * factor);
-                    roundedRectangle.setHeight(height * factor);
-                    roundedRectangle.setArcWidth(arcWidth * factor);
-                    roundedRectangle.setArcHeight(arcHeight * factor);
-                    roundedRectangle.setFill(color);
-                }
-                modifiedidbuffer.add(id);
-
-            });
-        }
-    }
 
     public static void roundedRectangle(String id, final double x, final double y, final double width, final double height, final double arcWidth, final double arcHeight, final java.awt.Color color) {
+        roundedRectangle(id, x, y, width, height, arcWidth, arcHeight, color, false, false);
+    }
+
+
+
+    public static void roundedRectangle(String id, final double x, final double y, final double width, final double height, final double arcWidth, final double arcHeight, final java.awt.Color color,boolean blur, boolean bloom) {
         if(isopen){
             Platform.runLater(() -> {
                 ScaledResolution scaledResolution = new ScaledResolution(mc);
                 final double factor = scaledResolution.getScaleFactor();
                 Rectangle roundedRectangle = (Rectangle) shapesMap.get(id);
-
+                GaussianBlur blurEffect = new GaussianBlur();
+                Bloom bloomEffect = new Bloom();
                 Color fillcolor = convertColor(color);
+                blurEffect.setRadius(1000000);
                 if (roundedRectangle == null) {
                     roundedRectangle = new Rectangle(x * factor, y * factor, width * factor, height * factor);
                     roundedRectangle.setArcWidth(arcWidth * factor);
@@ -322,6 +261,12 @@ public class RenderManager extends Manager{
                     roundedRectangle.setFill(fillcolor);
                     shapesMap.put(id, roundedRectangle);
                     roundedRectangle.setMouseTransparent(true);
+                    if(blur){
+                        roundedRectangle.setEffect(blurEffect);
+                    }
+                    if(bloom){
+                        roundedRectangle.setEffect(bloomEffect);
+                    }
                     root.getChildren().add(roundedRectangle);
                 } else {
                     // Update properties for existing rectangle
@@ -332,6 +277,12 @@ public class RenderManager extends Manager{
                     roundedRectangle.setArcWidth(arcWidth * factor);
                     roundedRectangle.setArcHeight(arcHeight * factor);
                     roundedRectangle.setFill(fillcolor);
+                    if(blur){
+                        roundedRectangle.setEffect(blurEffect);
+                    }
+                    if(bloom){
+                        roundedRectangle.setEffect(bloomEffect);
+                    }
                 }
                 modifiedidbuffer.add(id);
             });
@@ -388,6 +339,44 @@ public class RenderManager extends Manager{
                     rect.setY(y * factor);
                     rect.setWidth(width * factor);
                     rect.setHeight(height * factor);
+                }
+                rect.setFill(convertColor(color));
+                modifiedidbuffer.add(id);
+            });
+        }
+
+    }
+
+    public static void rectangle(String id, final double x, final double y, final double width, final double height, final java.awt.Color color,boolean bloom, boolean Blur) {
+        if(isopen){
+            Platform.runLater(() -> {
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                final double factor = scaledResolution.getScaleFactor();
+                Rectangle rect = (Rectangle) shapesMap.get(id);
+                Bloom bloomEffect = new Bloom();
+                GaussianBlur blurEffect = new GaussianBlur();
+                if (rect == null) {
+                    rect = new Rectangle(x * factor, y * factor, width * factor, height * factor);
+                    shapesMap.put(id, rect);
+                    if(bloom){
+                        rect.setEffect(bloomEffect);
+                    }
+                    if(Blur){
+                        rect.setEffect(blurEffect);
+                    }
+                    rect.setMouseTransparent(true);
+                    root.getChildren().add(rect);
+                } else {
+                    rect.setX(x * factor);
+                    rect.setY(y * factor);
+                    rect.setWidth(width * factor);
+                    rect.setHeight(height * factor);
+                    if(bloom){
+                        rect.setEffect(bloomEffect);
+                    }
+                    if(Blur){
+                        rect.setEffect(blurEffect);
+                    }
                 }
                 rect.setFill(convertColor(color));
                 modifiedidbuffer.add(id);
@@ -506,97 +495,41 @@ public class RenderManager extends Manager{
         }
     }
 
-    public static void drawTextWithBox(String id, double x, double y, String text, javafx.scene.paint.Color backgroundcolor, javafx.scene.paint.Color textColor, double boxWidth, double boxHeight, double boxarc, double fontSize) {
-        if(isopen){
-            Platform.runLater(() -> {
-                Rectangle box = (Rectangle) shapesMap.get(id);
-                if(box == null){
-                    box = new Rectangle(boxWidth, boxHeight);
-                    box.setX(x);
-                    box.setY(y);
-                    box.setFill(backgroundcolor);
-                    box.setWidth(boxWidth);
-                    box.setHeight(boxHeight);
-                    box.setArcHeight(boxarc);
-                    box.setArcWidth(boxarc);
-                    shapesMap.put(id, box);
-                    box.setMouseTransparent(true);
-                    root.getChildren().add(box);
-                }else{
-                    box.setX(x);
-                    box.setY(y);
-                    box.setFill(backgroundcolor);
-                    box.setWidth(boxWidth);
-                    box.setHeight(boxHeight);
-                    box.setArcHeight(boxarc);
-                    box.setArcWidth(boxarc);
-                }
-
-                Text textNode = (Text) shapesMap.get(id + "_text");
-                if(textNode == null){
-                    textNode = new Text(text);
-                    textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
-                    textNode.setFill(textColor);
-                    shapesMap.put(id + "_text", textNode);
-                    root.getChildren().add(textNode);
-                }else{
-                    textNode.setText(text);
-                    textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
-                    textNode.setFill(textColor);
-                }
-
-                // Calculate position of the text within the box
-                double textX = x + (boxWidth - textNode.getBoundsInLocal().getWidth()) / 2;
-                double textY = y + (boxHeight - textNode.getBoundsInLocal().getHeight()) / 2 + fontSize; // Add fontSize to align to the bottom
-
-                // Position the text
-                textNode.setX(textX);
-                textNode.setY(textY);
-            });
-        }
-
+    public static void drawTextWithBox(String id, double x, double y, String text, java.awt.Color backgroundcolor, java.awt.Color textColor, double boxWidth, double boxHeight, double boxarc, double fontSize) {
+        drawTextWithBox(id, x, y, text, backgroundcolor, textColor, boxWidth, boxHeight, boxarc, fontSize, false, false);
     }
 
-    public static void drawTextWithBox(String id, double x, double y, String text, java.awt.Color backgroundcolor, java.awt.Color textColor, double boxWidth, double boxHeight, double boxarc, double fontSize) {
+    public static void drawTextWithBox(String id, double x, double y, String text, java.awt.Color backgroundcolor, java.awt.Color textColor, double boxWidth, double boxHeight, double boxarc, double fontSize, boolean blur, boolean bloom) {
         if(isopen){
             Color newbackgroundcolor = convertColor(backgroundcolor);
+            roundedRectangle(id+"_bgbox", x, y, boxWidth, boxHeight, boxarc, boxarc, backgroundcolor,blur,bloom);
             Platform.runLater(() -> {
-                Rectangle box = (Rectangle) shapesMap.get(id);
-                if(box == null){
-                    box = new Rectangle(boxWidth, boxHeight);
-                    box.setX(x);
-                    box.setY(y);
-                    box.setFill(newbackgroundcolor);
-                    box.setWidth(boxWidth);
-                    box.setHeight(boxHeight);
-                    box.setArcHeight(boxarc);
-                    box.setArcWidth(boxarc);
-                    shapesMap.put(id, box);
-                    box.setMouseTransparent(true);
-                    root.getChildren().add(box);
-                }else{
-                    box.setX(x);
-                    box.setY(y);
-                    box.setFill(newbackgroundcolor);
-                    box.setWidth(boxWidth);
-                    box.setHeight(boxHeight);
-                    box.setArcHeight(boxarc);
-                    box.setArcWidth(boxarc);
-                }
-
-
+                GaussianBlur blurEffect = new GaussianBlur();
+                Bloom bloomEffect = new Bloom();
                 Color newtextColor = convertColor(textColor);
                 Text textNode = (Text) shapesMap.get(id + "_text");
                 if(textNode == null){
                     textNode = new Text(text);
                     textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
                     textNode.setFill(newtextColor);
+                    if(blur){
+                        textNode.setEffect(blurEffect);
+                    }
+                    if(bloom){
+                        textNode.setEffect(bloomEffect);
+                    }
                     shapesMap.put(id + "_text", textNode);
                     root.getChildren().add(textNode);
                 }else{
                     textNode.setText(text);
                     textNode.setFont(javafx.scene.text.Font.font("Arial", fontSize));
                     textNode.setFill(newtextColor);
+                    if(blur){
+                        textNode.setEffect(blurEffect);
+                    }
+                    if(bloom){
+                        textNode.setEffect(bloomEffect);
+                    }
                 }
 
                 // Calculate position of the text within the box
@@ -606,7 +539,6 @@ public class RenderManager extends Manager{
                 // Position the text
                 textNode.setX(textX);
                 textNode.setY(textY);
-
 
             });
         }

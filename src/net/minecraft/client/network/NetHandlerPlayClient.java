@@ -568,6 +568,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         }
     }
 
+
+
     public void addToSendQueue(Packet p_147297_1_)
     {
         this.netManager.sendPacket(p_147297_1_);
@@ -578,6 +580,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
     }
 
 
+    public void addToReceiveQueueUnregistered(final Packet packet) {
+        this.netManager.receiveUnregisteredPacket(packet);
+    }
 
     public void handleCollectItem(S0DPacketCollectItem packetIn)
     {

@@ -175,6 +175,15 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
         }
     }
 
+    public void receiveUnregisteredPacket(final Packet packet) {
+        if (isChannelOpen()) {
+            try {
+                packet.processPacket(this.packetListener);
+            } catch (final ThreadQuickExitException var4) {
+            }
+        }
+    }
+
     public void sendPacketNoEvent(Packet packetIn)
     {
         if (this.isChannelOpen())

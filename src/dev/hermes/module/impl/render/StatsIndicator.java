@@ -9,8 +9,8 @@ import dev.hermes.module.api.Category;
 import dev.hermes.module.api.ModuleInfo;
 import dev.hermes.module.value.impl.DragValue;
 import dev.hermes.utils.vector.Vector2d;
-import javafx.scene.paint.Color;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +37,7 @@ public class StatsIndicator extends Module {
 
     @EventTarget
     public void onRender(EventRender3D event) {
-        RenderManager.roundedRectangle("statsoverlay_bg", position.getValue().getX(), position.getValue().getY(), 350, 200, 10,10,new Color(0, 0, 0, 0.2));
+        RenderManager.roundedRectangle("statsoverlay_bg", position.getValue().getX(), position.getValue().getY(), 350, 200, 10,10,new Color(0,0,0,10),true,true);
 
         // Define the column headers
         String[] headers = {"Player Name", "Stars", "FKDR", "WLR", "Final Kills", "Wins"};
@@ -48,7 +48,7 @@ public class StatsIndicator extends Module {
 
         // Draw the column headers
         for (int i = 0; i < headers.length; i++) {
-//            RenderManager.drawText("header_" + i, startX + i * 100, startY + 20, headers[i], Color.BLACK); // Increased gap between categories
+            RenderManager.drawText("header_" + i, startX + i * 100, startY + 20, headers[i], Color.BLACK,18); // Increased gap between categories
         }
 
         // Draw each row of the spreadsheet

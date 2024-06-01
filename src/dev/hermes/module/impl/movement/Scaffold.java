@@ -27,6 +27,7 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
@@ -98,7 +99,6 @@ public class Scaffold extends Module {
 
     @EventTarget
     public void onPreUpdate(EventUpdate event) {
-
         //Used to detect when to place a block, if over air, allow placement of blocks
         if (PlayerUtil.blockRelativeToPlayer(0, -1, 0) instanceof BlockAir) {
             ticksOnAir++;
@@ -147,8 +147,7 @@ public class Scaffold extends Module {
             return;
         }
 
-        if(ticksOnAir > MathManager.getRandom(placeDelay.getValue().intValue(), placeDelay.getSecondValue().intValue()) &&
-                (RayCastUtil.overBlock(enumFacing.getEnumFacing(), blockFace, true)) ){
+        if(ticksOnAir > MathManager.getRandom(placeDelay.getValue().intValue(), placeDelay.getSecondValue().intValue())){
 
             Vec3 hitVec = this.getHitVec();
 
@@ -175,20 +174,41 @@ public class Scaffold extends Module {
 
     public void getRotations(final float yawOffset) {
         boolean found = false;
-        if (RayCastUtil.overBlock(new Vector2f(mc.thePlayer.rotationYaw - 180 + yawOffset, 82.5F), enumFacing.getEnumFacing(), blockFace, false)) {
-            targetYaw = mc.thePlayer.rotationYaw - 180 + yawOffset;
-            targetPitch = 80.5F;
-            found = true;
-        }
-
-        if (!found) {
+//        if(PlayerUtil.blockRelativeToPlayer(0, -1, 0) instanceof BlockAir){
+//            if (RayCastUtil.overBlock(new Vector2f(Math.round((mc.thePlayer.rotationYaw - 180 + yawOffset) / 45) * 45, 78.1F), enumFacing.getEnumFacing(), blockFace, true)) {
+//                targetYaw = mc.thePlayer.rotationYaw - 180 + yawOffset;
+//                targetYaw = Math.round(targetYaw / 45) * 45;
+//                targetPitch = 78.1F;
+//                found = true;
+//            }
+//
+//            if (!found) {
+//                final Vector2f rotations = dev.hermes.Hermes.rotationManager.calculate(
+//                        new Vector3d(blockFace.getX(), blockFace.getY(), blockFace.getZ()), enumFacing.getEnumFacing());
+//                System.out.println("block to place x y z" + blockFace.getX() + " " + blockFace.getY() + " " + blockFace.getZ() + "enumfacing" + enumFacing.getEnumFacing());
+//                System.out.println(rotations.x + " " + rotations.y);
+//                // Round rotations.x to the nearest 45 degrees
+//                targetYaw = Math.round(rotations.x / 45) * 45;
+////            targetYaw = rotations.x;
+//                targetPitch = 78.1F;
+//            }
+//        }else{
+//            found = true;
+//            // target yaw and pitch stays the same
+//        }
+        if(PlayerUtil.blockRelativeToPlayer(0, -1, 0) instanceof BlockAir && ticksOnAir > placeDelay.getValue().intValue()){
             final Vector2f rotations = dev.hermes.Hermes.rotationManager.calculate(
                     new Vector3d(blockFace.getX(), blockFace.getY(), blockFace.getZ()), enumFacing.getEnumFacing());
-
-            // Round rotations.x to the nearest 45 degrees
-            targetYaw = Math.round(rotations.x / 45) * 45;
-            targetPitch = 80.5F;
+            System.out.println("block to place x y z" + blockFace.getX() + " " + blockFace.getY() + " " + blockFace.getZ() + "enumfacing" + enumFacing.getEnumFacing());
+            System.out.println(rotations.x + " " + rotations.y);
+            targetYaw = MathHelper.wrapAngleTo180_float(Math.round(rotations.x / 45) * 45 + yawOffset);
+            targetPitch = 78.1F;
+            System.out.println("calculated cordinates");
+        }else{
+            found = true;
+            // target yaw and pitch stays the same
         }
+
     }
 
     public Vec3 getHitVec() {

@@ -42,7 +42,7 @@ public class TimerUtil {
         return System.currentTimeMillis() - delay >= startTime;
     }
 
-    public static void resetTimer() {
+    public void resetTimer() {
         // Stop and restart the timer to reset
         stopTimer();
         startTimer();

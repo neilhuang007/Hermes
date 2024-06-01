@@ -3,6 +3,7 @@ package dev.hermes.manager;
 import dev.hermes.api.Hermes;
 import dev.hermes.event.EventTarget;
 import dev.hermes.event.events.impl.Motion.EventPreMotion;
+import dev.hermes.event.events.impl.Movement.EventMovementInput;
 import dev.hermes.event.events.impl.Movement.EventStrafe;
 import dev.hermes.event.events.impl.world.EventUpdate;
 import dev.hermes.utils.RayCastUtil;
@@ -51,8 +52,6 @@ public final class RotationManager extends Manager{
             smooth(lastRotations, targetRotations, rotationSpeed);
         }
 
-//        mc.thePlayer.rotationYaw = rotations.x;
-//        mc.thePlayer.rotationPitch = rotations.y;
 
         if (correctMovement == MovementFix.BACKWARDS_SPRINT && active) {
             if (Math.abs(rotations.x - Math.toDegrees(MovementManager.direction())) > 45) {
@@ -61,21 +60,6 @@ public final class RotationManager extends Manager{
             }
         }
     };
-
-
-//    @EventTarget
-//    public void onMove(EventMovementInput event){
-//
-//        if (active && correctMovement == MovementFix.NORMAL && rotations != null) {
-//            /*
-//             * Calculating movement fix
-//             */
-//            final float yaw = rotations.x;
-//            MovementManager.fixMovement(event, yaw);
-//        }
-//    };
-
-
 
     @EventTarget
     public void onStrafe(EventStrafe event){
@@ -97,7 +81,6 @@ public final class RotationManager extends Manager{
             mc.thePlayer.renderYawOffset = yaw;
             mc.thePlayer.rotationYawHead = yaw;
             mc.thePlayer.renderPitchHead = pitch;
-            mc.thePlayer.rotationPitch = pitch;
 
 
             lastServerRotations = new Vector2f(yaw, pitch);
@@ -123,6 +106,31 @@ public final class RotationManager extends Manager{
 
         mc.thePlayer.rotationYaw = fixedRotations.x;
         mc.thePlayer.rotationPitch = fixedRotations.y;
+    }
+
+    public static void smooth() {
+        if (!smoothed) {
+            final float lastYaw = lastRotations.x;
+            final float lastPitch = lastRotations.y;
+            final float targetYaw = targetRotations.x;
+            final float targetPitch = targetRotations.y;
+
+            rotations = RotationManager.smoothrotations(new Vector2f(lastYaw, lastPitch), new Vector2f(targetYaw, targetPitch),
+                    rotationSpeed + Math.random());
+
+            if (correctMovement == MovementFix.NORMAL || correctMovement == MovementFix.TRADITIONAL) {
+                mc.thePlayer.movementYaw = rotations.x;
+            }
+
+            mc.thePlayer.velocityYaw = rotations.x;
+        }
+
+        smoothed = true;
+
+        /*
+         * Updating MouseOver
+         */
+        mc.entityRenderer.getMouseOver(1);
     }
 
     public static void smooth(final Vector2f lastRotation, final Vector2f targetRotation, final double speed) {
@@ -174,6 +182,7 @@ public final class RotationManager extends Manager{
         rotations = new Vector2f(yaw, pitch);
     }
 
+
     public static double[] getDistance(double x, double z, double y) {
         final double distance = MathHelper.sqrt_double(x * x + z * z), // @off
                 yaw = Math.atan2(z, x) * 180.0D / Math.PI - 90.0F,
@@ -197,9 +206,14 @@ public final class RotationManager extends Manager{
 
     public Vector2f calculate(final Vector3d from, final Vector3d to) {
         final Vector3d diff = to.subtract(from);
-        final double distance = Math.hypot(diff.getX(), diff.getZ());
-        final float yaw = (float) (MathHelper.atan2(diff.getZ(), diff.getX()) * MathConst.TO_DEGREES) - 90.0F;
-        final float pitch = (float) (-(MathHelper.atan2(diff.getY(), distance) * MathConst.TO_DEGREES));
+        final double diffX = diff.getX();
+        final double diffY = diff.getY();
+        final double diffZ = diff.getZ();
+        final double distance = Math.sqrt(diffX * diffX + diffZ * diffZ);
+
+        final float yaw = (float) ((Math.atan2(diffZ, diffX) * 180.0D / Math.PI) - 90.0F);
+        final float pitch = (float) (-(Math.atan2(diffY, distance) * 180.0D / Math.PI));
+
         return new Vector2f(yaw, pitch);
     }
 
@@ -286,6 +300,55 @@ public final class RotationManager extends Manager{
 
         final float yaw = rotation.x + MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - rotation.x);
         final float pitch = mc.thePlayer.rotationPitch;
+        return new Vector2f(yaw, pitch);
+    }
+
+    public static Vector2f smoothrotations(final Vector2f lastRotation, final Vector2f targetRotation, final double speed) {
+        float yaw = targetRotation.x;
+        float pitch = targetRotation.y;
+        final float lastYaw = lastRotation.x;
+        final float lastPitch = lastRotation.y;
+
+        if (speed != 0) {
+            final float rotationSpeed = (float) speed;
+
+            final double deltaYaw = MathHelper.wrapAngleTo180_float(targetRotation.x - lastRotation.x);
+            final double deltaPitch = pitch - lastPitch;
+
+            final double distance = Math.sqrt(deltaYaw * deltaYaw + deltaPitch * deltaPitch);
+            final double distributionYaw = Math.abs(deltaYaw / distance);
+            final double distributionPitch = Math.abs(deltaPitch / distance);
+
+            final double maxYaw = rotationSpeed * distributionYaw;
+            final double maxPitch = rotationSpeed * distributionPitch;
+
+            final float moveYaw = (float) Math.max(Math.min(deltaYaw, maxYaw), -maxYaw);
+            final float movePitch = (float) Math.max(Math.min(deltaPitch, maxPitch), -maxPitch);
+
+            yaw = lastYaw + moveYaw;
+            pitch = lastPitch + movePitch;
+
+            for (int i = 1; i <= (int) (Minecraft.getDebugFPS() / 20f + Math.random() * 10); ++i) {
+
+                if (Math.abs(moveYaw) + Math.abs(movePitch) > 1) {
+                    yaw += (Math.random() - 0.5) / 1000;
+                    pitch -= Math.random() / 200;
+                }
+
+                /*
+                 * Fixing GCD
+                 */
+                final Vector2f rotations = new Vector2f(yaw, pitch);
+                final Vector2f fixedRotations = RotationManager.applySensitivityPatch(rotations);
+
+                /*
+                 * Setting rotations
+                 */
+                yaw = fixedRotations.x;
+                pitch = Math.max(-90, Math.min(90, fixedRotations.y));
+            }
+        }
+
         return new Vector2f(yaw, pitch);
     }
 
