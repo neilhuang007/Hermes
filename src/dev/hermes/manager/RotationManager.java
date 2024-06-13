@@ -16,10 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 
 @Hermes
 public final class RotationManager extends Manager{
@@ -209,13 +206,30 @@ public final class RotationManager extends Manager{
         final double diffX = diff.getX();
         final double diffY = diff.getY();
         final double diffZ = diff.getZ();
-        final double distance = Math.sqrt(diffX * diffX + diffZ * diffZ);
-
-        final float yaw = (float) ((Math.atan2(diffZ, diffX) * 180.0D / Math.PI) - 90.0F);
-        final float pitch = (float) (-(Math.atan2(diffY, distance) * 180.0D / Math.PI));
-
+//        final double distance = Math.sqrt(diffX * diffX + diffZ * diffZ);
+//
+//        final float yaw = (float) ((Math.atan2(diffZ, diffX) * 180.0D / Math.PI) - 90.0F);
+//        final float pitch = (float) (-(Math.atan2(diffY, distance) * 180.0D / Math.PI));
+//
+//        return new Vector2f(yaw, pitch);
+        float yaw = (float) (from.getX() + MathHelper.wrapAngleTo180_float((float) ((float)(Math.atan2(diffZ, diffX) * 57.295780181884766) - 90.0f - from.getX())));
+        float pitch = clamp((float) (from.getY() + MathHelper.wrapAngleTo180_float((float) ((float)(-(Math.atan2(diffY, MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ)) * 57.295780181884766)) - from.getY()))));
         return new Vector2f(yaw, pitch);
     }
+
+    public static float clamp(final float n) {
+        return MathHelper.clamp_float(n, -90.0f, 90.0f);
+    }
+
+    public Vector2f getRotationstoblock(final BlockPos blockPos) {
+        final double n = blockPos.getX() + 0.45 - mc.thePlayer.posX;
+        final double n2 = blockPos.getY() + 0.45 - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
+        final double n3 = blockPos.getZ() + 0.45 - mc.thePlayer.posZ;
+        float yaw = mc.thePlayer.rotationYaw + MathHelper.wrapAngleTo180_float((float)(Math.atan2(n3, n) * 57.295780181884766) - 90.0f - mc.thePlayer.rotationYaw);
+        float pitch = clamp(mc.thePlayer.rotationPitch + MathHelper.wrapAngleTo180_float((float)(-(Math.atan2(n2, MathHelper.sqrt_double(n * n + n3 * n3)) * 57.295780181884766)) - mc.thePlayer.rotationPitch));
+        return new Vector2f(yaw, pitch);
+    }
+
 
     public Vector2f calculate(final Entity entity) {
         return calculate(entity.getCustomPositionVector().add(0, Math.max(0, Math.min(mc.thePlayer.posY - entity.posY +

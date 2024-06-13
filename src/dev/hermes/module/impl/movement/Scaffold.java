@@ -59,13 +59,14 @@ public class Scaffold extends Module {
     private Vec3 targetBlock;
     private EnumFacingOffset enumFacing;
     private BlockPos blockFace;
-    private float targetYaw, targetPitch;
+    private float targetYaw = -1;
+    private float targetPitch = -1;
     private int ticksOnAir;
     private double startY;
 
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         startY = Math.floor(mc.thePlayer.posY);
         targetBlock = null;
     }
@@ -77,7 +78,6 @@ public class Scaffold extends Module {
 
     @EventTarget
     public void onPacketReceive(EventReceivePacket event) {
-
         final Packet<?> packet = event.getPacket();
     };
 
@@ -91,7 +91,9 @@ public class Scaffold extends Module {
         float rotationSpeed = (float) MathManager.getRandom(minRotationSpeed, maxRotationSpeed);
 
         if (rotationSpeed != 0) {
-            RotationManager.setRotations(new Vector2f(targetYaw, targetPitch), rotationSpeed, MovementFix.OFF);
+            if(!(targetYaw == -1 || targetPitch == -1)){
+                RotationManager.setRotations(new Vector2f(targetYaw, targetPitch), rotationSpeed, MovementFix.OFF);
+            }
         }
 
     }
@@ -174,36 +176,14 @@ public class Scaffold extends Module {
 
     public void getRotations(final float yawOffset) {
         boolean found = false;
-//        if(PlayerUtil.blockRelativeToPlayer(0, -1, 0) instanceof BlockAir){
-//            if (RayCastUtil.overBlock(new Vector2f(Math.round((mc.thePlayer.rotationYaw - 180 + yawOffset) / 45) * 45, 78.1F), enumFacing.getEnumFacing(), blockFace, true)) {
-//                targetYaw = mc.thePlayer.rotationYaw - 180 + yawOffset;
-//                targetYaw = Math.round(targetYaw / 45) * 45;
-//                targetPitch = 78.1F;
-//                found = true;
-//            }
-//
-//            if (!found) {
-//                final Vector2f rotations = dev.hermes.Hermes.rotationManager.calculate(
-//                        new Vector3d(blockFace.getX(), blockFace.getY(), blockFace.getZ()), enumFacing.getEnumFacing());
-//                System.out.println("block to place x y z" + blockFace.getX() + " " + blockFace.getY() + " " + blockFace.getZ() + "enumfacing" + enumFacing.getEnumFacing());
-//                System.out.println(rotations.x + " " + rotations.y);
-//                // Round rotations.x to the nearest 45 degrees
-//                targetYaw = Math.round(rotations.x / 45) * 45;
-////            targetYaw = rotations.x;
-//                targetPitch = 78.1F;
-//            }
-//        }else{
-//            found = true;
-//            // target yaw and pitch stays the same
-//        }
-        if(PlayerUtil.blockRelativeToPlayer(0, -1, 0) instanceof BlockAir && ticksOnAir > placeDelay.getValue().intValue()){
+        if(PlayerUtil.blockRelativeToPlayer(0, -1, 0) instanceof BlockAir){
             final Vector2f rotations = dev.hermes.Hermes.rotationManager.calculate(
                     new Vector3d(blockFace.getX(), blockFace.getY(), blockFace.getZ()), enumFacing.getEnumFacing());
-            System.out.println("block to place x y z" + blockFace.getX() + " " + blockFace.getY() + " " + blockFace.getZ() + "enumfacing" + enumFacing.getEnumFacing());
-            System.out.println(rotations.x + " " + rotations.y);
-            targetYaw = MathHelper.wrapAngleTo180_float(Math.round(rotations.x / 45) * 45 + yawOffset);
+            final Vector2f calc = dev.hermes.Hermes.rotationManager.getRotationstoblock(new BlockPos(blockFace.getX(), blockFace.getY(), blockFace.getZ()));
+            System.out.println(calc.x + " " + rotations.x);
+//            targetYaw = rotations.x;
+            targetYaw = calc.x;
             targetPitch = 78.1F;
-            System.out.println("calculated cordinates");
         }else{
             found = true;
             // target yaw and pitch stays the same
